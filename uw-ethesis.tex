@@ -254,14 +254,30 @@ This section should mainly explore type erasure and how it relates to the variou
 %======================================================================
 \chapter{Implementation}
 
+Outline of what should go into the implementation section
 
-\section{Specialization}
+Needs a running example (Checksum?). If want to showcase class specialization, maybe a simpler data structure than a hashmap (maybe hashset?). 
 
-\subsection{Terms}
+\begin{itemize}
+	\item TastyTruffle IR and how it handles
+	\begin{itemize}
+		\item Read/write specialization
+		\begin{itemize}
+			\item Boxing/unboxing and virtual frames
+		\end{itemize}
+		\item CallTargets and Virtual dispatch 
+		\item Overriding?
+		\item Type reification
+		\item Object model (if we talk about class specialization)
+	\end{itemize}
+	\item Specialization of methods
+	\begin{itemize}
+		\item Type checks/dispatch
+		\item Partial evaluation	
+		\item Code duplication
+	\end{itemize}
+\end{itemize}
 
-\subsection{Methods}
-
-\subsection{Classes}
 %======================================================================
 
 \chapter{Evaluation}
