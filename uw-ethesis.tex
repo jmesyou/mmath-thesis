@@ -124,6 +124,20 @@
 }{} % end of ifthenelse (no else)
 
 \usepackage[automake,toc,abbreviations]{glossaries-extra} % Exception to the rule of hyperref being the last add-on package
+
+\usepackage{minted}
+
+\setminted[scala]{
+	linenos,
+	style=borland,
+	obeytabs=true,
+	tabsize=4,
+	fontsize=\footnotesize,
+	frame=lines,
+	framesep=4mm,
+	numbersep=-10pt,
+}
+
 % If glossaries-extra is not in your LaTeX distribution, get it from CTAN (http://ctan.org/pkg/glossaries-extra), 
 % although it's supposed to be in both the TeX Live and MikTeX distributions. There are also documentation and 
 % installation instructions there.
@@ -190,17 +204,27 @@ description={A person of supposed average intelligence who makes incredibly brai
 }
 
 % List of Abbreviations (abbreviations type is built in to the glossaries-extra package)
-\newabbreviation{aaaaz}{AAAAZ}{American Association of Amature Astronomers and Zoologists}
+\newabbreviation{tasty}{TASTy}{Typed Abstract Syntax Tree}
+\newabbreviation{ir}{IR}{Intermediate Representation}
 
 % List of Symbols
 \newglossary*{symbols}{List of Symbols}
-\newglossaryentry{rvec}
+\newglossaryentry{phi}
 {
-name={$\mathbf{v}$},
+name={$\phi$},
 sort={label},
 type=symbols,
-description={Random vector: a location in n-dimensional Cartesian space, where each dimensional component is determined by a random process}
+description={Phi node}
 }
+
+\newglossaryentry{pi}
+{
+	name={$\pi$},
+	sort={label},
+	type=symbols,
+	description={Pi node}
+}
+
  
 \makeglossaries
 
@@ -244,6 +268,8 @@ This section should mainly explore type erasure and how it relates to the variou
 
 \subsection{Scala Typed Abstract Syntax Trees}
 
+\subsection{GraalVM Intermediate Representation}
+
 \section{Managed Runtimes}
 
 \subsection{Type Erasure}
@@ -252,38 +278,17 @@ This section should mainly explore type erasure and how it relates to the variou
 
 
 %======================================================================
-\chapter{Implementation}
 
-Outline of what should go into the implementation section
-
-Needs a running example (Checksum?). If want to showcase class specialization, maybe a simpler data structure than a hashmap (maybe hashset?). 
-
-\begin{itemize}
-	\item TastyTruffle IR and how it handles
-	\begin{itemize}
-		\item Read/write specialization
-		\begin{itemize}
-			\item Boxing/unboxing and virtual frames
-		\end{itemize}
-		\item CallTargets and Virtual dispatch 
-		\item Overriding?
-		\item Type reification
-		\item Object model (if we talk about class specialization)
-	\end{itemize}
-	\item Specialization of methods
-	\begin{itemize}
-		\item Type checks/dispatch
-		\item Partial evaluation	
-		\item Code duplication
-	\end{itemize}
-\end{itemize}
+\include{sections/implementation.tex}
 
 %======================================================================
 
 \chapter{Evaluation}
 
 %======================================================================
+
 \chapter{Related Work}
+
 %======================================================================
 
 
