@@ -2,7 +2,10 @@
 
 \section{TastyTruffle Intermediate Representation}
 
-As Scala programs in \acrshort{tasty} format are unsuitable for execution in a Truffle interpreter, programs in TASTy must be parsed and transformed into an executable intermediate representation in \textsc{TastyTruffle}. The following sections will introduce the nodes in TastyTruffle IR and how they are derived from Scala source and TASTy.
+Scala programs in \acrshort{tasty} format are unsuitable for execution in a Truffle interpreter. Programs in must be parsed and transformed into an executable representation in \textsc{TastyTruffle}. As TASTy represents a Scala program close to its equivalent source representation, the transformation of TASTy IR into TastyTruffle IR is not isomorphic. 
+TastyTruffle IR represents a canonicalized executable intermediate representation which can be specialized on demand. 
+
+The following sections will introduce the nodes in TastyTruffle IR and how they are derived from Scala source and TASTy.
 
 TODO: insert TASTy tree diagrams.
 
@@ -10,7 +13,11 @@ TODO: insert TASTy tree diagrams.
 
 \subsection{Read and Write Nodes}
 
-\subsubsection{\mintinline{scala}|(x: )|}
+The retrieval and storage of values in TastyTruffle IR can be divided into the 
+
+access or assignment to a local variable, access or assignment to a 
+
+\subsubsection{\mintinline{scala}|(x: T)|}
 
 \subsection{Control Flow Nodes}
 
@@ -50,13 +57,45 @@ Cover the types of specializable terms.
 
 \section{Specializing Methods}
 
-\subsection{Code Path Duplication}
-
 \subsection{Typed Dispatch}
+
+\begin{figure}[H]
+	\begin{minted}{scala}
+		def checksum(T: Type, data: Array[T]): Int = 
+			if (T == Int)
+				return checksum$Int(data.asInstanceOf[Array[Int]])
+			 
+			val sum: Int = 0
+			var index: Int = 0
+			while (index < data.length) {
+				val sum += data[i].##
+				index += 1
+			}
+			return sum	
+		}
+	\end{minted}
+\end{figure}
+
+\subsection{Code Duplication}
+
+Specialized method for checksum
+\begin{figure}[H]
+	\begin{minted}{scala}
+		def checksum$Int(data: Array[Int]): Int = {
+			val sum: Int = 0
+			var index: Int = 0
+			while (index < data.length) {
+				val sum += data[i] // hash code is identity for int
+				index += 1
+			}
+			return sum	
+		}
+	\end{minted}
+\end{figure}
+
 
 \subsection{Partial Evaluation}
 
-Use pseudocode example to show partial evaluation? Algorithm? GraalIR?
 
 \begin{figure}
 	\centering
