@@ -132,11 +132,19 @@
 	style=borland,
 	obeytabs=true,
 	tabsize=4,
-	fontsize=\footnotesize,
+	fontsize=\scriptsize,
 	frame=lines,
 	framesep=4mm,
 	numbersep=-10pt,
+	escapeinside=``
 }
+\setmintedinline{
+	fontsize=\normalsize
+}
+
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{epigraph}
 
 % If glossaries-extra is not in your LaTeX distribution, get it from CTAN (http://ctan.org/pkg/glossaries-extra), 
 % although it's supposed to be in both the TeX Live and MikTeX distributions. There are also documentation and 
@@ -275,7 +283,6 @@ This section should mainly explore type erasure and how it relates to the variou
 \subsection{Type Erasure}
 
 \subsection{Just-in-time Compilation}
-
 
 %======================================================================
 
