@@ -1,28 +1,33 @@
-% Bibliography of key references for "LaTeX for Thesis and Large Documents"
-% For use with BibTeX
 
-@book{goossens.book,
-	author =	"Michel Goossens and Frank Mittelbach and 
-			 Alexander Samarin",
-	title =		"The \LaTeX\ Companion",
-	year = 		"1994",
-	publisher =	"Addison-Wesley",
-	address = 	"Reading, Massachusetts"
+@misc{scala:lang-spec,
+	title = {Scala {Language} {Specification} {\textbar} {Scala} 2.13},
+	url = {https://scala-lang.org/files/archive/spec/2.13/},
+	urldate = {2022-07-16},
 }
 
-@book{knuth.book,
-        author =        "Donald Knuth",
-        title =         "The \TeX book",
-        year =          "1986",
-        publisher =     "Addison-Wesley",
-        address =       "Reading, Massachusetts"
+@inproceedings{truffle:pe,
+	author = {W\"{u}rthinger, Thomas and Wimmer, Christian and Humer, Christian and W\"{o}\ss{}, Andreas and Stadler, Lukas and Seaton, Chris and Duboscq, Gilles and Simon, Doug and Grimmer, Matthias},
+	title = {Practical Partial Evaluation for High-Performance Dynamic Language Runtimes},
+	year = {2017},
+	isbn = {9781450349888},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3062341.3062381},
+	doi = {10.1145/3062341.3062381},
+	abstract = {Most high-performance dynamic language virtual machines duplicate language semantics in the interpreter, compiler, and runtime system. This violates the principle to not repeat yourself. In contrast, we define languages solely by writing an interpreter. The interpreter performs specializations, e.g., augments the interpreted program with type information and profiling information. Compiled code is derived automatically using partial evaluation while incorporating these specializations. This makes partial evaluation practical in the context of dynamic languages: It reduces the size of the compiled code while still compiling all parts of an operation that are relevant for a particular program. When a speculation fails, execution transfers back to the interpreter, the program re-specializes in the interpreter, and later partial evaluation again transforms the new state of the interpreter to compiled code. We evaluate our approach by comparing our implementations of JavaScript, Ruby, and R with best-in-class specialized production implementations. Our general-purpose compilation system is competitive with production systems even when they have been heavily optimized for the one language they support. For our set of benchmarks, our speedup relative to the V8 JavaScript VM is 0.83x, relative to JRuby is 3.8x, and relative to GNU R is 5x.},
+	booktitle = {Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+	pages = {662–676},
+	numpages = {15},
+	keywords = {language implementation, optimization, partial evaluation, virtual machine, dynamic languages},
+	location = {Barcelona, Spain},
+	series = {PLDI 2017}
 }
 
-@book{lamport.book,
-	author =        "Leslie Lamport",
-	title =         "\LaTeX\ --- A Document Preparation System",
-        edition =       "Second",
-	year = 		"1994",
-	publisher = 	"Addison-Wesley",
-	address =       "Reading, Massachusetts"
+@article{mechanical-eval-of-exprs,
+	title={The Mechanical Evaluation of Expressions},
+	author={Peter J. Landin},
+	journal={Comput. J.},
+	year={1964},
+	volume={6},
+	pages={308-320}
 }
