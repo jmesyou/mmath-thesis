@@ -1,11 +1,12 @@
-
-@misc{scala:lang-spec,
-	title = {Scala {Language} {Specification} {\textbar} {Scala} 2.13},
-	url = {https://scala-lang.org/files/archive/spec/2.13/},
-	urldate = {2022-07-16},
+@book{java:vm-spec,
+	title={The Java Virtual Machine Specification, Java SE 7 Edition: Java Virt Mach Spec Java\_3},
+	author={Lindholm, Tim and Yellin, Frank and Bracha, Gilad and Buckley, Alex},
+	year={2013},
+	publisher={Addison-Wesley}
 }
 
-@inproceedings{truffle:pe,
+
+@inproceedings{truffle:partial-eval,
 	author = {W\"{u}rthinger, Thomas and Wimmer, Christian and Humer, Christian and W\"{o}\ss{}, Andreas and Stadler, Lukas and Seaton, Chris and Duboscq, Gilles and Simon, Doug and Grimmer, Matthias},
 	title = {Practical Partial Evaluation for High-Performance Dynamic Language Runtimes},
 	year = {2017},
@@ -23,6 +24,21 @@
 	series = {PLDI 2017}
 }
 
+
+@phdthesis{truffle:thesis,
+	address = {Linz, Austria},
+	title = {Truffle {DSL}: {A} {DSL} for {Building} {Self}-{Optimizing} {AST} {Interpreters}},
+	shorttitle = {Truffle {DSL}},
+	abstract = {Self-optimizing AST interpreters dynamically adapt to the provided input for faster execution. This adaptation includes initial tests of the input, changes to AST nodes, and insertion of guards which ensure that assumptions still hold. Such specialization and speculation are essential for the performance of dynamic programming languages such as JavaScript, Ruby, and R. This thesis describes a declarative domain-speciﬁc language (DSL) that greatly simpliﬁes writing self-optimizing AST interpreters. The DSL supports specialization of operations based on types of the input arguments and other properties. The declared specializations are ﬂexible enough to express inline caches, a cornerstone of modern compiler optimizations.},
+	language = {en},
+	school = {Johannes Kepler University Linz},
+	author = {Humer, Christian},
+	year = {2016},
+	note = {Publisher: Unpublished},
+	file = {Humer - 2016 - Truffle DSL.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/RI3VMB8S/Humer - 2016 - Truffle DSL A DSL for Building Self-Optimizing AS.pdf:application/pdf},
+}
+
+
 @article{mechanical-eval-of-exprs,
 	title={The Mechanical Evaluation of Expressions},
 	author={Peter J. Landin},
@@ -31,3 +47,254 @@
 	volume={6},
 	pages={308-320}
 }
+
+@inproceedings{escape-analysis,
+	author = {Kotzmann, Thomas and M\"{o}ssenb\"{o}ck, Hanspeter},
+	title = {Escape Analysis in the Context of Dynamic Compilation and Deoptimization},
+	year = {2005},
+	isbn = {1595930477},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/1064979.1064996},
+	doi = {10.1145/1064979.1064996},
+	abstract = {In object-oriented programming languages, an object is said to escape the method or thread in which it was created if it can also be accessed by other methods or threads. Knowing which objects do not escape allows a compiler to perform aggressive optimizations.This paper presents a new intraprocedural and interprocedural algorithm for escape analysis in the context of dynamic compilation where the compiler has to cope with dynamic class loading and deoptimization. It was implemented for Sun Microsystems' Java HotSpot™ client compiler and operates on an intermediate representation in SSA form. We introduce equi-escape sets for the efficient propagation of escape information between related objects. The analysis is used for scalar replacement of fields and synchronization removal, as well as for stack allocation of objects and fixed-sized arrays. The results of the interprocedural analysis support the compiler in inlining decisions and allow actual parameters to be allocated on the caller stack.Under certain circumstances, the Java HotSpot™ VM is forced to stop executing a method's machine code and transfer control to the interpreter. This is called deoptimization. Since the interpreter does not know about the scalar replacement and synchronization removal performed by the compiler, the deoptimization framework was extended to reallocate and relock objects on demand.},
+	booktitle = {Proceedings of the 1st ACM/USENIX International Conference on Virtual Execution Environments},
+	pages = {111–120},
+	numpages = {10},
+	keywords = {optimization, just-in-time compilation, stack allocation, deoptimization, escape analysis, synchronization removal, Java, scalar replacement},
+	location = {Chicago, IL, USA},
+	series = {VEE '05}
+}
+
+@misc{scala:lang-spec,
+	title={The Scala language specification},
+	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Micheloud, Stphane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
+	year={2004},
+	publisher={Citeseer}
+}
+
+@article{scala:overview,
+	title={An overview of the Scala programming language},
+	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Maneth, Sebastian and Micheloud, St{\'e}phane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
+	year={2004}
+}
+
+@book{java:lang-spec,
+	title={The Java language specification},
+	author={Gosling, James and Joy, Bill and Steele, Guy and Bracha, Gilad},
+	year={2000},
+	publisher={Addison-Wesley Professional}
+}
+
+@article{java:escape-analysis,
+	author = {Blanchet, Bruno},
+	title = {Escape Analysis for JavaTM: Theory and Practice},
+	year = {2003},
+	issue_date = {November 2003},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {25},
+	number = {6},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/945885.945886},
+	doi = {10.1145/945885.945886},
+	abstract = {Escape analysis is a static analysis that determines whether the lifetime of data may exceed its static scope.This paper first presents the design and correctness proof of an escape analysis for JavaTM. This analysis is interprocedural, context sensitive, and as flow-sensitive as the static single assignment form. So, assignments to object fields are analyzed in a flow-insensitive manner. Since Java is an imperative language, the effect of assignments must be precisely determined. This goal is achieved thanks to our technique using two interdependent analyses, one forward, one backward. We introduce a new method to prove the correctness of this analysis, using aliases as an intermediate step. We use integers to represent the escaping parts of values, which leads to a fast and precise analysis.Our implementation [Blanchet 1999], which applies to the whole Java language, is then presented. Escape analysis is applied to stack allocation and synchronization elimination. In our benchmarks, we stack allocate 13% to 95% of data, eliminate more than 20% of synchronizations on most programs (94% and 99% on two examples) and get up to 43% runtime decrease (21% on average). Our detailed experimental study on large programs shows that the improvement comes more from the decrease of the garbage collection and allocation times than from improvements on data locality, contrary to what happened for ML. This comes from the difference in the garbage collectors.},
+	journal = {ACM Trans. Program. Lang. Syst.},
+	month = {nov},
+	pages = {713–775},
+	numpages = {63},
+	keywords = {static analysis, optimization, synchronization elimination, Java, stack allocation}
+}
+
+@inproceedings{java:partial-escape-analysis,
+	author = {Stadler, Lukas and W\"{u}rthinger, Thomas and M\"{o}ssenb\"{o}ck, Hanspeter},
+	title = {Partial Escape Analysis and Scalar Replacement for Java},
+	year = {2014},
+	isbn = {9781450326704},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/2544137.2544157},
+	doi = {10.1145/2544137.2544157},
+	abstract = {Escape Analysis allows a compiler to determine whether an object is accessible outside the allocating method or thread. This information is used to perform optimizations such as Scalar Replacement, Stack Allocation and Lock Elision, allowing modern dynamic compilers to remove some of the abstractions introduced by advanced programming models.The all-or-nothing approach taken by most Escape Analysis algorithms prevents all these optimizations as soon as there is one branch where the object escapes, no matter how unlikely this branch is at runtime.This paper presents a new, practical algorithm that performs control flow sensitive Partial Escape Analysis in a dynamic Java compiler. It allows Escape Analysis, Scalar Replacement and Lock Elision to be performed on individual branches. We implemented the algorithm on top of Graal, an open-source Java just-in-time compiler, and it performs well on a diverse set of benchmarks.In this paper, we evaluate the effect of Partial Escape Analysis on the DaCapo, ScalaDaCapo and SpecJBB2005 benchmarks, in terms of run-time, number and size of allocations and number of monitor operations. It performs particularly well in situations with additional levels of abstraction, such as code generated by the Scala compiler. It reduces the amount of allocated memory by up to 58.5%, and improves performance by up to 33%.},
+	booktitle = {Proceedings of Annual IEEE/ACM International Symposium on Code Generation and Optimization},
+	pages = {165–174},
+	numpages = {10},
+	keywords = {speculative optimization, java, escape analysis, virtual machine, just-in-time compilation, intermediate representation},
+	location = {Orlando, FL, USA},
+	series = {CGO '14}
+}
+
+@inproceedings{java:escape-analysis-optimizations,
+	author = {Kotzmann, Thomas and Mossenbock, Hanspeter},
+	title = {Run-Time Support for Optimizations Based on Escape Analysis},
+	year = {2007},
+	isbn = {0769527647},
+	publisher = {IEEE Computer Society},
+	address = {USA},
+	url = {https://doi.org/10.1109/CGO.2007.34},
+	doi = {10.1109/CGO.2007.34},
+	abstract = {The JavaTM programming language does not allow the programmer to influence memory management. An object is usually allocated on the heap and deallocated by the garbage collector when it is not referenced any longer. Under certain conditions, the virtual machine can allocate objects on the stack or eliminate their allocation via scalar replacement. However, even if the dynamic compiler guarantees that the conditions are fulfilled, the optimizations require support by the run-time environment. We implemented a new escape analysis algorithm for Sun Microsystems' Java HotSpotTM VM. The results are used to replace objects with scalar variables, to allocate objects on the stack, and to remove synchronization. This paper deals with the representation of optimized objects in the debugging information and with reallocation and garbage collection support for a safe execution of optimized methods. Assignments to fields of parameters that can refer to both stack and heap objects are associated with an extended write barrier which skips card marking for stack objects. The traversal of objects during garbage collection uses a wrapper that abstracts from stack objects and presents their pointer fields as root pointers to the garbage collector. When a previously compiled and currently executing method must be continued in the interpreter because dynamic class loading invalidates the machine code, execution is suspended and compiler optimizations are undone. Scalar-replaced objects are reallocated on the heap lazily when control returns to the invalidated method, whereas stack-allocated objects must be reallocated immediately before program execution resumes. After reallocation, objects for which synchronization was removed are relocked.},
+	booktitle = {Proceedings of the International Symposium on Code Generation and Optimization},
+	pages = {49–60},
+	numpages = {12},
+	series = {CGO '07}
+}
+
+@inproceedings{smalltalk:inline-caches,
+	author = {Deutsch, L. Peter and Schiffman, Allan M.},
+	title = {Efficient Implementation of the Smalltalk-80 System},
+	year = {1984},
+	isbn = {0897911253},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/800017.800542},
+	doi = {10.1145/800017.800542},
+	abstract = {The Smalltalk-80* programming language includes dynamic storage allocation, full upward funargs, and universally polymorphic procedures; the Smalltalk-80 programming system features interactive execution with incremental compilation, and implementation portability. These features of modern programming systems are among the most difficult to implement efficiently, even individually. A new implementation of the Smalltalk-80 system, hosted on a small microprocessor-based computer, achieves high performance while retaining complete (object code) compatibility with existing implementations. This paper discusses the most significant optimization techniques developed over the course of the project, many of which are applicable to other languages. The key idea is to represent certain runtime state (both code and data) in more than one form, and to convert between forms when needed.},
+	booktitle = {Proceedings of the 11th ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages},
+	pages = {297–302},
+	numpages = {6},
+	location = {Salt Lake City, Utah, USA},
+	series = {POPL '84}
+}
+
+@inproceedings{self:polymorphic-inline-caches,
+	author="H{\"o}lzle, Urs
+	and Chambers, Craig
+	and Ungar, David",
+	editor="America, Pierre",
+	title="Optimizing dynamically-typed object-oriented languages with polymorphic inline caches",
+	booktitle="ECOOP'91 European Conference on Object-Oriented Programming",
+	year="1991",
+	publisher="Springer Berlin Heidelberg",
+	address="Berlin, Heidelberg",
+	pages="21--38",
+	abstract="Polymorphic inline caches (PICs) provide a new way to reduce the overhead of polymorphic message sends by extending inline caches to include more than one cached lookup result per call site. For a set of typical object-oriented SELF programs, PICs achieve a median speedup of 11{\%}.",
+	isbn="978-3-540-47537-8"
+}
+
+@article{clr:spec,
+	title={Technical overview of the common language runtime},
+	author={Meijer, Erik and Gough, John},
+	journal={language},
+	volume={29},
+	number={7},
+	year={2001},
+	publisher={Citeseer}
+}
+
+@inproceedings{llvm,
+	title={LLVM: A compilation framework for lifelong program analysis \& transformation},
+	author={Lattner, Chris and Adve, Vikram},
+	booktitle={International Symposium on Code Generation and Optimization, 2004. CGO 2004.},
+	pages={75--86},
+	year={2004},
+	organization={IEEE}
+}
+
+
+@article{ssa,
+	author = {Ron Cytron and Jeanne Ferrante and Barry K. Rosen and Mark
+	N. Wegman and F. Kenneth Zadeck},
+	title = {Efficiently Computing Static Single Assignment Form and the
+	Control Dependence Graph},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	volume = {13},
+	number = {4},
+	month = {Oct},
+	publisher = {ACM Press},
+	pages = {451--490},
+	year = {1991},
+	abstract = {The most important paper in the field. Comprehensive yet
+	readable. Note there was an earlier version at POPL 89.},
+	url = {http://doi.acm.org/10.1145/115372.115320}
+}
+
+@inproceedings{hsail,
+	title={HSAIL: Portable compiler IR for HSA.},
+	author={Sander, Ben and FELLOW, AMD SENIOR},
+	booktitle={Hot Chips Symposium},
+	volume={2013},
+	pages={1--32},
+	year={2013}
+}
+
+@article{partial-eval,
+	title={Partial evaluation of computation process--an approach to a compiler-compiler},
+	author={Futamura, Yoshihiko},
+	journal={Higher-Order and Symbolic Computation},
+	volume={12},
+	number={4},
+	pages={381--391},
+	year={1999},
+	publisher={Springer}
+}
+
+@article{tofte:region-memory,
+	title = {Region-Based Memory Management},
+	journal = {Information and Computation},
+	volume = {132},
+	number = {2},
+	pages = {109-176},
+	year = {1997},
+	issn = {0890-5401},
+	doi = {https://doi.org/10.1006/inco.1996.2613},
+	url = {https://www.sciencedirect.com/science/article/pii/S0890540196926139},
+	author = {Mads Tofte and Jean-Pierre Talpin},
+	abstract = {This paper describes a memory management discipline for programs that perform dynamic memory allocation and de-allocation. At runtime, all values are put intoregions. The store consists of a stack of regions. All points of region allocation and de-allocation are inferred automatically, using a type and effect based program analysis. The scheme does not assume the presence of a garbage collector. The scheme was first presented in 1994 (M. Tofte and J.-P. Talpin,in“Proceedings of the 21st ACM SIGPLAN–SIGACT Symposium on Principles of Programming Languages,” pp. 188–201); subsequently, it has been tested in The ML Kit with Regions, a region-based, garbage-collection free implementation of the Standard ML Core language, which includes recursive datatypes, higher-order functions and updatable references L. Birkedal, M. Tofte, and M. Vejlstrup, (1996),in“Proceedings of the 23 rd ACM SIGPLAN–SIGACT Symposium on Principles of Programming Languages,” pp. 171–183. This paper defines a region-based dynamic semantics for a skeletal programming language extracted from Standard ML. We present the inference system which specifies where regions can be allocated and de-allocated and a detailed proof that the system is sound with respect to a standard semantics. We conclude by giving some advice on how to write programs that run well on a stack of regions, based on practical experience with the ML Kit.}
+}
+
+@inproceedings{aiken:region-memory-analysis,
+	author = {Aiken, Alexander and F\"{a}hndrich, Manuel and Levien, Raph},
+	title = {Better Static Memory Management: Improving Region-Based Analysis of Higher-Order Languages},
+	year = {1995},
+	isbn = {0897916972},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/207110.207137},
+	doi = {10.1145/207110.207137},
+	abstract = {Static memory management replaces runtime garbage collection with compile-time annotations that make all memory allocation and deallocation explicit in a program. We improve upon the Tofte/Talpin region-based scheme for compile-time memory management[TT94]. In the Tofte/Talpin approach, all values, including closures, are stored in regions. Region lifetimes coincide with lexical scope, thus forming a runtime stack of regions and eliminating the need for garbage collection. We relax the requirement that region lifetimes be lexical. Rather, regions are allocated late and deallocated as early as possible by explicit memory operations. The placement of allocation and deallocation annotations is determined by solving a system of constraints that expresses all possible annotations. Experiments show that our approach reduces memory requirements significantly, in some cases asymptotically.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1995 Conference on Programming Language Design and Implementation},
+	pages = {174–185},
+	numpages = {12},
+	location = {La Jolla, California, USA},
+	series = {PLDI '95}
+}
+
+@inproceedings{birkedal:region-memory-inference,
+	author = {Birkedal, Lars and Tofte, Mads and Vejlstrup, Magnus},
+	title = {From Region Inference to von Neumann Machines via Region Representation Inference},
+	year = {1996},
+	isbn = {0897917693},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/237721.237771},
+	doi = {10.1145/237721.237771},
+	abstract = {Region Inference is a technique for implementing programming languages that are based on typed call-by-value lambda calculus, such as Standard ML. The mathematical runtime model of region inference uses a stack of regions, each of which can contain an unbounded number of values. This paper is concerned with mapping the mathematical model onto real machines. This is done by composing region inference with Region Representation Inference, which gradually refines region information till it is directly implementable on conventional von Neumann machines. The performance of a new region-based ML compiler is compared to the performance of Standard ML of New Jersey, a state-of-the-art ML compiler.},
+	booktitle = {Proceedings of the 23rd ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+	pages = {171–183},
+	numpages = {13},
+	location = {St. Petersburg Beach, Florida, USA},
+	series = {POPL '96}
+}
+
+@article{strachey:fundamental-concepts,
+	title={Fundamental concepts in programming languages},
+	author={Strachey, Christopher},
+	journal={Higher-order and symbolic computation},
+	volume={13},
+	number={1},
+	pages={11--49},
+	year={2000},
+	publisher={Springer}
+}
+
+@inproceedings{go4:design-patterns,
+	title={Design patterns: Abstraction and reuse of object-oriented design},
+	author={Gamma, Erich and Helm, Richard and Johnson, Ralph and Vlissides, John},
+	booktitle={European Conference on Object-Oriented Programming},
+	pages={406--431},
+	year={1993},
+	organization={Springer}
+}
+
+
