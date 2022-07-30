@@ -66,6 +66,15 @@
 	series = {VEE '05}
 }
 
+@inproceedings{scala:origins,
+	title={Scalable component abstractions},
+	author={Odersky, Martin and Zenger, Matthias},
+	booktitle={Proceedings of the 20th annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
+	pages={41--57},
+	year={2005}
+}
+
+
 @misc{scala:lang-spec,
 	title={The Scala language specification},
 	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Micheloud, Stphane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
@@ -77,6 +86,24 @@
 	title={An overview of the Scala programming language},
 	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Maneth, Sebastian and Micheloud, St{\'e}phane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
 	year={2004}
+}
+
+@inproceedings{scala:collections-optimization,
+	author = {Prokopec, Aleksandar and Leopoldseder, David and Duboscq, Gilles and W\"{u}rthinger, Thomas},
+	title = {Making Collection Operations Optimal with Aggressive JIT Compilation},
+	year = {2017},
+	isbn = {9781450355292},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3136000.3136002},
+	doi = {10.1145/3136000.3136002},
+	abstract = {Functional collection combinators are a neat and widely accepted data processing abstraction. However, their generic nature results in high abstraction overheads -- Scala collections are known to be notoriously slow for typical tasks. We show that proper optimizations in a JIT compiler can widely eliminate overheads imposed by these abstractions. Using the open-source Graal JIT compiler, we achieve speedups of up to 20x on collection workloads compared to the standard HotSpot C2 compiler. Consequently, a sufficiently aggressive JIT compiler allows the language compiler, such as Scalac, to focus on other concerns. In this paper, we show how optimizations, such as inlining, polymorphic inlining, and partial escape analysis, are combined in Graal to produce collections code that is optimal with respect to manually written code, or close to optimal. We argue why some of these optimizations are more effectively done by a JIT compiler. We then identify specific use-cases that most current JIT compilers do not optimize well, warranting special treatment from the language compiler.},
+	booktitle = {Proceedings of the 8th ACM SIGPLAN International Symposium on Scala},
+	pages = {29–40},
+	numpages = {12},
+	keywords = {collections, JIT compilation, inlining, partial escape analysis, functional combinators, data-parallelism, scalar replacement, iterators, program optimization},
+	location = {Vancouver, BC, Canada},
+	series = {SCALA 2017}
 }
 
 @book{java:lang-spec,
@@ -140,6 +167,115 @@
 	series = {CGO '07}
 }
 
+@book{java:generics,
+	title={Java Generics and Collections: Speed Up the Java Development Process},
+	author={Naftalin, Maurice and Wadler, Philip},
+	year={2006},
+	publisher={" O'Reilly Media, Inc."}
+}
+
+@misc{java:autoboxing,
+	title = {Autoboxing and {Unboxing} ({The} {Java}™ {Tutorials} {\textgreater} {Learning} the {Java} {Language} {\textgreater} {Numbers} and {Strings})},
+	url = {https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html},
+	urldate = {2022-07-25},
+	file = {Autoboxing and Unboxing (The Java™ Tutorials > Learning the Java Language > Numbers and Strings):/home/jyou/snap/zotero-snap/common/Zotero/storage/ZWTRHV98/autoboxing.html:text/html},
+}
+
+@inproceedings{java:hotspot,
+	title={The Java $\{$HotSpot™$\}$ Server Compiler},
+	author={Paleczny, Michael and Vick, Christopher and Click, Cliff},
+	booktitle={Java (TM) Virtual Machine Research and Technology Symposium (JVM 01)},
+	year={2001}
+}
+
+@inproceedings{java:sablevm,
+	title={Sable VM: A research framework for the efficient execution of java bytecode},
+	author={Gagnon, Etienne M and Hendren, Laurie J},
+	booktitle={Java Virtual Machine Research and Technology Symposium},
+	pages={27--40},
+	year={2001}
+}
+
+@misc{java:jikesrvm,
+	title = {{IBM} {Research} {\textbar} {Technical} {Paper} {Search} {\textbar} {The} {Jikes} {RVM} {Project}: {Building} an {Open} {Source} {Research} {Community}({Search} {Reports})},
+	copyright = {© Copyright IBM Corp. 2016},
+	shorttitle = {{IBM} {Research} {\textbar} {Technical} {Paper} {Search} {\textbar} {The} {Jikes} {RVM} {Project}},
+	url = {https://dominoweb.draco.res.ibm.com/0df2d86d1d71cd6e85256f790050b4c3.html},
+	abstract = {The The Jikes RVM Project: Building an Open Source Research Community report web page.},
+	language = {en},
+	urldate = {2022-07-27},
+	month = sep,
+	year = {2016},
+	file = {Snapshot:/home/jyou/snap/zotero-snap/common/Zotero/storage/J9RRFM6J/0df2d86d1d71cd6e85256f790050b4c3.html:text/html},
+}
+
+@inproceedings{java:graalvm,
+address = {Indianapolis, Indiana, USA},
+title = {One {VM} to {Rule} {Them} {All}},
+isbn = {978-1-4503-2472-4},
+url = {http://dl.acm.org/citation.cfm?doid=2509578.2509581},
+doi = {10.1145/2509578.2509581},
+abstract = {Building high-performance virtual machines is a complex and expensive undertaking; many popular languages still have low-performance implementations. We describe a new approach to virtual machine (VM) construction that amortizes much of the effort in initial construction by allowing new languages to be implemented with modest additional effort. The approach relies on abstract syntax tree (AST) interpretation where a node can rewrite itself to a more specialized or more general node, together with an optimizing compiler that exploits the structure of the interpreter. The compiler uses speculative assumptions and deoptimization in order to produce efﬁcient machine code. Our initial experience suggests that high performance is attainable while preserving a modular and layered architecture, and that new highperformance language implementations can be obtained by writing little more than a stylized interpreter.},
+language = {en},
+urldate = {2020-10-20},
+booktitle = {Proceedings of the 2013 {ACM} {International} {Symposium} on {New} ideas, {New} {Paradigms}, and {Reflections} on {Programming} \& {Software} - {Onward}! '13},
+publisher = {ACM Press},
+author = {Würthinger, Thomas and Wimmer, Christian and Wöß, Andreas and Stadler, Lukas and Duboscq, Gilles and Humer, Christian and Richards, Gregor and Simon, Doug and Wolczko, Mario},
+year = {2013},
+pages = {187--204},
+file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/7AS8H4Y6/Würthinger et al. - 2013 - One VM to Rule Them All.pdf:application/pdf},
+}
+
+
+@inproceedings{graalvm:ir,
+	title = {Graal {IR}: {An} {Extensible} {Declarative} {Intermediate} {Representation}},
+	shorttitle = {Graal {IR}},
+	abstract = {We present an intermediate representation (IR) for a Java just in time (JIT) compiler written in Java. It is a graph-based IR that models both control-flow and data-flow dependencies between nodes. We show the framework in which we developed our IR. Much care has been taken to allow the programmer to focus on compiler optimization rather than IR bookkeeping. Edges between nodes are declared concisely using Java annotations, and common properties and functions on nodes are communicated to the framework by implementing interfaces. Building upon these declarations, the graph framework automatically implements a set of useful primitives that the programmer can use to implement optimizations .},
+	author = {Duboscq, Gilles and Stadler, Lukas and Wuerthinger, Thomas and Simon, Doug and Wimmer, Christian and Mössenböck, Hanspeter},
+	month = feb,
+	year = {2013},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/WLX5AHLQ/Duboscq et al. - 2013 - Graal IR An Extensible Declarative Intermediate R.pdf:application/pdf},
+}
+
+
+@inproceedings{graalvm:speculative-ir,
+	address = {Indianapolis, Indiana, USA},
+	title = {An {Intermediate} {Representation} for {Speculative} {Optimizations} in a {Dynamic} {Compiler}},
+	isbn = {978-1-4503-2601-8},
+	url = {http://dl.acm.org/citation.cfm?doid=2542142.2542143},
+	doi = {10.1145/2542142.2542143},
+	abstract = {We present a compiler intermediate representation (IR) that allows dynamic speculative optimizations for high-level languages. The IR is graph-based and contains nodes ﬁxed to control ﬂow as well as ﬂoating nodes. Side-effecting nodes include a framestate that maps values back to the original program. Guard nodes dynamically check assumptions and, on failure, deoptimize to the interpreter that continues execution. Guards implicitly use the framestate and program position of the last side-effecting node. Therefore, they can be represented as freely ﬂoating nodes in the IR. Exception edges are modeled as explicit control ﬂow and are subject to full optimization. We use proﬁling and deoptimization to speculatively reduce the number of such edges. The IR is the core of a just-in-time compiler that is integrated with the Java HotSpot VM. We evaluate the design decisions of the IR using major Java benchmark suites.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 7th {ACM} workshop on {Virtual} {Machines} and {Intermediate} {Languages} - {VMIL} '13},
+	publisher = {ACM Press},
+	author = {Duboscq, Gilles and Würthinger, Thomas and Stadler, Lukas and Wimmer, Christian and Simon, Doug and Mössenböck, Hanspeter},
+	year = {2013},
+	pages = {1--10},
+	file = {Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/MRTS3L3V/Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:application/pdf},
+}
+
+
+
+@article{simula:classes,
+	title={SIMULA: an ALGOL-based simulation language},
+	author={Dahl, Ole-Johan and Nygaard, Kristen},
+	journal={Communications of the ACM},
+	volume={9},
+	number={9},
+	pages={671--678},
+	year={1966},
+	publisher={ACM New York, NY, USA}
+}
+
+@book{smalltalk:design,
+	title={Smalltalk-80: the language and its implementation},
+	author={Goldberg, Adele and Robson, David},
+	year={1983},
+	publisher={Addison-Wesley Longman Publishing Co., Inc.}
+}
+
+
 @inproceedings{smalltalk:inline-caches,
 	author = {Deutsch, L. Peter and Schiffman, Allan M.},
 	title = {Efficient Implementation of the Smalltalk-80 System},
@@ -171,6 +307,29 @@
 	abstract="Polymorphic inline caches (PICs) provide a new way to reduce the overhead of polymorphic message sends by extending inline caches to include more than one cached lookup result per call site. For a set of typical object-oriented SELF programs, PICs achieve a median speedup of 11{\%}.",
 	isbn="978-3-540-47537-8"
 }
+
+@inproceedings{ml:parametric-polymorphism,
+	title = "A Logic for Computable Functions with Reflexive and Polymorphic Types",
+	keywords = "rcb-bibfile",
+	author = "R. Milner and L. Morris and M. Newey",
+	year = "1975",
+	language = "English",
+	pages = "371--394",
+	booktitle = "Proceedings of the Conference on Proving and Improving Programs",
+	publisher = "IRIA-Laboria",
+}
+
+@article{scheme:closures,
+	title={Scheme: A interpreter for extended lambda calculus},
+	author={Sussman, Gerald Jay and Steele, Guy L},
+	journal={Higher-Order and Symbolic Computation},
+	volume={11},
+	number={4},
+	pages={405--439},
+	year={1998},
+	publisher={Springer}
+}
+
 
 @article{clr:spec,
 	title={Technical overview of the common language runtime},
@@ -218,7 +377,7 @@
 	year={2013}
 }
 
-@article{partial-eval,
+@article{futamura:partial-eval,
 	title={Partial evaluation of computation process--an approach to a compiler-compiler},
 	author={Futamura, Yoshihiko},
 	journal={Higher-Order and Symbolic Computation},
@@ -298,3 +457,63 @@
 }
 
 
+@article{click:sea-of-nodes,
+	title = {Combining analyses, combining optimizations},
+	volume = {17},
+	issn = {0164-0925, 1558-4593},
+	url = {https://dl.acm.org/doi/10.1145/201059.201061},
+	doi = {10.1145/201059.201061},
+	abstract = {This thesis presents a framework for describing optimizations. It shows how to combine two such frameworks and how to reason about the properties of the resulting framework. The structure of the framework provides insight into when a combination yields better results. Also presented is a simple iterative algorithm for solving these frameworks. A framework is shown that combines Constant Propagation, Unreachable Code Elimination, Global Congruence Finding and Global Value Numbering. For these optimizations, the iterative algorithm runs in O(n2) time.},
+	language = {en},
+	number = {2},
+	urldate = {2022-02-15},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	author = {Click, Cliff and Cooper, Keith D.},
+	month = mar,
+	year = {1995},
+	pages = {181--196},
+	file = {Click and Cooper - 1995 - Combining analyses, combining optimizations.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/R7XKVHAK/Click and Cooper - 1995 - Combining analyses, combining optimizations.pdf:application/pdf},
+}
+
+@inproceedings{allen:ctrl-flow-analysis,
+	author = {Allen, Frances E.},
+	title = {Control Flow Analysis},
+	year = {1970},
+	isbn = {9781450373869},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/800028.808479},
+	doi = {10.1145/800028.808479},
+	abstract = {Any static, global analysis of the expression and data relationships in a program requires a knowledge of the control flow of the program. Since one of the primary reasons for doing such a global analysis in a compiler is to produce optimized programs, control flow analysis has been embedded in many compilers and has been described in several papers. An early paper by Prosser [5] described the use of Boolean matrices (or, more particularly, connectivity matrices) in flow analysis. The use of “dominance” relationships in flow analysis was first introduced by Prosser and much expanded by Lowry and Medlock [6]. References [6,8,9] describe compilers which use various forms of control flow analysis for optimization. Some recent developments in the area are reported in [4] and in [7].The underlying motivation in all the different types of control flow analysis is the need to codify the flow relationships in the program. The codification may be in connectivity matrices, in predecessor-successor tables, in dominance lists, etc. Whatever the form, the purpose is to facilitate determining what the flow relationships are; in other words to facilitate answering such questions as: is this an inner loop?, if an expression is removed from the loop where can it be correctly and profitably placed?, which variable definitions can affect this use?In this paper the basic control flow relationships are expressed in a directed graph. Various graph constructs are then found and shown to codify interesting global relationships.},
+	booktitle = {Proceedings of a Symposium on Compiler Optimization},
+	pages = {1–19},
+	numpages = {19},
+	location = {Urbana-Champaign, Illinois}
+}
+
+@article{allen:data-flow-analysis,
+	author = {Allen, F. E. and Cocke, J.},
+	title = {A Program Data Flow Analysis Procedure},
+	year = {1976},
+	issue_date = {March 1976},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {19},
+	number = {3},
+	issn = {0001-0782},
+	url = {https://doi.org/10.1145/360018.360025},
+	doi = {10.1145/360018.360025},
+	abstract = {The global data relationships in a program can be exposed and codified by the static analysis methods described in this paper. A procedure is given which determines all the definitions which can possibly “reach” each node of the control flow graph of the program and all the definitions that are “live” on each edge of the graph. The procedure uses an “interval” ordered edge listing data structure and handles reducible and irreducible graphs indistinguishably.},
+	journal = {Commun. ACM},
+	month = {mar},
+	pages = {137},
+	numpages = {11},
+	keywords = {program optimization, compilers, data flow analysis, flow graphs, algorithms}
+}
+
+@inproceedings{johnson:use-def-chains,
+	title={Dependence-based program analysis},
+	author={Richard Johnson and Keshav Pingali},
+	booktitle={PLDI '93},
+	year={1993}
+}

@@ -147,6 +147,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{epigraph}
+\usepackage[section]{placeins}
+\usepackage{smartdiagram}
 
 % If glossaries-extra is not in your LaTeX distribution, get it from CTAN (http://ctan.org/pkg/glossaries-extra), 
 % although it's supposed to be in both the TeX Live and MikTeX distributions. There are also documentation and 
@@ -271,7 +273,9 @@ description={Phi node}
 % separate documents, they would each start with the \chapter command, i.e, 
 % do not contain \documentclass or \begin{document} and \end{document} commands.
 %======================================================================
-\chapter{Introduction}
+
+\include{sections/introduction.tex}
+
 %======================================================================
 
 \include{sections/background.tex}
@@ -286,10 +290,9 @@ description={Phi node}
 
 %======================================================================
 
-\chapter{Related Work}
+\include{sections/related-work.tex}
 
 %======================================================================
-
 
 %======================================================================
 \chapter{Future Work}
@@ -427,30 +430,47 @@ description={Phi node}
 			new TailRec,                // Rewrite tail recursion to loops
 			new CompleteJavaEnums,      // Fill in constructors for Java enums
 			new Mixin,                  // Expand trait fields and trait initializers
-			new LazyVals,               // Expand lazy vals
-			new Memoize,                // Add private fields to getters and setters
-			new NonLocalReturns,        // Expand non-local returns
-			new CapturedVars) ::        // Represent vars captured by closures as heap objects
+			// Expand lazy vals
+			new LazyVals,              
+			// Add private fields to getters and setters
+			new Memoize,                
+			 // Expand non-local returns
+			new NonLocalReturns,       
+			// Represent vars captured by closures as heap objects
+			new CapturedVars) ::        
 		List(
 			new Constructors,           // Collect initialization code in primary constructors
 			// Note: constructors changes decls in transformTemplate, no InfoTransformers should be added after it
 			new Instrumentation) ::     // Count calls and allocations under -Yinstrument
 		List(
-			new LambdaLift,             // Lifts out nested functions to class scope, storing free variables in environments
+			// Lifts out nested functions to class scope, storing free variables in environments
+			new LambdaLift,             
 			// Note: in this mini-phase block scopes are incorrect. No phases that rely on scopes should be here
-			new ElimStaticThis,         // Replace `this` references to static objects by global identifiers
-			new CountOuterAccesses) ::  // Identify outer accessors that can be dropped
+			// Replace `this` references to static objects by global identifiers
+			new ElimStaticThis,         
+			// Identify outer accessors that can be dropped
+			new CountOuterAccesses) :: 
 		List(
-			new DropOuterAccessors,     // Drop unused outer accessors
-			new Flatten,                // Lift all inner classes to package scope
-			new RenameLifted,           // Renames lifted classes to local numbering scheme
-			new TransformWildcards,     // Replace wildcards with default values
-			new MoveStatics,            // Move static methods from companion to the class itself
-			new ExpandPrivate,          // Widen private definitions accessed from nested classes
-			new RestoreScopes,          // Repair scopes rendered invalid by moving definitions in prior phases of the group
-			new SelectStatic,           // get rid of selects that would be compiled into GetStatic
-			new sjs.JUnitBootstrappers, // Generate JUnit-specific bootstrapper classes for Scala.js (not enabled by default)
-			new CollectSuperCalls) ::   // Find classes that are called with super
+			// Drop unused outer accessors
+			new DropOuterAccessors,     
+			// Lift all inner classes to package scope
+			new Flatten,                
+			// Renames lifted classes to local numbering scheme
+			new RenameLifted,           
+			// Replace wildcards with default values
+			new TransformWildcards,     
+			 // Move static methods from companion to the class itself
+			new MoveStatics,           
+			// Widen private definitions accessed from nested classes
+			new ExpandPrivate,          
+			 // Repair scopes rendered invalid by moving definitions in prior phases of the group
+			new RestoreScopes,         
+			// get rid of selects that would be compiled into GetStatic
+			new SelectStatic,           
+			// Generate JUnit-specific bootstrapper classes for Scala.js (not enabled by default)
+			new sjs.JUnitBootstrappers, 
+			// Find classes that are called with super
+			new CollectSuperCalls) ::   
 		Nil
 \end{minted}
 

@@ -1,0 +1,23 @@
+digraph G {
+  graph [bgcolor="white"];
+  node45 [style="invis",label=""];
+  node188 [style="invis",label=""];
+  node193 [style="invis",label=""];
+  node248 [label="248 LoadField Cons.head0",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
+  node281 [style="invis",label=""];
+  node282 [label="282 Guard, else TransferToInterpreter",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
+  node289 [label="289 BoxNode$AllocatingBox",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
+  node188 -> node282 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node248 -> node289 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node289 -> node281 [label="result",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+  node193 -> node282 [label="?",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+  node282 -> node248 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node248 -> node289 [label="value",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+  node289 -> node281 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  inline290x45 [label="290 T(0)",shape="oval",fontname="Arial",style="filled",color="black",fillcolor="#d7ede7",fontcolor="#1a1919",fontsize="8"];
+  inline290x45 -> node45 [label="object",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9",arrowhead="none",fontsize="8"];
+  inline290x188 [label="290 T(0)",shape="oval",fontname="Arial",style="filled",color="black",fillcolor="#d7ede7",fontcolor="#1a1919",fontsize="8"];
+  inline290x188 -> node188 [label="object",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9",arrowhead="none",fontsize="8"];
+  inline290x248 [label="290 T(0)",shape="oval",fontname="Arial",style="filled",color="black",fillcolor="#d7ede7",fontcolor="#1a1919",fontsize="8"];
+  inline290x248 -> node248 [label="object",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9",arrowhead="none",fontsize="8"];
+}
