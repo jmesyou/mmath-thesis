@@ -1,0 +1,23 @@
+digraph G {
+  graph [bgcolor="white"];
+  node82 [style="invis",label=""];
+  node83 [label="83 BoxNode$TrustedBoxedValue",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#f9f9f9",fontcolor="#1a1919"];
+  node806 [style="invis",label=""];
+  node813 [label="813 Unbox",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
+  node848 [label="848 Unbox",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#f9f9f9",fontcolor="#1a1919"];
+  node855 [label="855 ==",shape="diamond",fontname="Arial",style="filled",color="black",fillcolor="#3cb4a4",fontcolor="#1a1919"];
+  node1155 [label="1155 Guard not, else TransferToInterpreter",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
+  node1157 [style="invis",label=""];
+  node1212 [style="invis",label=""];
+  node806 -> node813 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node813 -> node848 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node83 -> node848 [label="value",fontname="arial",color="#3cb4a4",fontcolor="#3cb4a4"];
+  node848 -> node1155 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  node813 -> node855 [label="y",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+  node848 -> node855 [label="x",fontname="arial",color="#3cb4a4",fontcolor="#3cb4a4"];
+  node855 -> node1155 [label="?",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+  node1155 -> node1157 [fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",penwidth="2",fillcolor="#f9f9f9"];
+  inline1250x83 [label="1250 T(2)",shape="oval",fontname="Arial",style="filled",color="black",fillcolor="#d7ede7",fontcolor="#1a1919",fontsize="8"];
+  inline1250x83 -> node83 [label="value",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9",arrowhead="none",fontsize="8"];
+  node1212 -> node813 [label="value",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
+}

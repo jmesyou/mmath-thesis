@@ -4,7 +4,8 @@
 % \epigraph{Typing is no substitute for thinking.}{Dartmouth Basic manual, 1964}
 
 This chapter is divided into two parts.
-The first half of this chapter will describe the execution of TASTy trees in a Truffle interpreter.
+The first half of this chapter will describe the methods used to execute TASTy in a Truffle interpreter.
+In particular, we will cover how to tranform the semantics of TASTy to Truffle AST nodes.
 The second half of this chapter covers the techniques we will use to eliminate autoboxing Truffle itself is unable to eliminate. 
 
 \section{Execution}
@@ -14,21 +15,15 @@ Programs in must be parsed and transformed into an executable representation in 
 As TASTy represents a Scala program close to its equivalent source representation, canonicalization compiler passes (see appendix \ref{appendix:dotty-phases}) that would otherwise normalize the IR are not present. 
 Instead, we implement TastyTruffle IR to represent a canonicalized executable intermediate representation which can be specialized on demand. 
 
-In the following sections, we will describe the features of TASTy and why it is directly unsuitable for execution and how to simplify their nodes into TastyTruffle IR.
+In the following sections, we will describe the individual types of TASTy nodes and why some are directly unsuitable for execution and how to simplify their semantics for execution.
 We will begin with a explanation of how data is encoded and defined in TASTy.
 
-\subsection*{Types}
-
-Types are a set of properties and rules for reasoning about the behaviour of programs. 
-In the Scala type system, types can be distinguished between \textit{value types} and \textit{type constructors}. 
-Value types refer to the definition of a \textit{class}. 
-Type constructors accept type parameters as arguments and produce a resulting type.
 
 \subsection{Generating Frame Slots from \texttt{ValDef} trees} 
 
 The \scalainline{ValDef} tree is a multi-purpose node which represents value definitions in many contexts.
 This section will only cover the \scalainline{ValDef} tree in the context of local variables.
-Sections \ref{impl:subsection:defdef} and \ref{impl:subsection:classdef} will cover the remaining contexts in which \scalainline{ValDef} trees appear.
+Sections \ref{impl:subsection:defdef} and \ref{impl:subsection:classdef} will cover the remaining contexts where \scalainline{ValDef} trees appear.
 
 Local variables are variables which are bound to a \textit{scope}. 
 A scope represents the lifetime in which a variable can refer to an entity. 
@@ -49,7 +44,7 @@ In \acrshort{tasty}, a local variable is represented by the \scalainline{ValDef}
 
 The \scalainline{ValDef} tree represents the site of a local variable declaration when the node is dominated by a \scalainline{Block} node. 
 A \scalainline{ValDef} contains the simple, unqualified name of the declaration, the type as represented in the source program and the intializer. 
-When a \scalainline{ValDef} is owned by a \scalainline{Block}, the initializer will always be non-empty.
+When a \scalainline{ValDef} is dominated by a \scalainline{Block}, the initializer will always be non-empty.
 
 Each unique variable declaration has a corresponding frame slot in the frame descriptor of its root node. 
 Truffle permits each frame slot in a frame descriptor be described by a \textit{frame slot kind}.
@@ -65,19 +60,19 @@ At the time of writing, a frame slot kind can be implemented as:
 	\caption{Simplified implementation of \scalainline{FrameSlotKind}}
 \end{figure}
 
-There is a corresponding frame slot kind for each \acrshort{jvm} primitive and reference types. 
+There is a corresponding frame slot kind for reference types and each \acrshort{jvm} primitive type. 
 We determine the frame slot kind of a type using the following method:
 
 \begin{figure}[H]
 	\begin{minted}{scala}
-		def getFrameSlotKind(tpe: Type): Option[FrameSlotKind] = {
-			if (tpe.isMonomorphic && tpe.isPrimitive)
+	def getFrameSlotKind(tpe: Type): Option[FrameSlotKind] = {
+		if (tpe.isMonomorphic && tpe.isPrimitive)
 			Some(primitiveSlotKindOf(tpe))
-			else if (tpe.isParameter)
+		else if (tpe.isParameter)
 			None
-			else
+		else
 			Some(FrameSlotKind.Object)
-		}	
+	}	
 	\end{minted}
 	\caption{Pseudocode for determining the frame slot kind of a type.}
 \end{figure}
@@ -87,13 +82,40 @@ To eliminate the need to specialize read and writes of variables where types are
 In all other cases, including when the type is not resolvable through a single type parameter, e.g. \scalainline{val x: T}, we assign the frame slot the \scalainline{Object} frame slot kind.
 We will defer discussion of variable declarations which have polymorphic types that cannot be resolved statically until section \ref{implementation:specialization}.
 
-\subsection{The \texttt{DefDef} tree}
+\subsection{Converting the \texttt{DefDef} tree into a Truffle Root Node}
 \label{impl:subsection:defdef}
+
+In this section, we describe the conversion of a \scalainline{DefDef} tree to \textit{root nodes}
+Root nodes represent the root of an executable Truffle AST.
+Each root node has a corresponding \textit{call target}, which is used for invocation.
+A root node is automatically instrumented\cite{profiling:atom} to profile its number of invocations. 
+When a limit on the number of invocations inside the interpreter is reached, the call target is submitted for compilation.
+
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	abstract class RootNode(desc: FrameDescriptor) {
+		def execute(frame: Frame): Object
+	}
+	\end{minted}
+	\caption{Pseudocode of a root node.}
+	\label{example:root-node}
+\end{figure}
+
+Figure \ref{example:root-node} gives a simplified implementation of a root node.
+Each root node in Truffle has a \textit{frame descriptor} and execution semantics.
+A frame descriptor describes the guest language variables which are in the scope of the root node.
+The \javainline{execute} method in a root node is implemented by its guest language subclass encapsulating its method invocation semantics.
+
+\begin{figure}
+	\begin{minted}{scala}
+	class DefDef(_: String, params: List[ParamClause], _: TypeTree, rhs: Option[Term]) extends Definition	
+	\end{minted}
+\end{figure}
 
 \subsection{Deriving Shapes from the \texttt{ClassDef} Tree}
 \label{impl:subsection:classdef}
 
-In object oriented programming languages, \textit{objects} are instances of a class.
+The storage layout of an object in a Truffle interpreter is managed by a \textit{Shape}.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -108,7 +130,7 @@ In object oriented programming languages, \textit{objects} are instances of a cl
 	\caption{Simplified implementation of a shape.}
 \end{figure}
 
-\subsection{The \texttt{Assign} tree}
+\subsection{Data mutation with the \texttt{Assign} tree}
 
 \subsection{Initializing Objects with the \texttt{New} Tree}
 
@@ -133,8 +155,7 @@ Truffle offers guest language implementations the \scalainline{VirtualFrame} abs
 
 % Intro
 
-\subsection{The \texttt{Apply} tree}
-
+\subsection{Resolving \texttt{Apply} tree}
 
 As previously mentioned, method invocations exists in multiple forms because tree canocalization happens immediately after the TASTy picking phase in the compilation pipeline.
 The result is that TASTy trees retain some syntactic elements from their Scala sources. 
@@ -205,8 +226,6 @@ Similarly, TastyTruffle avoids implementing methods of primitive types with actu
 \section{Specialization}
 \label{implementation:specialization}
 
-\subsection{}
-
 \subsection{Specializing Object Layout with \texttt{Applied} type trees}
 
 \begin{figure}[!htb]
@@ -220,6 +239,23 @@ Similarly, TastyTruffle avoids implementing methods of primitive types with actu
 	\caption{A placeholder node for polymorphic code in \textsc{TastyTruffle}}
 \end{figure}
 
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/dot/List.head.boxed.TruffleTier.png}
+		\caption{Graal IR of \scalainline{Cons.head} focused on field access of \scalainline{head0}}
+		\label{graalir:cons-head-boxed}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/dot/List.contains.boxed.TruffleTier.png}
+		\caption{Graal IR of \scalainline{Cons.head} after being inlined into \scalainline{Cons.contains}}
+		\label{graalir:cons-contains-head-focus-boxed}
+	\end{subfigure}
+	\hfill
+\end{figure}
 
 \subsection{Specializing Call Sites with \texttt{TypeApply} trees}
 
@@ -255,7 +291,7 @@ Dispatch chains\cite{???}
 		
 		def dispatch(frame: VirtualFrame, types: TypeArguments): Object = cache.get(types) match {
 			case Some(callNode) => callNode.call(frame.getArguments)
-			case None => createAndDispatch(frame, types)
+			case None           => createAndDispatch(frame, types)
 		}
 		
 		def createAndDispatch(frame: VirtualFrame, types: TypeArguments): Object = {
@@ -282,11 +318,32 @@ Dispatch chains\cite{???}
 
 \subsection{Specializing Terms}
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.35\textwidth]{figures/dot/List.head.TruffleTier.png}
+	\includegraphics[width=0.4\textwidth]{figures/dot/List.contains.boxed-param-read.TruffleTier.png}
 	\caption{Graal IR of \scalainline{List.head} after field read of \scalainline{head0} is specialized.}
+	\label{graalir:cons-contains-param-read}
 \end{figure}
+
+
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/dot/List.head.specialized.TruffleTier.png}
+		\caption{Graal IR of \scalainline{List.head} after field read of \scalainline{head0} is specialized.}
+		\label{graalir:cons-head-specialized}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figures/dot/List.contains.specialized.TruffleTier.png}
+		\caption{Graal IR of \scalainline{Cons.head} after being inlined into \scalainline{Cons.contains}}
+		\label{graalir:cons-contains-head-focus-specialized}
+	\end{subfigure}
+	\hfill
+\end{figure}
+
 
 The basic polymorphic unit of code in Scala are terms whose types are derived directly from a type parameter \mintinline{scala}|T| or indirectly from a type constructor such as \mintinline{scala}|Array[T]|.
 Polymorphic terms can be divided into the following categories:

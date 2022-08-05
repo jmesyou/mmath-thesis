@@ -106,6 +106,15 @@
 	series = {SCALA 2017}
 }
 
+@inproceedings{scala:calculus,
+	title={A core calculus for Scala type checking},
+	author={Cremet, Vincent and Garillot, Fran{\c{c}}ois and Lenglet, Sergue{\"\i} and Odersky, Martin},
+	booktitle={International Symposium on Mathematical Foundations of Computer Science},
+	pages={1--23},
+	year={2006},
+	organization={Springer}
+}
+
 @book{java:lang-spec,
 	title={The Java language specification},
 	author={Gosling, James and Joy, Bill and Steele, Guy and Bracha, Gilad},
@@ -308,6 +317,42 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	isbn="978-3-540-47537-8"
 }
 
+@article{10.1145/143103.143114,
+	author = {H\"{o}lzle, Urs and Chambers, Craig and Ungar, David},
+	title = {Debugging Optimized Code with Dynamic Deoptimization},
+	year = {1992},
+	issue_date = {July 1992},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {27},
+	number = {7},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/143103.143114},
+	doi = {10.1145/143103.143114},
+	abstract = {SELF's debugging system provides complete source-level debugging (expected behavior) with globally optimized code. It shields the debugger from optimizations performed by the compiler by dynamically deoptimizing code on demand. Deoptimization only affects the procedure activations that are actively being debugged; all other code runs at full speed. Deoptimization requires the compiler to supply debugging information at discrete interrupt points; the compiler can still perform extensive optimizations between interrupt points without affecting debuggability. At the same time, the inability to interrupt between interrupt points is invisible to the user. Our debugging system also handles programming changes during debugging. Again, the system provides expected behavior: it is possible to change a running program and immediately observe the effects of the change. Dynamic deoptimization transforms old compiled code (which may contain inlined copies of the old version of the changed procedure) into new versions reflecting the current source-level state. To the best of our knowledge, SELF is the first practical system providing full expected behavior with globally optimized code.},
+	journal = {SIGPLAN Not.},
+	month = {jul},
+	pages = {32–43},
+	numpages = {12}
+}
+
+@inproceedings{self:deoptimization,
+	author = {H\"{o}lzle, Urs and Chambers, Craig and Ungar, David},
+	title = {Debugging Optimized Code with Dynamic Deoptimization},
+	year = {1992},
+	isbn = {0897914759},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/143095.143114},
+	doi = {10.1145/143095.143114},
+	abstract = {SELF's debugging system provides complete source-level debugging (expected behavior) with globally optimized code. It shields the debugger from optimizations performed by the compiler by dynamically deoptimizing code on demand. Deoptimization only affects the procedure activations that are actively being debugged; all other code runs at full speed. Deoptimization requires the compiler to supply debugging information at discrete interrupt points; the compiler can still perform extensive optimizations between interrupt points without affecting debuggability. At the same time, the inability to interrupt between interrupt points is invisible to the user. Our debugging system also handles programming changes during debugging. Again, the system provides expected behavior: it is possible to change a running program and immediately observe the effects of the change. Dynamic deoptimization transforms old compiled code (which may contain inlined copies of the old version of the changed procedure) into new versions reflecting the current source-level state. To the best of our knowledge, SELF is the first practical system providing full expected behavior with globally optimized code.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1992 Conference on Programming Language Design and Implementation},
+	pages = {32–43},
+	numpages = {12},
+	location = {San Francisco, California, USA},
+	series = {PLDI '92}
+}
+
 @inproceedings{ml:parametric-polymorphism,
 	title = "A Logic for Computable Functions with Reflexive and Polymorphic Types",
 	keywords = "rcb-bibfile",
@@ -318,6 +363,15 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	booktitle = "Proceedings of the Conference on Proving and Improving Programs",
 	publisher = "IRIA-Laboria",
 }
+
+@inproceedings{ml:type-inference,
+	title={Principal type-schemes for functional programs},
+	author={Damas, Luis and Milner, Robin},
+	booktitle={Proceedings of the 9th ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
+	pages={207--212},
+	year={1982}
+}
+
 
 @article{scheme:closures,
 	title={Scheme: A interpreter for extended lambda calculus},
@@ -517,3 +571,83 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	booktitle={PLDI '93},
 	year={1993}
 }
+
+@article{10.1145/97946.97982,
+	author = {Bracha, Gilad and Cook, William},
+	title = {Mixin-Based Inheritance},
+	year = {1990},
+	issue_date = {Oct. 1990},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {25},
+	number = {10},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/97946.97982},
+	doi = {10.1145/97946.97982},
+	abstract = {The diverse inheritance mechanisms provided by Smalltalk, Beta, and CLOS are interpreted as different uses of a single underlying construct. Smalltalk and Beta differ primarily in the direction of class hierarchy growth. These inheritance mechanisms are subsumed in a new inheritance model based on composition of mixins, or abstract subclasses. This form of inheritance can also encode a CLOS multiple-inheritance hierarchy, although changes to the encoded hierarchy that would violate encapsulation are difficult. Practical application of mixin-based inheritance is illustrated in a sketch of an extension to Modula-3.},
+	journal = {SIGPLAN Not.},
+	month = {sep},
+	pages = {303–311},
+	numpages = {9}
+}
+
+@inproceedings{gilad:mixins,
+	author = {Bracha, Gilad and Cook, William},
+	title = {Mixin-Based Inheritance},
+	year = {1990},
+	isbn = {0897914112},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/97945.97982},
+	doi = {10.1145/97945.97982},
+	abstract = {The diverse inheritance mechanisms provided by Smalltalk, Beta, and CLOS are interpreted as different uses of a single underlying construct. Smalltalk and Beta differ primarily in the direction of class hierarchy growth. These inheritance mechanisms are subsumed in a new inheritance model based on composition of mixins, or abstract subclasses. This form of inheritance can also encode a CLOS multiple-inheritance hierarchy, although changes to the encoded hierarchy that would violate encapsulation are difficult. Practical application of mixin-based inheritance is illustrated in a sketch of an extension to Modula-3.},
+	booktitle = {Proceedings of the European Conference on Object-Oriented Programming on Object-Oriented Programming Systems, Languages, and Applications},
+	pages = {303–311},
+	numpages = {9},
+	location = {Ottawa, Canada},
+	series = {OOPSLA/ECOOP '90}
+}
+
+@article{10.1145/773473.178260,
+	author = {Srivastava, Amitabh and Eustace, Alan},
+	title = {ATOM: A System for Building Customized Program Analysis Tools},
+	year = {1994},
+	issue_date = {June 1994},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {29},
+	number = {6},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/773473.178260},
+	doi = {10.1145/773473.178260},
+	abstract = {ATOM (Analysis Tools with OM) is a single framework for building a wide range of customized program analysis tools. It provides the common infrastructure present in all code-instrumenting tools; this is the difficult and time-consuming part. The user simply defines the tool-specific details in instrumentation and analysis routines. Building a basic block counting tool like Pixie with ATOM requires only a page of code.ATOM, using OM link-time technology, organizes the final executable such that the application program and user's analysis routines run in the same address space. Information is directly passed from the application program to the analysis routines through simple procedure calls instead of inter-process communication or files on disk. ATOM takes care that analysis routines do not interfere with the program's execution, and precise information about the program is presented to the analysis routines at all times. ATOM uses no simulation or interpretation.ATOM has been implemented on the Alpha AXP under OSF/1. It is efficient and has been used to build a diverse set of tools for basic block counting, profiling, dynamic memory recording, instruction and data cache simulation, pipeline simulation, evaluating branch prediction, and instruction scheduling.},
+	journal = {SIGPLAN Not.},
+	month = {jun},
+	pages = {196–205},
+	numpages = {10}
+}
+
+
+
+@inproceedings{profiling:atom,
+	author = {Srivastava, Amitabh and Eustace, Alan},
+	title = {ATOM: A System for Building Customized Program Analysis Tools},
+	year = {1994},
+	isbn = {089791662X},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/178243.178260},
+	doi = {10.1145/178243.178260},
+	abstract = {ATOM (Analysis Tools with OM) is a single framework for building a wide range of customized program analysis tools. It provides the common infrastructure present in all code-instrumenting tools; this is the difficult and time-consuming part. The user simply defines the tool-specific details in instrumentation and analysis routines. Building a basic block counting tool like Pixie with ATOM requires only a page of code.ATOM, using OM link-time technology, organizes the final executable such that the application program and user's analysis routines run in the same address space. Information is directly passed from the application program to the analysis routines through simple procedure calls instead of inter-process communication or files on disk. ATOM takes care that analysis routines do not interfere with the program's execution, and precise information about the program is presented to the analysis routines at all times. ATOM uses no simulation or interpretation.ATOM has been implemented on the Alpha AXP under OSF/1. It is efficient and has been used to build a diverse set of tools for basic block counting, profiling, dynamic memory recording, instruction and data cache simulation, pipeline simulation, evaluating branch prediction, and instruction scheduling.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1994 Conference on Programming Language Design and Implementation},
+	pages = {196–205},
+	numpages = {10},
+	location = {Orlando, Florida, USA},
+	series = {PLDI '94}
+}
+
+
+
+
+
+
