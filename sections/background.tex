@@ -56,7 +56,7 @@ The \scalainline{List} definition from the collections library is available by d
 
 Figure \ref{example:list-def} is an example which showcases the paradigms discussed in the previous section that are also commonly present real-world Scala programs.
 Implementations which derive abstract the \scalainline{List} class will demonstrate \textit{class inheritance}.
-The \scalainline{List} class contains both polymorphic and non-polymorphic methods to showcase type specialization.
+The \scalainline{List} class contains a mixture of polymorphic and non-polymorphic methods to showcase type specialization
 The \scalainline{head} method is class-polymorphic in that its type is derived from a class parameter and becomes specialized when the class is specialized.
 The \scalainline{contains} method is method-polymorphic and must be specialized after the class is specialized.
 
@@ -86,14 +86,14 @@ The \scalainline{contains} method is method-polymorphic and must be specialized 
 		}
 	}
 	\end{minted}
-	\caption{Implementation of \texttt{Con} class}
+	\caption{Implementation of \texttt{Cons} class}
 	\label{example:cons-impl}
 \end{figure}
 
 Figure \ref{example:cons-impl} contains the implementation of a list node.
 The \scalainline{Cons} implementation contains two polymorphic fields, \scalainline{head} and \scalainline{tail}.
-For specialization, we only care about \scalainline{head} as a field does not change to store a \scalainline{List[Int]} or \scalainline{List[Double]}.
-On the other hand, the layout of the class would change if the head field was meant to store an integer instead of a byte.
+For specialization, how the \scalainline{head} field fits into the storage layout of a \scalainline{Cons} instance may differ between a \scalainline{Cons[Int]} and a \scalainline{Cons[String]}.
+On the other hand, the \scalainline{tail} field does not have to differ between instances of \scalainline{Cons[Int]} and \scalainline{Cons[String]}.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -121,13 +121,13 @@ Intermediate representations are more suitable for reasoning about a program tha
 
 \acrfull{tasty} is a high-level \acrfull{ir} which is produced and emitted after type checking phase of the Scala compiler (see appendix \ref{appendix:dotty-phases}).
 Figure \ref{system:tasty} gives an overview of TASTy generation in the context of the Scala compilation pipeline, note that TASTy is only generated for Scala program sources.
-TASTy is a well-typed variation of an \acrfull{ast}, an IR which is close to the program source representation.
+TASTy is a well-typed variation of an \acrfull{ast}, a commonly used intermediate representation close to the program source representation.
 TASty can be considered a \textit{complete} IR of a Scala program before compilation, unlike the other intermediate representations we will examine throughout this thesis.
 A complete IR is able to capture all information of the original Scala source program, we will expand on why this is significant in section \ref{background:type-erasure}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.5\textwidth]{figures/scala-pipeline.png}
+	\includegraphics[width=0.4\textwidth]{figures/scala-pipeline.png}
 	\caption{TASTy in the context of the Scala compilation pipeline.}
 	\label{system:tasty}
 \end{figure}
@@ -171,6 +171,22 @@ We give the pseudo implementations of these trees in figures \ref{tasty:defs}, \
 	\label{tasty:defs}
 \end{figure}
 
+A Scala program consists of top level class definition which themselves contain statements.
+Statements either represent a declaration inside a class, such as a method definition, or executable code, which we discuss in section \ref{section:tasty:terms}.
+Figure \ref{tasty:defs} provides the pseudo implementations of all definitions in our subset of TASTy.
+Every tree has a symbol, which is a unique reference to a definition.
+For the use cases in this thesis, most definitions can be translated and be represented by a corresponding implementation in Truffle.
+A \scalainline{ClassDef} represents a top level class definition.
+A \scalainline{DefDef} tree is the definition of a method inside a class definition.
+The trees defined here can be used to represent more complex object-oriented and functional abstractions such as nested classes or closures, they are beyond the scope of this thesis.
+
+Figure \ref{tasty:list} is the TASTy structure of the \scalainline{List} class given in figure \ref{example:list-def}. 
+Recall that \scalainline{ClassDef} trees has four structural components, the constructor, the list of parent class definitions, the self type, and the body of the definition.
+In this thesis, we will not discuss the self type as it is an abstraction for composition\cite{gilad:mixins}\cite{scala:calculus} and is not relevant for execution.
+In the Scala programs presented in this thesis, the list of parents in a class definition can be assumed to always be a singleton.
+Note that while the abstract \scalainline{List} class did not explicitly declare a constructor, the compiler autogenerates and inserts the appropriate constructor implementation before emitting TASTy.
+Since \scalainline{List} is polymorphic, it contains an inner type definition of its sole type parameter.
+This distinction is what makes TASTy a complete IR when compared to the other intermediate representations we will describe later in this chapter.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -187,12 +203,7 @@ We give the pseudo implementations of these trees in figures \ref{tasty:defs}, \
 		List(
 			TypeDef("T", TypeBoundsTree(_, _)),
 			DefDef("head", Nil, TypeIdent("T"), None),
-			DefDef(
-				"tail",
-				Nil,
-				Applied(TypeIdent("List"), List(TypeIdent("T"))),
-				None
-			),
+			DefDef("tail", Nil,Applied(TypeIdent("List"), List(TypeIdent("T"))),None),
 			DefDef("length", Nil, TypeIdent("Int"), None),
 			DefDef("isEmpty", Nil, TypeIdent("Boolean"), None),
 			DefDef(
@@ -211,29 +222,11 @@ We give the pseudo implementations of these trees in figures \ref{tasty:defs}, \
 	\label{tasty:list}
 \end{figure}
 
-A Scala program consists of top level class definition which themselves contain statements.
-Statements either represent a declaration inside a class, such as a method definition, or executable code, which we discuss in section \ref{section:tasty:terms}.
-Figure \ref{tasty:defs} provides the pseudo implementations of all definitions in our subset of TASTy.
-Every tree has a symbol, which is a unique reference to a definition.
-For the use cases in this thesis, most definitions can be translated and be represented by a corresponding implementation in Truffle.
-A \scalainline{ClassDef} represents a top level class definition.
-A \scalainline{DefDef} tree is the definition of a method inside a class definition.
-While the trees defined here can be used represent more complex object-oriented and functional abstractions such as nested classes or closures, they are beyond the scope of this thesis.
-
-Figure \ref{tasty:list} is the TASTy structure of the \scalainline{List} class given in figure \ref{example:list-def}. 
-Recall that \scalainline{ClassDef} trees has four structural components, the constructor, the list of parent class definitions, the self type, and the body of the definition.
-In this thesis, we will not discuss the self type as it is an abstraction for composition\cite{gilad:mixins}\cite{scala:calculus} and is not relevant for execution.
-As result of the self type not being present, the list of parents in a class definition can be assumed to always be a singleton.
-Note that while the abstract \scalainline{List} class did not explicit declare a constructor, the compiler autogenerates and inserts the appropriate constructor implementation.
-Since \scalainline{List} is polymorphic, it contains an inner type definition of its sole type parameter.
-This distinction is what makes TASTy distinct from the other intermediate representations we will describe further in this thesis.
-
 Similarly, \scalainline{DefDef} trees also retain their polymorphic properties.
 The parameters section of a \scalainline{DefDef} tree is split into two halves.
 The type parameter section preserves any polymorphic type parameters in the method definition.
 The term parameter section contains the normal value paramers found in a method.
 Term parameters may have types which are derived from the type parameter section.
-
 
 \subsection{Terms}
 \label{section:tasty:terms}
@@ -277,10 +270,18 @@ This subset of TASTY is sufficient to represent the creation of polymorphic clas
 
 Terms in TASTy also retain their types after the type checking by the Scala compiler.
 A type for a term describes the type of the value produced by the term.
-Terms with no children, such as \scalainline{Ident}, retain their types and those types 'flow' upwards to their parent terms.
-We will describe types in detail in the next section.
+Terms with no children, such as \scalainline{Ident} trees, are typed.  
+For terms with children, their types are derived from those of their children trees.
+In essence, types `flow' upwards from leaf nodes in TASTy to their parent terms until the root term.
+We will describe types in detail in the following section.
 
 \subsection{Types and Type Trees}
+
+TASTy encodes Scala programs with two kinds of type information, types trees and types.
+Type trees are a subset of trees which represent types as they are declared in Scala source code.
+On the other hands, types are the canonical representation of type trees after type checking in the Scala compiler.
+Multiple type trees may share the same underlying type.
+
 \begin{figure}[!htb]
 	\begin{minted}{scala}
 	// Type tree representing a type written in the source
@@ -299,21 +300,6 @@ We will describe types in detail in the next section.
 	\label{tasty:type-trees}
 \end{figure}
 
-
-\begin{figure}[!htb]
-	\begin{minted}{scala}
-	// A type, type constructors, type bounds
-	trait Type 
-	\end{minted} 
-	\caption{Pseudocode class definitions for a subset of TASTy type trees.}
-	\label{tasty:types}
-\end{figure}
-TASTy encodes Scala programs with two kinds of type information, types trees and types.
-Type trees are a subset of trees which represent types as they are declared in Scala source code.
-On the other hands, types are the canonical representation of a type after type checking in the Scala compiler.
-Multiple type trees may share the same underlying type.
-
-
 Figure \ref{tasty:type-trees} gives the subset of type trees which we will use in this thesis.
 For our purposes, there are only three ways to refer to types.
 A \scalainline{TypeIdent} type tree is a reference to a type which is a \scalainline{ClassDef}.
@@ -322,8 +308,25 @@ For example, the \scalainline{Cons[T]} would be represented as an applied type t
 A \scalainline{TypeBounds} tree represents the type expression \scalainline{Lo <: T <: Hi}, a constraint where \scalainline{T} must be a subtype of type \scalainline{Hi} and supertype of type \scalainline{Lo}.
 In the context of this thesis, we can use subtype to mean \textit{subclass of} and supertype of to mean \textit{superclass of}.
 
-We will go over each tree and their relevance for execution in our interpeter in chapter \ref{chapter:implementation}.
-As part of normal Scala compilation pipeline, TASTy is eventually consumed by the Scala compiler and the approriate Java bytecode is emitted. 
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	trait Type                           // A type, type constructors, type bounds
+	trait NamedType extends Type         // Type of a reference to a type or term symbol
+	case class TypeRef extends NamedType // Type of a reference to a type symbol
+	case class AppliedType extends Type  // A higher kinded type applied to some types T[U]
+	case class TypeBounds extends Type   // Type bounds
+	\end{minted} 
+	\caption{Pseudocode class definitions for a subset of TASTy type trees.}
+	\label{tasty:types}
+\end{figure}
+
+Figure \ref{tasty:types} is set of types used in our subset of TASTy.
+In most cases in our subset of TASTy, type trees have a corresponding type of the same name.
+However, the \scalainline{NamedType} does not appear in type trees as they are predominantly used to type terms.
+The \scalainline{TypeRef} type is a reference to a \scalainline{ClassDef} tree or a type paramter \scalainline{TypeDef}.
+
+In the Scala compilation pipeline, TASTy is eventually simplified and transformed by the Scala compiler to produce Java bytecode. 
+In chapter \ref{chapter:implementation}, We will go over each tree before such transformations and their relevance for execution in our interpeter .
 
 \section{Java Bytecode}
 
@@ -373,7 +376,7 @@ In the next section, we describe the process which transforms Scala programs to 
 \section{Type Erasure}
 \label{background:type-erasure}
 
-Type erasure\cite{java:generics} is a transformation which converts polymorphic classes methods in Scala to monomorphic classes and methods. 
+Type erasure\cite{java:generics} is a transformation which converts polymorphic classes and methods in Scala to monomorphic classes and methods. 
 This conversion is necessary because the JVM does not support polymorphic classes during runtime.
 Erasure ensures that any given polymorphic class and method has a single representation in practice.
 Type erasure is a crucial part of the Scala compilation which renders TASTy incomplete.
@@ -381,29 +384,29 @@ Figure \ref{example:erase-cons} shows the \scalainline{Cons} class after type er
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-		case class Cons(head: Any, tail: List) extends List {
-			override def length: Int = 1 + tail.length
+	case class Cons(head: Any, tail: List) extends List {
+		override def length: Int = 1 + tail.length
 			
-			override def contains(elem: Any): Boolean = {
-				var these: List = this
-				while (!these.isEmpty) 
-				if (these.head == elem) return true
-				else these = these.tail
-				false
-			}
+		override def contains(elem: Any): Boolean = {
+			var these: List = this
+			while (!these.isEmpty) 
+			if (these.head == elem) return true
+			else these = these.tail
+			false
+		}
 			
-			override def hashCode(): Int = {
-				var these: List = this
-				var hashCode: Int = 0
-				while (!these.isEmpty) {
-					val headHash = these.head.##
-					if (these.tail.isEmpty) hashCode = hashCode | headHash
-					else hashCode = hashCode | headHash >> 8
-					these = these.tail	
-				}
-				hashCode
+		override def hashCode(): Int = {
+			var these: List = this
+			var hashCode: Int = 0
+			while (!these.isEmpty) {
+				val headHash = these.head.##
+				if (these.tail.isEmpty) hashCode ||= headHash
+				else hashCode |= headHash >> 8
+				these = these.tail	
 			}
-		}		
+			hashCode
+		}
+	}		
 	\end{minted}
 	\caption{\scalainline{Cons} class after type erasure}
 	\label{example:erase-cons}
@@ -422,12 +425,12 @@ Figure \ref{example:autoboxing} shows a simple example of inserted autoboxing op
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-		// Before type erasure 	
-		val lst: List[Int] = Cons(1, Nil)
-		val head: Int = lst.head
-		// After type erasure
-		val lst: List = Cons(box(1), Nil)
-		val head: Int = unbox(lst.head) 
+	// Before type erasure 	
+	val lst: List[Int] = Cons(1, Nil)
+	val head: Int = lst.head
+	// After type erasure
+	val lst: List = Cons(box(1), Nil)
+	val head: Int = unbox(lst.head) 
 	\end{minted}
 	\caption{Example of autoboxing introduced for a list}
 	\label{example:autoboxing}
@@ -457,7 +460,7 @@ The second is \textit{Graal}, a language-agnostic JIT compilation infrastructure
 
 \begin{figure}[!htb]
 	\centering
-	\includegraphics[width=0.7\textwidth]{figures/graalvm-pipeline.png}
+	\includegraphics[width=0.5\textwidth]{figures/graalvm-pipeline.png}
 	\caption{GraalVM overview\cite{graalvm:ir}.}
 \end{figure}
 
@@ -530,9 +533,9 @@ In this thesis, we will focus heavily on node rewriting the execution of TASTy t
 \end{figure}
 
 Figure \ref{example:node-rewriting} demonstrates an example of a node which can be rewritten.
-The node declares semantics of the equality operation between Integers and as well as values of type \scalainline{Any}.
-The \scalainline{Any} is the super type of every type in Scala, as such, this equality node has semantics for every case.
-The node starts off in the uninitialized state.
+The node declares semantics of the equality operation between integers and values of type \scalainline{Any}.
+This equality node has semantics for every type because the \scalainline{Any} type is the super type of all types in Scala .
+A Truffle node which can be rewritten starts off in the uninitialized state.
 When both the left and right hand side operands are integers, the node is rewritten to \javainline{equalsInt}.
 When arguments of any other combination of types are detected, either in the uninitialized state or the \javainline{equalsInt} state, the node is rewritten to the \javainline{equals} state.
 
@@ -540,10 +543,5 @@ After node rewriting, Graal JIT compiles Truffle ASTs into native machine code u
 Partial evaluation is a program optimization technique for specializing an a program (code) for a given input (data)\cite{futamura:partial-eval}.
 In the context of Truffle, this means combining a method (code) with a sequence of arguments (data)\cite{truffle:partial-eval}.
 When a Truffle AST is submitted for compilation to Graal, it is considered \textit{stable}, or no longer suitable for node rewriting.
-These arguments, previously considered dynamic input supplied to the method can now be considered static data in the method itself.
+These previously dynamic arguments can now be considered static data in the method itself.
 We can say that the partial evaluation of a method with a set of arguments will produce a specialized method that always execute with those arguments.
-In Truffle, the results of partial evaluation produce Graal IR which is ready for JIT compilation.
-
-
-
-
