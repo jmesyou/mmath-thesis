@@ -24,6 +24,23 @@
 	series = {PLDI 2017}
 }
 
+@inproceedings{truffle:object-model,
+	address = {Cracow, Poland},
+	title = {An {Object} {Storage} {Model} for the {Truffle} {Language} {Implementation} {Framework}},
+	isbn = {978-1-4503-2926-2},
+	url = {http://dl.acm.org/citation.cfm?doid=2647508.2647517},
+	doi = {10.1145/2647508.2647517},
+	abstract = {Trufﬂe is a Java-based framework for developing high-performance language runtimes. Language implementers aiming at developing new runtimes have to design all the runtime mechanisms for managing dynamically typed objects from scratch. This not only leads to potential code duplication, but also impacts the actual time needed to develop a fully-ﬂedged runtime.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 2014 {International} {Conference} on {Principles} and {Practices} of {Programming} on the {Java} {Platform} {Virtual} machines, {Languages}, and {Tools} - {PPPJ} '14},
+	publisher = {ACM Press},
+	author = {Wöß, Andreas and Wirth, Christian and Bonetta, Daniele and Seaton, Chris and Humer, Christian and Mössenböck, Hanspeter},
+	year = {2014},
+	pages = {133--144},
+	file = {Wöß et al. - 2014 - An Object Storage Model for the Truffle Language.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/5PGR6CQK/Wöß et al. - 2014 - An Object Storage Model for the Truffle Language I.pdf:application/pdf},
+}
+
 
 @phdthesis{truffle:thesis,
 	address = {Linz, Austria},
@@ -36,6 +53,15 @@
 	year = {2016},
 	note = {Publisher: Unpublished},
 	file = {Humer - 2016 - Truffle DSL.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/RI3VMB8S/Humer - 2016 - Truffle DSL A DSL for Building Self-Optimizing AS.pdf:application/pdf},
+}
+
+@inproceedings{truffleruby:object-model,
+	author = {Daloze, Benoit and Marr, Stefan and Bonetta, Daniele and Mössenböck, Hanspeter},
+	year = {2016},
+	month = {11},
+	pages = {},
+	title = {Efficient and Thread-Safe Objects for Dynamically-Typed Languages},
+	doi = {10.1145/2983990.2984001}
 }
 
 
@@ -235,6 +261,13 @@ pages = {187--204},
 file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/7AS8H4Y6/Würthinger et al. - 2013 - One VM to Rule Them All.pdf:application/pdf},
 }
 
+@misc{java:reflection,
+	title = {Using {Java} {Reflection}},
+	url = {https://www.oracle.com/technical-resources/articles/java/javareflection.html},
+	urldate = {2022-08-11},
+	file = {Using Java Reflection:/home/jyou/snap/zotero-snap/common/Zotero/storage/IWTFS5KG/javareflection.html:text/html},
+}
+
 
 @inproceedings{graalvm:ir,
 	title = {Graal {IR}: {An} {Extensible} {Declarative} {Intermediate} {Representation}},
@@ -317,25 +350,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	isbn="978-3-540-47537-8"
 }
 
-@article{10.1145/143103.143114,
-	author = {H\"{o}lzle, Urs and Chambers, Craig and Ungar, David},
-	title = {Debugging Optimized Code with Dynamic Deoptimization},
-	year = {1992},
-	issue_date = {July 1992},
-	publisher = {Association for Computing Machinery},
-	address = {New York, NY, USA},
-	volume = {27},
-	number = {7},
-	issn = {0362-1340},
-	url = {https://doi.org/10.1145/143103.143114},
-	doi = {10.1145/143103.143114},
-	abstract = {SELF's debugging system provides complete source-level debugging (expected behavior) with globally optimized code. It shields the debugger from optimizations performed by the compiler by dynamically deoptimizing code on demand. Deoptimization only affects the procedure activations that are actively being debugged; all other code runs at full speed. Deoptimization requires the compiler to supply debugging information at discrete interrupt points; the compiler can still perform extensive optimizations between interrupt points without affecting debuggability. At the same time, the inability to interrupt between interrupt points is invisible to the user. Our debugging system also handles programming changes during debugging. Again, the system provides expected behavior: it is possible to change a running program and immediately observe the effects of the change. Dynamic deoptimization transforms old compiled code (which may contain inlined copies of the old version of the changed procedure) into new versions reflecting the current source-level state. To the best of our knowledge, SELF is the first practical system providing full expected behavior with globally optimized code.},
-	journal = {SIGPLAN Not.},
-	month = {jul},
-	pages = {32–43},
-	numpages = {12}
-}
-
 @inproceedings{self:deoptimization,
 	author = {H\"{o}lzle, Urs and Chambers, Craig and Ungar, David},
 	title = {Debugging Optimized Code with Dynamic Deoptimization},
@@ -352,6 +366,25 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	location = {San Francisco, California, USA},
 	series = {PLDI '92}
 }
+
+@inproceedings{self:prototypes,
+	author = {Chambers, C. and Ungar, D. and Lee, E.},
+	title = {An Efficient Implementation of SELF a Dynamically-Typed Object-Oriented Language Based on Prototypes},
+	year = {1989},
+	isbn = {0897913337},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/74877.74884},
+	doi = {10.1145/74877.74884},
+	abstract = {We have developed and implemented techniques that double the performance of dynamically-typed object-oriented languages. Our SELF implementation runs twice as fast as the fastest Smalltalk implementation, despite SELF's lack of classes and explicit variables.To compensate for the absence of classes, our system uses implementation-level maps to transparently group objects cloned from the same prototype, providing data type information and eliminating the apparent space overhead for prototype-based systems. To compensate for dynamic typing, user-defined control structures, and the lack of explicit variables, our system dynamically compiles multiple versions of a source method, each customized according to its receiver's map. Within each version the type of the receiver is fixed, and thus the compiler can statically bind and inline all messages sent to self. Message splitting and type prediction extract and preserve even more static type information, allowing the compiler to inline many other messages. Inlining dramatically improves performance and eliminates the need to hard-wire low-level methods such as +,==, and ifTrue:.Despite inlining and other optimizations, our system still supports interactive programming environments. The system traverses internal dependency lists to invalidate all compiled methods affected by a programming change. The debugger reconstructs inlined stack frames from compiler-generated debugging information, making inlining invisible to the SELF programmer.},
+	booktitle = {Conference Proceedings on Object-Oriented Programming Systems, Languages and Applications},
+	pages = {49–70},
+	numpages = {22},
+	location = {New Orleans, Louisiana, USA},
+	series = {OOPSLA '89}
+}
+
+
 
 @inproceedings{ml:parametric-polymorphism,
 	title = "A Logic for Computable Functions with Reflexive and Polymorphic Types",
@@ -572,24 +605,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	year={1993}
 }
 
-@article{10.1145/97946.97982,
-	author = {Bracha, Gilad and Cook, William},
-	title = {Mixin-Based Inheritance},
-	year = {1990},
-	issue_date = {Oct. 1990},
-	publisher = {Association for Computing Machinery},
-	address = {New York, NY, USA},
-	volume = {25},
-	number = {10},
-	issn = {0362-1340},
-	url = {https://doi.org/10.1145/97946.97982},
-	doi = {10.1145/97946.97982},
-	abstract = {The diverse inheritance mechanisms provided by Smalltalk, Beta, and CLOS are interpreted as different uses of a single underlying construct. Smalltalk and Beta differ primarily in the direction of class hierarchy growth. These inheritance mechanisms are subsumed in a new inheritance model based on composition of mixins, or abstract subclasses. This form of inheritance can also encode a CLOS multiple-inheritance hierarchy, although changes to the encoded hierarchy that would violate encapsulation are difficult. Practical application of mixin-based inheritance is illustrated in a sketch of an extension to Modula-3.},
-	journal = {SIGPLAN Not.},
-	month = {sep},
-	pages = {303–311},
-	numpages = {9}
-}
 
 @inproceedings{gilad:mixins,
 	author = {Bracha, Gilad and Cook, William},
@@ -606,25 +621,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	numpages = {9},
 	location = {Ottawa, Canada},
 	series = {OOPSLA/ECOOP '90}
-}
-
-@article{10.1145/773473.178260,
-	author = {Srivastava, Amitabh and Eustace, Alan},
-	title = {ATOM: A System for Building Customized Program Analysis Tools},
-	year = {1994},
-	issue_date = {June 1994},
-	publisher = {Association for Computing Machinery},
-	address = {New York, NY, USA},
-	volume = {29},
-	number = {6},
-	issn = {0362-1340},
-	url = {https://doi.org/10.1145/773473.178260},
-	doi = {10.1145/773473.178260},
-	abstract = {ATOM (Analysis Tools with OM) is a single framework for building a wide range of customized program analysis tools. It provides the common infrastructure present in all code-instrumenting tools; this is the difficult and time-consuming part. The user simply defines the tool-specific details in instrumentation and analysis routines. Building a basic block counting tool like Pixie with ATOM requires only a page of code.ATOM, using OM link-time technology, organizes the final executable such that the application program and user's analysis routines run in the same address space. Information is directly passed from the application program to the analysis routines through simple procedure calls instead of inter-process communication or files on disk. ATOM takes care that analysis routines do not interfere with the program's execution, and precise information about the program is presented to the analysis routines at all times. ATOM uses no simulation or interpretation.ATOM has been implemented on the Alpha AXP under OSF/1. It is efficient and has been used to build a diverse set of tools for basic block counting, profiling, dynamic memory recording, instruction and data cache simulation, pipeline simulation, evaluating branch prediction, and instruction scheduling.},
-	journal = {SIGPLAN Not.},
-	month = {jun},
-	pages = {196–205},
-	numpages = {10}
 }
 
 @inproceedings{profiling:atom,
@@ -663,6 +659,14 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	numpages = {17},
 	keywords = {object-oriented languages, type theory}
 }
+
+@book{book:dragon,
+	title={Principles of compiler design},
+	author={Aho, Alfred V and Ullman, Jeffrey D and others},
+	year={1977},
+	publisher={Addision-Wesley Pub. Co.}
+}
+
 
 
 
