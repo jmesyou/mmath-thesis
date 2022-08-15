@@ -3,20 +3,37 @@
 % \epigraph{The best presents don't come in boxes.}{Bill Watterson}
 % \epigraph{Typing is no substitute for thinking.}{Dartmouth Basic manual, 1964}
 
-This chapter is divided into two parts.
-The first half of this chapter will describe the methods used to execute TASTy in a Truffle interpreter.
+This chapter is divided into two halves.
+The first half of this chapter will describe the methods used to execute TASTy in a Truffle interpreter \textit{without} polymorphism.
 Section \ref{impl:section:execution} will cover how to tranform the semantics of TASTy to Truffle AST nodes.
-In particular, the first section focuses how to translate the organization of data and code in \scalainline{DefDef}, \scalainline{ClassDef}, and \scalainline{Term} trees into an Truffle implementation which is executable.
-The first half of this chapter will omit the discussion of translating \scalainline{TypeDef}, \scalainline{TypeTree} and \scalainline{Type} constructs in general. 
-The second half of this chapter covers the techniques we will use to eliminate autoboxing Truffle itself is unable to eliminate. 
+In particular, the first section focuses how to translate the organization of data and code in the \scalainline{DefDef}, \scalainline{ClassDef}, and \scalainline{Term} trees into an Truffle implementation which is executable.
+The first half will omit the discussion of translating \scalainline{TypeDef}, \scalainline{TypeTree} and \scalainline{Type} constructs in general. 
+The second half of this chapter will discuss the implementation of parametric polymorphism in our interpeter and covers the techniques we use specialize nodes to eliminate autoboxing. 
 
 \section{Execution}
 \label{impl:section:execution}
 
 Scala programs in \acrshort{tasty} format are unsuitable for execution in a Truffle interpreter. 
-Programs in must be parsed and transformed into an executable representation in \textsc{TastyTruffle}. 
+Programs in must be parsed and transformed into an executable representation in Truffle.
+This involves translating the TASTy tree structure into a simpler, but semantically equivalent Truffle AST.
+For the rest of this thesis, we refer to the Truffle AST of TASTy as \textit{TastyTruffle IR}.
 As TASTy represents a Scala program close to its equivalent source representation, canonicalization compiler passes (see appendix \ref{appendix:dotty-phases}) that would otherwise normalize the IR are not present. 
 Instead, we implement TastyTruffle IR to represent a canonicalized executable intermediate representation which can be specialized on demand. 
+
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	def evaluate(tree: Tree): Object = tree match {
+		case vdef: ValDef   => ??? 				
+		case cdef: ClassDef => ???
+		case _ => ()
+	}
+
+	def newInstanceOf(tpe: Type): TruffleObject
+	\end{minted}
+	\caption{Pseudocodeto convert a \scalainline{ClassDef} into a \scalainline{ClassShape}.}
+	\label{impl:top-level}
+\end{figure}
+
 
 In the following sections, we will describe the individual types of TASTy nodes and why some are directly unsuitable for execution and how to simplify their semantics for execution.
 We will begin with a explanation of how data is encoded and defined in TASTy.
@@ -113,9 +130,9 @@ We will defer discussion on how to handle parameters of such polymorphic types t
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	case class Parameter(slot: FrameSlot, kind: FrameSlotKind)
+	case class LocalVal(slot: FrameSlot, kind: FrameSlotKind)
 		
-	class DefDefNode(desc: FrameDescriptor, params: Array[Parameter], body: TermNode) extends RootNode(desc) {
+	class DefDefNode(desc: FrameDescriptor, params: Array[LocalVal], body: TermNode) extends RootNode(desc) {
 		override def execute(frame: VirtualFrame): Object = {
 			copyArgumentsToFrame(frame)
 			body.execute()
@@ -149,7 +166,7 @@ The body of a \scalainline{DefDefNode} is then executed and its computed value r
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	def parse(ddef: DefDef): DefDefNode = {
+	def parseDefDef(ddef: DefDef): DefDefNode = {
 		val desc = new FrameDescriptor
 		val parameters = 
 			self :: ddef.params.map {
@@ -160,7 +177,7 @@ The body of a \scalainline{DefDefNode} is then executed and its computed value r
 		new DefDefNode(desc, parameters, body)
 		}
 		
-	def createParam(vdef: ValDef, desc: FrameDescriptor): Parameter = {
+	def createParam(vdef: ValDef, desc: FrameDescriptor): LocalVal = {
 		val kind = getFrameSlotKind(vdef.tpt.tpe)
 		val slot = desc.addSlot(kind)
 		Parameter(slot, kind)
@@ -178,7 +195,7 @@ In Scala, every method invocation has a receiver.
 In TASTy, this translates to every \scalainline{DefDef} is owned by a \scalainline{ClassDef}.
 In the next section, we detail how to organize call targets in Truffle by using \scalainline{ClassDef} trees.
 
-\section{Deriving Shapes from \texttt{ClassDef} trees}
+\subsection{Deriving Shapes from \texttt{ClassDef} trees}
 
 \begin{figure}[!htb]
 	\centering
@@ -224,24 +241,22 @@ However, programs which dynamically change the layout of their objects\cite{java
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	def parse(cdef: ClassDef): ClassShape = {
+	def parseClassDef(cdef: ClassDef): ClassShape = {
 		val parents = cdef.parents.map(_.symbol)
 		
 		val fields = cdef.body map {
 			case vdef: ValDef => generateField(vdef)	
 		}
-	
-		val initializer = 
-	
-		val methods = def.body map {
-			case ddef: DefDef => ddef.symbol.signature -> parse(ddef)
+		
+		val methods = (cdef.constructor :: cdef.body) map {
+			case ddef: DefDef => ddef.symbol.signature -> parseDefDef(ddef)
 		}
 		
 		val vtable = cdef.symbol.methodMembers map {
 			symbol => symbol.signature -> symbol
 		}
 	
-		new ClassShape(cdef.symbol, parents, fields, methods, vtable)
+		new ClassShape(cdef.symbol, parents, fields, init ++ methods, vtable)
 	}
 
 	def generateField(vdef: ValDef): Field = vdef match {
@@ -255,10 +270,11 @@ However, programs which dynamically change the layout of their objects\cite{java
 
 Recall the definition of a \scalainline{ClassDef} in figure \ref{recall:classdef}.
 Each \scalainline{ClassDef} tree can be parsed into a corresponding \scalainline{ClassShape}, given in Figure \ref{impl:classshape}.
-The \scalainline{name} parameter of \scalainline{ClassDef} is insufficient to be used as an identifier for a \scalainline{ClassShape}.
+Figure \ref{impl:parse-classdef} provides a very simplified implementation of the parsing steps to transform a \scalainline{ClassDef} into a \scalainline{ClassShape}.
+The \scalainline{name} parameter of \scalainline{ClassDef} alone is insufficient to be used as an identifier for a \scalainline{ClassShape}.
 Names do not disambiguate between classes of the same name declared in different packages.
 Instead, we used the symbol of the \scalainline{ClassDef} tree as the identifier for the \scalainline{ClassShape}.
-A \scalainline{ValDef} tree in the body of a \
+A \scalainline{ValDef} tree in the body of a 
 
 
 \begin{figure}[!htb]
@@ -314,15 +330,47 @@ If a method signature does not have a call target in the current shape, the shap
 
 \subsection{Creating Instances with the \texttt{New} Tree}
 
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	abstract class NewNode(tpe: TypeNode) extends TermNode {
+	}
+	\end{minted}
+	\caption{Simplified implementation of the call node with a polymorphic inline cache used in TastyTruffle.}
+	\label{implementation:new-node}
+\end{figure}
+
+
 \subsection{Disambiguating \texttt{Apply} trees}
 \label{impl:subsection:apply}
-The \scalainline{Apply} tree is a context-sensitive tree which represents multiple types of operations:
+The \scalainline{Apply} tree is a context-dependent tree which represents multiple types of operations.
+These operations are disambiguated by the types of their receiver.
+In the following subsections, we enumerate all possible semantics in our subset of TASTy:
 
-\begin{description}
-	\item[Method invocation] description
-	\item[Array access]
-	\item[Arithmetic and Logical Operators]
-\end{description}
+\subsubsection*{Arithmetic and Logical Operators}
+
+In TASTy there are no unary and binary operators typically found in Java or other imperative languages.
+Unary and binary operators are actually an invocation of 0-argument (unary operator) or 1-argument (binary operator) method. 
+For example, the following addition operator in Scala \scalainline{1 + 2} is desugared to \scalainline{1.+(2)}. 
+That is, the binary operator \scalainline{+} is represented as the invocation of the instance function \scalainline{Int.+} on the receiver with value \scalainline{1} and type \scalainline{Int} with a single argument \scalainline{2}.
+Normally in the Scala compilation pipeline, methods which operate on primitive types and have an equivalent bytecode instruction on the JVM\cite{java:vm-spec} are replaced by those instructions in compiled program bytecode. 
+This process of selecting efficient implementations for numerical or logical operations is commonly known as intrinsification.
+Similarly, TastyTruffle avoids implementing methods of primitive types with actual call semantics as primitive operations are frequently used and simplify optimization for Graal.
+
+\subsubsection*{Array Access}
+
+The syntax for accessing array elements in Scala does not differ from the invocation of method on an array.
+In other imperative languages such as Java, the syntax for accessing arrays is commonly separate from the syntax of invoking a method.
+For example, the access \scalainline{array(0)} is desugared to \scalainline{array.apply(0)} once the program is emitted in TASTy.
+
+Similar to unary and binary operators, the underlying implementation of array operations are intrinsified into JVM bytecode instructions where possible.
+However, using the bytecode provided in figure \ref{example:contains-bytecode} as an analog, operations on polymorphic arrays \scalainline{cannot} be intrinsified.
+Instead, polymorphic array operations are handled by functions in the Scala runtime library.
+The overhead of such operations are substantial and commonly represent the largest performance bottlenecks in array-bound programs.
+These costs are additionally abstracted from the user as they commonly arise when using array-backed collections from the Scala standard library.
+
+The implementation of our interpreter does not incorporate the same runtime code to handle polymorphic array operations.
+Instead, TastyTruffle always intrinsifies array operations and specializes polymorphic array operations so that they are monomorphic array operations.
+We defer the discussion of this optimization until the second half of this chapter.
 
 \subsubsection*{Method Invocation}
 
@@ -354,13 +402,13 @@ The \scalainline{Apply} tree is a context-sensitive tree which represents multip
 	\label{implementation:poly-cache-call-node}
 \end{figure}
 
-Method invocations exists in multiple forms because tree canocalization happens immediately after the TASTy picking phase in the compilation pipeline.
-The result is that TASTy trees retain some syntactic elements from their Scala sources. 
-For example, Truffle provides two abstractions for call nodes, the \textit{direct call node} is used when the call target can be statically resolved. 
-In TASTy, this includes the set of methods with private or final modifiers\cite{java:lang-spec} and class constructors. 
-Otherwise, the \textit{indirect call node} is used for calls which have dynamically resolved call targets. 
-\textsc{TastyTruffle} uses a singular call node implementation for both monomorphic and polymorhic calls. 
-we utilize a polymorphic inline cache\cite{self:polymorphic-inline-caches} to eliminate the overhead of resolving polymorphic calls for \acrshort{jit} compilation. 
+Otherwise, the \scalainline{Apply} tree actually encodes a `normal' method invocation.
+Truffle provides two abstractions for call nodes, the \textit{direct call node} is used when the call target can be statically resolved. 
+In our subset of TASTy, this is the set of methods which have private or final modifiers\cite{java:lang-spec} and class constructors. 
+Otherwise, the Truffle \textit{indirect call node} is used for calls where call targets must be dynamically resolved. 
+Using indirect calls instead of direct calls comes with performance overheads as indirect call nodes cannot be inlined and inhibits Graal's dynamic intraprocedural analyses.
+In this thesis, we describe a singular call node implementation for both statically and dynamically dispatched calls. 
+In order to minimize the use of indirect call nodes, we take advantage of a polymorphic inline cache\cite{self:polymorphic-inline-caches} to eliminate the overhead of resolving virtual calls for \acrshort{jit} compilation. 
 Figure \ref{implementation:poly-cache-call-node} shows a simplified Truffle call node in \textsc{TastyTruffle} which implements a polymorphic inline cache.
 
 \begin{figure}[!htb]
@@ -370,56 +418,56 @@ Figure \ref{implementation:poly-cache-call-node} shows a simplified Truffle call
 	\label{example:poly-cache-call-node}
 \end{figure}
 
-The Truffle \acrshort{dsl} emits a cache which is searched linearly based on the type of receiver. 
-When the type of receiver has not been seen in the inline cache, an additional cache entry is generated and appended to the cache for the next call. 
-The size of an polymorphic inline cache must be kept reasonable ???. 
-The generated inline cache can be used to inline code and JIT optimized based on the type of the receiver seen at a call site. 
+The Truffle \acrshort{dsl} will then emit a cache which is searched linearly based on the type of receiver. 
+When the type of receiver has not been seen in the inline cache, an additional cache entry is generated and appended to the cache for the next call.
+Because a polymorphic inline cache dispatches direct calls based on the type of the receiver value seen, Graal is able to speculatively optimize the call site with the assumption that the receiver is always the same type.
+Furthermore, this allows the calls site to be inlined, allowing a feedback loop of optimizations to propagate through the inlined tree.
+The size of an polymorphic inline cache must be kept reasonable such that the cost of searching the cache should not defeat the speedup afforded by using the cache.
+If the size of the cache exceeds the limit set, the call node is rewritten to use an indirect calls as the cost of inline cache lookups will outweight the penalty of an indirect call. 
 
-When the polymorphic inline cache is applied to a monomorphic call site, it simplifies to a single element inline cache\cite{smalltalk:inline-caches}. 
+When the polymorphic inline cache is applied to a monomorphic call site (where the type of the receiver does not change), it simplifies to a single element inline cache\cite{smalltalk:inline-caches}. 
 Because the type of the receiver at the call site remains stable, the cache look up of the call target based on the type always succeeds and the call site never fallbacks to using an indirect call node.
 
-\subsubsection{Unary and Binary Expressions}
+\subsection{Field Access with the \texttt{Select} Tree}
 
-Unary and Binary operations in Scala are syntactic sugar for function invocation. 
-For example, the following addition \scalainline{1 + 2} is desugared to \scalainline{1.+(2)}. 
-That is, the binary operator \scalainline{+} is represented as the invocation of the instance function \scalainline{Int.+} on the receiver with value \scalainline{1} and type \scalainline{Int} with a single argument \scalainline{2}.
-Normally in the Scala compilation pipeline, methods which operate on primtive types and have an underlying implementation on the JVM\cite{java:vm-spec}, e.g. in a bytecode instruction, are replaced by those instructions in compiled program bytecode. 
-Similarly, TastyTruffle avoids implementing methods of primitive types with actual call semantcs as primitive operations are frequently used and simple to optimize as instrinsic implementations exist on many Java virtual machines.\cite{???}
+\subsection{Storing Values with the \texttt{Assign} Tree}
 
 \subsection{The \texttt{Block} tree}
 
-\subsection{Generating Frame Slots from \texttt{ValDef} trees} 
+In this section, we cover the translation of the \scalainline{Block} tree to its TastyTruffle IR equivalent.
+The \scalainline{Block} is unique among term trees as it can describes data as well as code.
+In our subset of TASTy, this means that a block may contain declarations of local variables as well as executable terms.
 
-The \scalainline{ValDef} tree is a multi-purpose node which represents value definitions in many contexts.
-This section will only cover the \scalainline{ValDef} tree in the context of local variables.
-Sections \ref{impl:subsection:defdef} and \ref{impl:subsection:classdef} will cover the remaining contexts where \scalainline{ValDef} trees appear.
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+		def parseBlock(block: Block): BlockNode = {
+			
+		}
+		
+		def generateLocal
+		
+	\end{minted}
+	\caption{Pseudocode for parsing \scalainline{Block} into \scalainline{BlockNode}}
+	\label{impl:parse-block}
+\end{figure}
+We divide the dicussion of blocks into the resolution of local variables when encountering a \scalainline{ValDef} tree and 
+
+\subsubsection*{Generating Frame Slots from \texttt{ValDef} trees} 
 
 Local variables are variables which are bound to a \textit{scope}. 
-A scope represents the lifetime in which a variable can refer to an entity. 
+A scope represents the lifetime in which a variable can refer to an value. 
 Similarly, uses of variables are only valid when used under the appropriate scope. 
 Local variables and their use sites are represented in intermediate representations through a myriad of methods. 
 In abstract syntax trees, local variables and their used are represented as nodes \textit{dominated} by their scopes (which are themselves nodes). 
 Unlike more simplified \acrshort{ir}, abstract syntax trees do not encode any data dependence between definitions and uses\cite{ssa}. 
-In order to execute the tree, name binding must be resolved when ???
-
-In \acrshort{tasty}, a local variable is represented by the \scalainline{ValDef} tree node:
-
-\begin{figure}[H]
-	\begin{minted}{scala}
-	case class ValDef(name: String, tpt: TypeTree, rhs: Option[Term]) extends Tree 
-	\end{minted}
-	\caption{Simplified \scalainline{ValDef} tree}
-\end{figure}
+In order to execute the tree, name binding must be resolved for variables of differing scopes.
 
 The \scalainline{ValDef} tree represents the site of a local variable declaration when the node is dominated by a \scalainline{Block} node. 
-A \scalainline{ValDef} contains the simple, unqualified name of the declaration, the type as represented in the source program and the intializer. 
+Recall that a \scalainline{ValDef} contains the simple, unqualified name of the declaration, the type as represented in the source program and the intializer. 
 When a \scalainline{ValDef} is dominated by a \scalainline{Block}, the initializer will always be non-empty.
 
+
 \subsection{Loop Nodes from the \texttt{While} Tree}
-
-\subsection{Field Access with the \texttt{Select} Tree}
-
-\subsection{Writing Data with the \texttt{Assign} Tree}
 
 \subsection{Accessing Locals and Globals with \texttt{Ident} Tree}
 
@@ -478,14 +526,14 @@ Dispatch chains\cite{???}
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	class TypeDispatchNode(parent: RootNode) extends TermNode {
+	class TypeDispatchNode(parent: RootNode, params: Array[TypeNode]) extends TermNode {
 		
 		type TypeArguments: Array[Type]
 		@CompilerDirectives.CompilationFinal
 		var cache: Map[TypeArguments, DirectCallNode]
 		
 		override def execute(frame: VirtualFrame): Object = {
-			val types: TypeArguments = resolveTypeParameters(frame)
+			val types: TypeArguments = params.map(_.resolve(frame))
 			dispatch(frame, args);
 		}
 		
