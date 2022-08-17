@@ -687,5 +687,63 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 
 
 
+@article{conditional-constant-prop,
+	title = {Constant propagation with conditional branches},
+	volume = {13},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/103135.103136},
+	doi = {10.1145/103135.103136},
+	abstract = {Constant propagation is a well-known global flow analysis problem. The goal of constant propagation is to discover values that are constant on all possible executions of a program and to propagate these constant values as far foward through the program as possible. Expressions whose operands are all constants can be evaluated at compile time and the results propagated further. Using the algorithms presented in this paper can produce smaller and faster compiled programs. The same algorithms can be used for other kinds of analyses (e.g., type of determination). We present four algorithms in this paper, all conservitive in the sense that all constants may not be found, but each constant found is constant over all possible executions of the program. These algorithms are among the simplest, fastest, and most powerful global constant propagation algorithms known. We also present a new algorithm that performs a form of interprocedural data flow analysis in which aliasing information is gathered in conjunction with constant progagation. Several variants of this algorithm are considered.},
+	number = {2},
+	urldate = {2022-03-27},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	author = {Wegman, Mark N. and Zadeck, F. Kenneth},
+	month = apr,
+	year = {1991},
+	keywords = {constant propagation, abstract interpretation, code optimization, control flow graph, interprocedural analysis, procedure integration, static single assignment form, type determination},
+	pages = {181--210},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/7FGJYTL3/Wegman and Zadeck - 1991 - Constant propagation with conditional branches.pdf:application/pdf},
+}
+
+
+@inproceedings{variable-congruence,
+	title = {Detecting equality of variables in programs},
+	doi = {10.1145/73560.73561},
+	abstract = {An algorithm for detecting when two computations produce equivalent values by developing a static property called congruence, which is conservative in that any variables detected to be e:quivalent will in fact be equivalent, but not all equivalences are detected. paper presents an algorithm for detecting when two computations produce equivalent values. The equivalence of programs, and hence the equivalence of values, is in general undecidable. Thus, the best one can hope to do is to give an efficient algorithm that detects a large subclass of all the possible equivalences in a program. Two variables are said to be equivalent at a point p if those variables contain the same values whenever control reaches p during any possible execution of the program. We will not examine all possible executions of the program. Instead, we will develop a static property called congruence. Congruence implies, but is not implied by, equivalence. Our approach is conservative in that any variables detected to be e:quivalent will in fact be equivalent, but not all equivalences are detected. Previous work has shown how to apply a technique c.alled value numbering in basic blocks [CS70]. Value numbering is essentially symbolic execution on straight-line programs (basic blocks). Symbolic execution implies that two expressions are assumed to be equal only when they consist of the same functions and the corresponding arguments of these functions are equal. An expression DAG is associated with each assignment statement. A hashing algorithm assigns a unique integer, the value number, to each different expression tree. Two variables that are assigned the same integer are guaranteed to be equivalent. After the code},
+	booktitle = {{POPL} '88},
+	author = {Alpern, B. and Wegman, M. and Zadeck, F. K.},
+	year = {1988},
+}
+
+@inproceedings{osr,
+	title = {Design, implementation and evaluation of adaptive recompilation with on-stack replacement},
+	doi = {10.1109/CGO.2003.1191549},
+	abstract = {Modern virtual machines often maintain multiple compiled versions of a method. An on-stack replacement (OSR) mechanism enables a virtual machine to transfer execution between compiled versions, even while a method runs. Relying on this mechanism, the system can exploit powerful techniques to reduce compile time and code space, dynamically de-optimize code, and invalidate speculative optimizations. The paper presents a new, simple, mostly compiler-independent mechanism to transfer execution into compiled code. Additionally, we present enhancements to an analytic model for recompilation to exploit OSR for more aggressive optimization. We have implemented these techniques in Jikes RVM and present a comprehensive evaluation, including a study of fully automatic, online, profile-driven deferred compilation.},
+	booktitle = {International {Symposium} on {Code} {Generation} and {Optimization}, 2003. {CGO} 2003.},
+	author = {Fink, S.J. and Qian, Feng},
+	month = mar,
+	year = {2003},
+	keywords = {Computer languages, Computer science, Counting circuits, Java, Optimizing compilers, Power system modeling, Runtime, Virtual machining, Virtual manufacturing, Voice mail},
+	pages = {241--252},
+	file = {IEEE Xplore Abstract Record:/home/jyou/snap/zotero-snap/common/Zotero/storage/PDK2DXDG/1191549.html:text/html},
+}
+
+
+@article{loop-unrolling,
+	title = {Automatic loop interchange},
+	volume = {19},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/502949.502897},
+	doi = {10.1145/502949.502897},
+	abstract = {Parallel and vector machines are becoming increasingly important to many computation intensive applications. Effectively utilizing such architectures, particularly from sequential languages such as Fortran, has demanded increasingly sophisticated compilers. In general, a compiler needs to significantly reorder a program in order to generate code optimal for a specific architecture.Because DO loops typically control the execution of a number of statements, the order in which loops are executed can dramatically affect the performance of a machine on a particular section of code. In particular, loop interchange can often be used to enhance the performance of code on parallel or vector machines.Determining when loops may be safely and profitably interchanged requires a study of the data dependences in the program. This work discusses specific applications of that theory to loop interchange. This theory is described as it has been implemented in PFC (Parallel Fortran Converter) -- a program which attempts to uncover operations in sequential Fortran code that may be safely rewritten as vector operations.},
+	number = {6},
+	urldate = {2022-08-17},
+	journal = {ACM SIGPLAN Notices},
+	author = {Allen, John R. and Kennedy, Ken},
+	month = jun,
+	year = {1984},
+	pages = {233--246},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/CQ85R8HI/Allen and Kennedy - 1984 - Automatic loop interchange.pdf:application/pdf},
+}
 
 

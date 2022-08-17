@@ -15,8 +15,7 @@
 		def contains(elem: T): Boolean = {
 			var i = 0
 			while (i < size0) {
-				if (array(i) == elem)
-				return true
+				if (array(i) == elem) return true
 				i += 1
 			}
 			false
@@ -25,10 +24,7 @@
 		def reverse(): Unit = {
 			var pos = 0
 			while (pos * 2 < size0) {
-				val tmp1: T = array(pos)
-				val tmp2: T = get(size0 - pos - 1)
-				set(pos, tmp2)
-				set(size0 - pos - 1, tmp1)
+				swap(pos, size0 - pos - 1) // swaps two elements in the array
 				pos += 1
 			}
 		}
@@ -42,8 +38,7 @@
 		
 		// Ensure that the internal array has at least `n` cells. 
 		def ensureSize(n: Int): Unit = {
-			// Use a Long to prevent overflows
-			val arrayLength: Long = array.length 
+			val arrayLength: Long = array.length // Use a Long to prevent overflows
 			if (n > arrayLength) {
 				var newSize: Long = arrayLength * 2
 				while (n > newSize)
@@ -60,8 +55,6 @@
 				array = resized
 			}
 		}
-		// Swap two elements of this array, omitted for brevity
-		def swap(a: Int, b: Int): Unit = ??? 
 	\end{minted}
 	\caption{Code of the \scalainline{ArrayBuffer} benchmark.}
 	\label{example:arraybuffer-benchmark}
