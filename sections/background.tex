@@ -70,8 +70,8 @@ The \scalainline{contains} method is method-polymorphic and must be specialized 
 		override def contains[T1 >: T](elem: T1): Boolean = {
 			var these: List[T] = this
 			while (!these.isEmpty) 
-			if (these.head == elem) return true
-			else these = these.tail
+				if (these.head == elem) return true
+				else these = these.tail
 			false
 		}
 			
@@ -275,6 +275,10 @@ Term parameters may have types which are derived from the type parameter section
 	case class Block(statements: List[Statement], expr: Term) extends Term
 	// Tree representing a while loop
 	case class While(cond: Term, body: Term) extends Term
+	// Tree representing an if/then/else if (...) ... else ... in the source code
+	case class If(cond: Term, thenp: Term, elsep: Term) extends Term
+	// Tree representing a return in the source code
+	case class Return(expr: Term, from: Symbol) extends Term
 	// Tree representing a selection of definition with a given name on a given prefix
 	case class Select(qualifier: Term, selector: String) extends Term 
 	// Tree representing an application of arguments.
@@ -283,6 +287,8 @@ Term parameters may have types which are derived from the type parameter section
 	case class TypeApply(fun: Term, args: List[TypeTree]) extends Term
 	// Tree representing a reference to definition with a given name
 	case class Ident(name: String) extends Ref 
+	// Tree representing constant value
+	case class Constant(value: Int | ... | String) extends Term 
 	\end{minted} 
 	\caption{Pseudocode class definitions for a subset of TASTy trees.}
 	\label{tasty:terms}
@@ -414,7 +420,7 @@ In the next section, we describe the process which transforms Scala programs to 
 Type erasure\cite{java:generics} is a transformation which converts polymorphic classes and methods in Scala to monomorphic classes and methods. 
 This conversion is necessary because the JVM does not support polymorphic classes during runtime.
 Erasure ensures that any given polymorphic class and method has a single representation in practice.
-Type erasure is a crucial part of the Scala compilation which renders TASTy incomplete.
+Type erasure is a crucial part of Scala compilation that renders TASTy incomplete.
 Figure \ref{example:erase-cons} shows the \scalainline{Cons} class after type erasure.
 
 \begin{figure}[!htb]
