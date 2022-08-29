@@ -276,34 +276,19 @@ description={Phi node}
 % separate documents, they would each start with the \chapter command, i.e, 
 % do not contain \documentclass or \begin{document} and \end{document} commands.
 %======================================================================
-
 \include{sections/introduction.tex}
-
 %======================================================================
-
 \include{sections/background.tex}
-
 %======================================================================
-
 \include{sections/implementation.tex}
-
 %======================================================================
-
 \include{sections/evaluation.tex}
-
 %======================================================================
-
 \include{sections/related-work.tex}
-
 %======================================================================
-
+\include{sections/future-work.tex}
 %======================================================================
-\chapter{Future Work}
-%======================================================================
-
-
-%======================================================================
-\chapter{Conclusions}
+\include{sections/conclusion.tex}
 %======================================================================
 
 %----------------------------------------------------------------------
@@ -340,6 +325,9 @@ description={Phi node}
 % Add a title page before the appendices and a line in the Table of Contents
 \chapter*{APPENDICES}
 \addcontentsline{toc}{chapter}{APPENDICES}
+
+\chapter{Scala Unified Type System}
+\includesvg[pretex=\footnotesize,width=\textwidth]{figures/svg/unified-types-diagram.svg}
 
 \chapter{Scala 3 Compiler Phases}
 \label{appendix:dotty-phases}

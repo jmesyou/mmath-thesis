@@ -55,6 +55,15 @@
 	file = {Humer - 2016 - Truffle DSL.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/RI3VMB8S/Humer - 2016 - Truffle DSL A DSL for Building Self-Optimizing AS.pdf:application/pdf},
 }
 
+@phdthesis{trufflyruby:specialization,
+	title = {Specialising {Dynamic} {Techniques} for {Implementing} the {Ruby} {Programming} {Language} {\textbar} {Research} {Explorer} {\textbar} {The} {University} of {Manchester}},
+	url = {https://www.research.manchester.ac.uk/portal/en/theses/specialising-dynamic-techniques-for-implementing-the-ruby-programming-language(0899248b-bbec-4d4c-9507-f775f023407c).html},
+	language = {en},
+	urldate = {2022-07-20},
+	author = {Seaton, Chris},
+	file = {Snapshot:/home/jyou/snap/zotero-snap/common/Zotero/storage/3F9DSHU4/specialising-dynamic-techniques-for-implementing-the-ruby-programming-language(0899248b-bbec-4d.html:text/html},
+}
+
 @inproceedings{truffleruby:object-model,
 	author = {Daloze, Benoit and Marr, Stefan and Bonetta, Daniele and Mössenböck, Hanspeter},
 	year = {2016},
@@ -745,5 +754,43 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	pages = {233--246},
 	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/CQ85R8HI/Allen and Kennedy - 1984 - Automatic loop interchange.pdf:application/pdf},
 }
+
+@article{abdc:pi-nodes,
+	title = {{ABCD}: eliminating array bounds checks on demand},
+	volume = {35},
+	issn = {0362-1340},
+	shorttitle = {{ABCD}},
+	url = {https://doi.org/10.1145/358438.349342},
+	doi = {10.1145/358438.349342},
+	abstract = {To guarantee typesafe execution, Java and other strongly typed languages require bounds checking of array accesses. Because array-bounds checks may raise exceptions, they block code motion of instructions with side effects, thus preventing many useful code optimizations, such as partial redundancy elimination or instruction scheduling of memory operations. Furthermore, because it is not expressible at bytecode level, the elimination of bounds checks can only be performed at run time, after the bytecode program is loaded. Using existing powerful bounds-check optimizers at run time is not feasible, however, because they are too heavyweight for the dynamic compilation setting. ABCD is a light-weight algorithm for elimination of Array Bounds Checks on Demand. Its design emphasizes simplicity and efficiency. In essence, ABCD works by adding a few edges to the SSA value graph and performing a simple traversal of the graph. Despite its simplicity, ABCD is surprisingly powerful. On our benchmarks, ABCD removes on average 45\% of dynamic bound check instructions, sometimes achieving near-ideal optimization. The efficiency of ABCD stems from two factors. First, ABCD works on a sparse representation. As a result, it requires on average fewer than 10 simple analysis steps per bounds check. Second, ABCD is demand-driven. It can be applied to a set of frequently executed (hot) bounds checks, which makes it suitable for the dynamic-compilation setting, in which compile-time cost is constrained but hot statements are known.},
+	number = {5},
+	urldate = {2022-04-13},
+	journal = {ACM SIGPLAN Notices},
+	author = {Bodík, Rastislav and Gupta, Rajiv and Sarkar, Vivek},
+	month = may,
+	year = {2000},
+	pages = {321--333},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/C6XEN9ZW/Bodík et al. - 2000 - ABCD eliminating array bounds checks on demand.pdf:application/pdf},
+}
+
+
+@inproceedings{conditional-elim,
+	address = {New York, NY, USA},
+	series = {{PLDI} '97},
+	title = {Interprocedural conditional branch elimination},
+	isbn = {978-0-89791-907-4},
+	url = {https://doi.org/10.1145/258915.258929},
+	doi = {10.1145/258915.258929},
+	abstract = {The existence of statically detectable correlation among conditional branches enables their elimination, an optimization that has a number of benefits. This paper presents techniques to determine whether an interprocedural execution path leading to a conditional branch exists along which the branch outcome is known at compile time, and then to eliminate the branch along this path through code restructuring. The technique consists of a demand driven interprocedural analysis that determines whether a specific branch outcome is correlated with prior statements or branch outcomes. The optimization is performed using a code restructuring algorithm that replicates code to separate out the paths with correlation. When the correlated path is affected by a procedure call, the restructuring is based on procedure entry splitting and exit splitting. The entry splitting transformation creates multiple entries to a procedure, and the exit splitting transformation allows a procedure to return control to one of several return points in the caller. Our technique is efficient in that the correlation detection is demand driven, thus avoiding exhaustive analysis of the entire program, and the restructuring never increases the number of operations along a path through an interprocedural control flow graph. We describe the benefits of our interprocedural branch elimination optimization (ICBE). Our experimental results show that, for the same amount of code growth, the estimated reduction in executed conditional branches is about 2.5 times higher with the ICBE optimization than when only intraprocedural conditional branch elimination is applied.},
+	urldate = {2022-08-28},
+	booktitle = {Proceedings of the {ACM} {SIGPLAN} 1997 conference on {Programming} language design and implementation},
+	publisher = {Association for Computing Machinery},
+	author = {Bodík, Rastislav and Gupta, Rajiv and Soffa, Mary Lou},
+	month = may,
+	year = {1997},
+	pages = {146--158},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/6NZYVBW9/Bodík et al. - 1997 - Interprocedural conditional branch elimination.pdf:application/pdf},
+}
+
 
 
