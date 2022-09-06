@@ -2,17 +2,71 @@
 \chapter{Related Work}
 
 This chapter discusses previous academic and industrial work related to this thesis. 
-The first section of this chapter covers the numerous prior and ongoing efforts in the implementation of Truffle interpreters.
-The second section of this chapter provides an overview on previous efforts to specialize Scala.
-The third section covers related work on the specialization of Java and other languages in the Java ecosystem.
+The first section provides an introduction on the various implementations of parametric polymorphism
+The second section covers related work on the implementation on polymorphism in Java.
+The third section of this chapter provides an overview on previous and state-of-the-art efforts to specialize Scala.
 The last section presents previous work which has been done to specialize programs in other programming languages besides the Scala and Java.
 
-\section{Specializing Java}
+\section{Implementations of Parametric Polymorphism}
 
-\section{Specializing Scala}
+Implementations of parametric polymorphism can be divided into three categories\cite{types-of-polymorphism}:
+
+\begin{description}
+	\item[\textit{Uniform polymorphism}] 
+	This approach provides a single data representation for each polymorphic type. 
+	Examples of this implementation is the type erasure transformation applied in the Java and Scala compilation pipelines.
+	Contemporary literature also refers to this form of polymorphism as the \scalainline{homogeneous translation}.
+	\item[\textit{Textual polymorphism}]
+	In contrast to uniform polymorphism, textual polymorphism ensures there is a unique data representation for every instantiation of a polymorphic type.
+	There many approached to implementing textual polymorphism, which we will discuss further in this section.
+	\item[\textit{Tagged polymorphism}] 
+	Finally, tagged polymorphism allows for many representations for a polymorphic but adaptor operations handle different representations.
+\end{description}
+
+In this section, we will cover various approaches in implementing parametric polymorphism in the context of these three forms.
+As polymorphism in Java and Scala are more relevant to the central themes of this thesis, we will first focus on implementations of parametric polymorphism for other languages.
+
+The implementation of polymorphism in the Common Language Runtime\cite{clr:overview}\cite{clr:spec} makes use of types in bytecode during execution.
+
+\section{Generics and Java}
+The Java language did not initially support parametric polymorphism in its initial release.
+As a result, many different approaches were proposed before a uniform polymorphism became the accepted implementation for Java.
+Pizza\cite{java:pizza} was a superset of Java that supported heterogeneous and homogeneous translations of polymorphic definitions into Java.
+Agesen, Freund, and Mitchell proposed a heterogeneous translation for parametric polymorphism for Java during load-time instead of compile-time\cite{java:agesen-type-params}.
+NextGen\cite{java:nextgen} separates the translation of polymorphic classes into monomorphic and polymorphic components.
+In NextGen, Only the polymorphic portions of a class definition were specialized; These specialized classes inherited monomorphic class members from a common parent class.
+Finally, GJ\cite{java:gj} proposed the basis for the now accepted solution of type erasure for implementing parametric polymorphism in Java.
+All of these approaches deal with determining the data representation of polymorphic definitions in a static context.
+
+\section{Specialization in Scala}
+
+Prior efforts to specialize Scala have been based on static compilation techniques restricted by the \textit{open world assumption}.
+The open world assumption is an assumption that the program under compilation is \textit{incomplete}, extra parts of the program will be supplied in a future compilation.
+As such, compilation results of the current parts of program must be interoperable with the compilation results of the remaining yet-to-be determined parts.
+All previous approaches also attempt avoid the problem of bytecode explosion, where the specialization of polymorphic data with every possible type creates an exponential number of unique data representations.
+Dragos describes the earliest efforts to specialize Scala programs with the aid of annotations\cite{scala:specialization}.
+Annotations avoids unnecessarily specializing polymorphic data through knowledge injected by a programmer.
+Ureche, Talau, and Odersky expand upon this approach by reducing unnecessary duplication among specializations through sharing\cite{scala:miniboxing}.
+Sharing exploits the insight that specializations of some value types may be reused for the specializations of other value types.
+For example, the representation of \scalainline{ArrayBuffer[Long]} could be used, with the addition of some glue code, for the specialization of \scalainline{ArrayBuffer[Int]} instead of generating an additional specialized representation. 
+Both approaches mix the implementation of uniform polymorphism with user-guided specialization directives.
+Our approach is inherently based on the \textit{closed world assumption} as the entire program must be loaded for execution.
 
 \section{Truffle Interpreters}
 
+There many Truffle interpreters in active development at the time of writing.
+In this section, we will attempt to provide a brief survey of Truffle interpreters.
+As there are many implementations available, we will attempt to focus on specific implementations, their goals, and their innovations.
+
 \subsection{Tree Interpreters}
 
+TruffleRuby
+FastR
+Graal.js
+Graal.Python
+
 \subsection{Bytecode Interpreters}
+
+Sulong
+GraalWasm
+Espresso

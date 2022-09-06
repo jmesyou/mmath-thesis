@@ -150,6 +150,38 @@
 	organization={Springer}
 }
 
+
+@book{scala:specialization,
+	address = {Lausanne},
+	title = {Compiling {Scala} for {Performance}},
+	abstract = {Scala is a new programming language bringing together object-oriented and functional programming. Its defining features are uniformity and extensibility. Scala offers great flexibility for programmers, allowing them to grow the language through libraries. Oftentimes what seems like a language feature is in fact implemented in a library, effectively giving programmers the power of language designers. The downside of this flexibility is that familiar looking code may hide unexpected performance costs. It is important for Scala compilers to bring down this cost as much as possible. We identify several areas of impact for Scala performance: higher-order functions and closures, and generic containers used with primitive types. We present two complementary approaches for improving performance in these areas: optimizations and specialization. Compiler optimization can bring down the cost through a combination of aggressive inlining of higher-order functions, an extended version of copy-propagation and dead-code elimination. Both anonymous functions and boxing can be eliminated by this approach. We show on a number of benchmarks that these language features can be up to 5 times faster when properly optimized, on current day JVMs. We propose a new approach to compiling parametric polymorphism for performance at primitive types. We mix a homogeneous translation scheme with user-directed specialization for primitive types. Type parameters may be annotated to require specialization of code depending on them. We propose definition-site specialization for primitive types, achieving separate compilation and no boxing when both the definition and call site are specialized. Specialized classes are compatible with unspecialized code, and specialization agnostic code can work with specialized instances, meaning that specialization is opportunistic. We present a formalism of a small subset of Scala with specialization and prove that specialization preserves types. We implemented this translation in the Scala compiler and report on improvements on a set of benchmarks, showing that specialization can make programs more than two times faster},
+	language = {eng},
+	publisher = {EPFL},
+	editor = {Dragos, Iulian},
+	year = {2010},
+	doi = {10.5075/epfl-thesis-4820},
+	keywords = {boxing, compiler, generics, optimization, parametric polymorphism, Scala, specialization},
+	file = {Full Text:/home/jyou/snap/zotero-snap/common/Zotero/storage/8C3WJ4FA/Dragos - 2010 - Compiling Scala for Performance.pdf:application/pdf},
+}
+
+@inproceedings{scala:miniboxing,
+	address = {Indianapolis, Indiana, USA},
+	title = {Miniboxing: {Improving} the {Speed} to {Code} {Size} {Tradeoff} in {Parametric} {Polymorphism} {Translations}},
+	isbn = {978-1-4503-2374-1},
+	shorttitle = {Miniboxing},
+	url = {http://dl.acm.org/citation.cfm?doid=2509136.2509537},
+	doi = {10.1145/2509136.2509537},
+	abstract = {Parametric polymorphism enables code reuse and type safety. Underneath the uniform interface exposed to programmers, however, its low level implementation has to cope with inherently non-uniform data: value types of different sizes and semantics (bytes, integers, ﬂoating point numbers) and reference types (pointers to heap objects). On the Java Virtual Machine, parametric polymorphism is currently translated to bytecode using two competing approaches: homogeneous and heterogeneous. Homogeneous translation requires boxing, and thus introduces indirect access delays. Heterogeneous translation duplicates and adapts code for each value type individually, producing more bytecode. Therefore bytecode speed and size are at odds with each other. This paper proposes a novel translation that signiﬁcantly reduces the bytecode size without affecting the execution speed. The key insight is that larger value types (such as integers) can hold smaller ones (such as bytes) thus reducing the duplication necessary in heterogeneous translations. In our implementation, on the Scala compiler, we encode all primitive value types in long integers. The resulting bytecode approaches the performance of monomorphic code, matches the performance of the heterogeneous translation and obtains speedups of up to 22x over the homogeneous translation, all with modest increases in size.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 2013 {ACM} {SIGPLAN} {International} {Conference} on {Object} {Oriented} {Programming} {Systems} {Languages} \& {Applications} - {OOPSLA} '13},
+	publisher = {ACM Press},
+	author = {Ureche, Vlad and Talau, Cristian and Odersky, Martin},
+	year = {2013},
+	pages = {73--92},
+	file = {Ureche et al. - 2013 - Miniboxing Improving the Speed to Code Size Trade.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/IKYA8MWX/Ureche et al. - 2013 - Miniboxing Improving the Speed to Code Size Trade.pdf:application/pdf},
+}
+
 @book{java:lang-spec,
 	title={The Java language specification},
 	author={Gosling, James and Joy, Bill and Steele, Guy and Bracha, Gilad},
@@ -277,6 +309,134 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	file = {Using Java Reflection:/home/jyou/snap/zotero-snap/common/Zotero/storage/IWTFS5KG/javareflection.html:text/html},
 }
 
+@inproceedings{java:performance-analysis,
+	address = {New York, NY, USA},
+	series = {{VEE} '06},
+	title = {Relative factors in performance analysis of {Java} virtual machines},
+	isbn = {978-1-59593-332-4},
+	url = {https://doi.org/10.1145/1134760.1134776},
+	doi = {10.1145/1134760.1134776},
+	abstract = {Many new Java runtime optimizations report relatively small, single-digit performance improvements. On modern virtual and actual hardware, however, the performance impact of an optimization can be influenced by a variety of factors in the underlying systems. Using a case study of a new garbage collection optimization in two different Java virtual machines, we show the relative effects of issues that must be taken into consideration when claiming an improvement. We examine the specific and overall performance changes due to our optimization and show how unintended side-effects can contribute to, and distort the final assessment. Our experience shows that VM and hardware concerns can generate variances of up to 9.5\% in whole program execution time. Consideration of these confounding effects is critical to a good, objective understanding of Java performance and optimization.},
+	urldate = {2022-09-05},
+	booktitle = {Proceedings of the 2nd international conference on {Virtual} execution environments},
+	publisher = {Association for Computing Machinery},
+	author = {Gu, Dayong and Verbrugge, Clark and Gagnon, Etienne M.},
+	month = jun,
+	year = {2006},
+	keywords = {caches, garbage collection, hardware counters, Java, performance analysis},
+	pages = {111--121},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/9598B6RS/Gu et al. - 2006 - Relative factors in performance analysis of Java v.pdf:application/pdf},
+}
+
+@article{java:statistically-rigor-performance-analysis,
+	title = {Statistically rigorous java performance evaluation},
+	volume = {42},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/1297105.1297033},
+	doi = {10.1145/1297105.1297033},
+	abstract = {Java performance is far from being trivial to benchmark because it is affected by various factors such as the Java application, its input, the virtual machine, the garbage collector, the heap size, etc. In addition, non-determinism at run-time causes the execution time of a Java program to differ from run to run. There are a number of sources of non-determinism such as Just-In-Time (JIT) compilation and optimization in the virtual machine (VM) driven by timer-based method sampling, thread scheduling, garbage collection, and various. There exist a wide variety of Java performance evaluation methodologies usedby researchers and benchmarkers. These methodologies differ from each other in a number of ways. Some report average performance over a number of runs of the same experiment; others report the best or second best performance observed; yet others report the worst. Some iterate the benchmark multiple times within a single VM invocation; others consider multiple VM invocations and iterate a single benchmark execution; yet others consider multiple VM invocations and iterate the benchmark multiple times. This paper shows that prevalent methodologies can be misleading, and can even lead to incorrect conclusions. The reason is that the data analysis is not statistically rigorous. In this paper, we present a survey of existing Java performance evaluation methodologies and discuss the importance of statistically rigorous data analysis for dealing with non-determinism. We advocate approaches to quantify startup as well as steady-state performance, and, in addition, we provide the JavaStats software to automatically obtain performance numbers in a rigorous manner. Although this paper focuses on Java performance evaluation, many of the issues addressed in this paper also apply to other programming languages and systems that build on a managed runtime system.},
+	number = {10},
+	urldate = {2022-09-06},
+	journal = {ACM SIGPLAN Notices},
+	author = {Georges, Andy and Buytaert, Dries and Eeckhout, Lieven},
+	month = oct,
+	year = {2007},
+	keywords = {benchmarking, data analysis, java, methodology, statistics},
+	pages = {57--76},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/QRLRE8IM/Georges et al. - 2007 - Statistically rigorous java performance evaluation.pdf:application/pdf},
+}
+
+@article{java:agesen-type-params,
+	title = {Adding type parameterization to the {Java} language},
+	volume = {32},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/263700.263720},
+	doi = {10.1145/263700.263720},
+	abstract = {Although the Java programming language has achieved widespread acceptance, one feature that seems sorely missed is the ability to use type parameters (as in Ada generics, C++ templates, and ML polymorphic functions or data types) to allow a general concept to be instantiated to one or more specific types. In this paper, we propose parameterized classes and interfaces in which the type parameter may be constrained to either implement a given interface or extend a given class. This design allows the body of a parameterized class to refer to methods on objects of the parameter type, without introducing any new type relations into the language. We show that these Java extensions may be implemented by expanding parameterized classes at class load time, without any extension or modification to existing Java bytecode, verifier or bytecode interpreter.},
+	number = {10},
+	urldate = {2022-09-02},
+	journal = {ACM SIGPLAN Notices},
+	author = {Agesen, Ole and Freund, Stephen N. and Mitchell, John C.},
+	month = oct,
+	year = {1997},
+	pages = {49--65},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/L4SXT4IS/Agesen et al. - 1997 - Adding type parameterization to the Java language.pdf:application/pdf},
+}
+
+@inproceedings{java:pizza,
+	address = {New York, NY, USA},
+	series = {{POPL} '97},
+	title = {Pizza into {Java}: translating theory into practice},
+	isbn = {978-0-89791-853-4},
+	shorttitle = {Pizza into {Java}},
+	url = {https://doi.org/10.1145/263699.263715},
+	doi = {10.1145/263699.263715},
+	abstract = {Pizza is a strict superset of Java that incorporates three ideas from the academic community: parametric polymorphism, higher-order functions, and algebraic data types. Pizza is defined by translation into Java and compiles into the Java Virtual Machine, requirements which strongly constrain the design space. Nonetheless, Pizza fits smoothly to Java, with only a few rough edges.},
+	urldate = {2022-09-05},
+	booktitle = {Proceedings of the 24th {ACM} {SIGPLAN}-{SIGACT} symposium on {Principles} of programming languages},
+	publisher = {Association for Computing Machinery},
+	author = {Odersky, Martin and Wadler, Philip},
+	month = jan,
+	year = {1997},
+	pages = {146--159},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/ZI8ZKW9J/Odersky and Wadler - 1997 - Pizza into Java translating theory into practice.pdf:application/pdf},
+}
+
+@article{java:odersky-type-params,
+	author = {Bracha, Gilad and Odersky, Martin and Stoutamire, David and Wadler, Philip},
+	title = {Making the Future Safe for the Past: Adding Genericity to the Java Programming Language},
+	year = {1998},
+	issue_date = {Oct. 1998},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {33},
+	number = {10},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286957},
+	doi = {10.1145/286942.286957},
+	abstract = {We present GJ, a design that extends the Java programming language with generic types and methods. These are both explained and implemented by translation into the unextended language. The translation closely mimics the way generics are emulated by programmers: it erases all type parameters, maps type variables to their bounds, and inserts casts where needed. Some subtleties of the translation are caused by the handling of overriding.GJ increases expressiveness and safety: code utilizing generic libraries is no longer buried under a plethora of casts, and the corresponding casts inserted by the translation are guaranteed to not fail.GJ is designed to be fully backwards compatible with the current Java language, which simplifies the transition from non-generic to generic programming. In particular, one can retrofit existing library classes with generic interfaces without changing their code.An implementation of GJ has been written in GJ, and is freely available on the web.},
+	journal = {SIGPLAN Not.},
+	month = {oct},
+	pages = {183–200},
+	numpages = {18}
+}
+
+
+@article{java:nextgen,
+	title = {Compatible genericity with run-time types for the {Java} programming language},
+	volume = {33},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286958},
+	doi = {10.1145/286942.286958},
+	abstract = {The most serious impediment to writing substantial programs in the Java\&trade; programming language is the lack of a gentricity mechanism for abstracting classes and methods with respect to type. During the past two years, several research groups have developed Java extensions that support various forms of genericity, but none has succeeded in accommodating general type parameterization (akin to Java arrays) while retaining compatibility with the existing. Java Virtual Machine. In this paper, we explain how to support general type parameterization---including both non-variant and covariant subtyping---on top of the existing Java Virtual Machine at the cost of a larger code footprint and the forwarding of some method calls involving parameterized classes and methods. Our language extension is forward and backward compatible with the Java 1.2 language and run-time environment: programs in the extended language will run on existing Java 1.2 virtual machines (relying only on the unparameterized Java core libraries) and all existing Java 1.2 programs have the same binary representation and semantics (behavior) in the extended language.},
+	number = {10},
+	urldate = {2022-09-06},
+	journal = {ACM SIGPLAN Notices},
+	author = {Cartwright, Robert and Steele, Guy L.},
+	month = oct,
+	year = {1998},
+	pages = {201--215},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/XDBEGEDE/Cartwright and Steele - 1998 - Compatible genericity with run-time types for the .pdf:application/pdf},
+}
+
+@article{java:gj,
+	author = {Bracha, Gilad and Odersky, Martin and Stoutamire, David and Wadler, Philip},
+	title = {Making the Future Safe for the Past: Adding Genericity to the Java Programming Language},
+	year = {1998},
+	issue_date = {Oct. 1998},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {33},
+	number = {10},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286957},
+	doi = {10.1145/286942.286957},
+	abstract = {We present GJ, a design that extends the Java programming language with generic types and methods. These are both explained and implemented by translation into the unextended language. The translation closely mimics the way generics are emulated by programmers: it erases all type parameters, maps type variables to their bounds, and inserts casts where needed. Some subtleties of the translation are caused by the handling of overriding.GJ increases expressiveness and safety: code utilizing generic libraries is no longer buried under a plethora of casts, and the corresponding casts inserted by the translation are guaranteed to not fail.GJ is designed to be fully backwards compatible with the current Java language, which simplifies the transition from non-generic to generic programming. In particular, one can retrofit existing library classes with generic interfaces without changing their code.An implementation of GJ has been written in GJ, and is freely available on the web.},
+	journal = {SIGPLAN Not.},
+	month = {oct},
+	pages = {183–200},
+	numpages = {18}
+}
 
 @inproceedings{graalvm:ir,
 	title = {Graal {IR}: {An} {Extensible} {Declarative} {Intermediate} {Representation}},
@@ -305,8 +465,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	pages = {1--10},
 	file = {Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/MRTS3L3V/Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:application/pdf},
 }
-
-
 
 @article{simula:classes,
 	title={SIMULA: an ALGOL-based simulation language},
@@ -792,5 +950,31 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/6NZYVBW9/Bodík et al. - 1997 - Interprocedural conditional branch elimination.pdf:application/pdf},
 }
 
+@article{clr:overview,
+	title={Technical overview of the common language runtime},
+	author={Meijer, Erik and Gough, John},
+	journal={language},
+	volume={29},
+	number={7},
+	year={2001},
+	publisher={Citeseer}
+}
 
+@article{types-of-polymorphism,
+	author = {Morrison, R. and Dearle, A. and Connor, R. C. H. and Brown, A. L.},
+	title = {An Ad Hoc Approach to the Implementation of Polymorphism},
+	year = {1991},
+	issue_date = {July 1991},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {13},
+	number = {3},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/117009.117017},
+	doi = {10.1145/117009.117017},
+	journal = {ACM Trans. Program. Lang. Syst.},
+	month = {jul},
+	pages = {342–371},
+	numpages = {30}
+}
 

@@ -563,23 +563,6 @@ In contrast, bytecode interpreters such as the JVM, execute a vastly simplified 
 While interpreters of bytecode programs tend to be faster than their tree counterparts, the absence of detailed source information such as types often makes program optimization difficult.
 The challenge of efficiently executing bytecode while retaining the ability to optimize them effectively using source program information is particularly difficult for Scala on the JVM. 
 
-Truffle is an atypical tree interpreter in that it combines the definition, execution, and optimization of an abstract syntax tree structure into a single abstraction.
-While the structure of input programs in other interpreters is independent of the implemenation of the interpreter, a Truffle interpreter is integrated into the structure of its input.
-By defining execution semantics inside the abstract syntax tree to be executed, an interpreter is essentially derived from the implementation of its input tree structure.
-The execution semantics of the AST are additionally augmented with the Truffle \acrfull{dsl}, which allows such trees to be \textit{self-optimizing}.
-The Truffle DSL is a mechanism to allow a \textit{guest language} to embed semantics into a Truffle AST for optimization.
-A guest language is a set of semantics, most commonly a programming language, which is described by a Truffle AST.
-In this thesis, the guest language which our Truffle AST encodes and executes is TASTy (which represents Scala).
-
-During execution of the AST, profiling information collected from the interpreter is used to drive \textit{node rewriting}.
-While Graal is language-agnostic, Truffle is able to exploit guest language semantics for dynamic optimizations.
-This process of replacing nodes in the AST with better, specialized guest language counterparts in Truffle is called node rewriting.
-Node rewriting makes Truffle abstract syntax trees self-optimizing and serves two purposes.
-The first is to dynamically incorporate guest language semantics into the executing program.
-The second is to augment the AST for more efficient JIT compilation.
-The nature of compiler optimizations require that programs are incrementally simplified in order to be optimized.
-While such types of optimizations are widely applicable to many languages using the JVM, node rewriting is a high-level language-specific optimization which occurs \textit{before} such simplifications.
-
 \begin{figure}[!htb]
 	\begin{minted}{scala}
 	abstract class EqualsNode extends BinaryOpNode {
@@ -593,6 +576,48 @@ While such types of optimizations are widely applicable to many languages using 
 	\caption{Pseudocode for a Truffle node implementation of an equality which supports node rewriting.}
 	\label{example:node-rewriting}
 \end{figure}
+
+Truffle is an atypical tree interpreter in that it combines the definition, execution, and optimization of an abstract syntax tree structure into a single abstraction.
+While the structure of input programs in other interpreters is independent of the implemenation of the interpreter, a Truffle interpreter is integrated into the structure of its input.
+By defining execution semantics inside the abstract syntax tree to be executed, an interpreter is essentially derived from the implementation of its input tree structure.
+The execution semantics of the AST are additionally augmented with the Truffle \acrfull{dsl}, which allows such trees to be \textit{self-optimizing}.
+The Truffle DSL is a mechanism to allow a \textit{guest language} to embed semantics into a Truffle AST for optimization.
+A guest language is a set of semantics, most commonly a programming language, which is described by a Truffle AST.
+In this thesis, the guest language which our Truffle AST encodes and executes is TASTy (which represents Scala).
+
+\begin{figure}[!htb]
+\begin{minted}{java}
+	@GeneratedBy(AnyEqNode.class)
+	public final class AnyEqNodeGen extends AnyEqNode {
+		@Child
+		private TermNode lhs_;
+		@Child
+		private TermNode rhs_;
+		@CompilationFinal
+		private int state_0_;
+		
+		private AnyEqNodeGen(TermNode lhs, TermNode rhs) {
+			this.lhs_ = lhs;
+			this.rhs_ = rhs;
+		}
+		
+		public Object execute(VirtualFrame frame) {
+			int state = this.state_0_;
+			return (state & 2) == 0 && state != 0 ? 
+				this.execute_int_int0(state, frame) : 
+				this.execute_generic1(state, frame);
+		}
+\end{minted}
+\end{figure}
+
+During execution of the AST, profiling information collected from the interpreter is used to drive \textit{node rewriting}.
+While Graal is language-agnostic, Truffle is able to exploit guest language semantics for dynamic optimizations.
+This process of replacing nodes in the AST with better, specialized guest language counterparts in Truffle is called node rewriting.
+Node rewriting makes Truffle abstract syntax trees self-optimizing and serves two purposes.
+The first is to dynamically incorporate guest language semantics into the executing program.
+The second is to augment the AST for more efficient JIT compilation.
+The nature of compiler optimizations require that programs are incrementally simplified in order to be optimized.
+While such types of optimizations are widely applicable to many languages using the JVM, node rewriting is a high-level language-specific optimization which occurs \textit{before} such simplifications.
 
 Figure \ref{example:node-rewriting} demonstrates an example of a node which can be rewritten.
 The node declares semantics of the equality operation between integers and values of type \scalainline{Any}.

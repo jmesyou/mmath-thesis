@@ -1,5 +1,11 @@
 \chapter{Evaluation}
 
+In this chapter, we will evaluate and discuss the performance of our polymorphic interpreter on two benchmarks.
+We use an existing set of benchmarks from \cite{scala:miniboxing} as they exercise many features of the Scala runtime that require specialization to perform optimally.
+We will evaluate performance of these benchmarks on the monomorphic interpreter as well as Scala bytecode on GraalVM as points of comparison for relative performance.
+Finally, we will discuss the results of the benchmarks.
+
+\section{Benchmarks}
 \begin{figure}[!htb]
 	\begin{minted}{scala}
 	class ArrayBuffer[T] {
@@ -58,4 +64,50 @@
 	\end{minted}
 	\caption{Code of the \scalainline{ArrayBuffer} benchmark.}
 	\label{example:arraybuffer-benchmark}
+\end{figure}
+
+In this section, we will introduce an additional program on top of our running example for benchmarking.
+We will also summarize the motivations from \cite{scala:miniboxing} for the selection of these benchmarks.
+
+\section{Methodology}
+
+Performance measurements of a just-in-time compiled programs are an infamous issue\cite{java:performance-analysis}\cite{java:statistically-rigor-performance-analysis}.
+Many non-deterministic effects, such as speculative optimization, garbage collection, thread scheduling to name a few, affect the performance of programs executing on the Java Virtual Machine.
+As result, the JVM must be \textit{warmed up} prior to measure of program performance 
+\section{Experimental Results}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/ArrayBuffer.Append.svg}
+	\caption{Benchmark results for \scalainline{ArrayBuffer.append}.}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/ArrayBuffer.Contains.svg}
+	\caption{Benchmark results for \scalainline{ArrayBuffer.contains}.}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/ArrayBuffer.Reverse.svg}
+	\caption{Benchmark results for \scalainline{ArrayBuffer.reverse}.}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/List.Append.svg}
+	\caption{Benchmark results for \scalainline{List.append}.}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/List.Contains.svg}
+	\caption{Benchmark results for \scalainline{List.contains}.}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[width=\textwidth]{data/List.Hashcode.svg}
+	\caption{Benchmark results for \scalainline{List.hashCode}.}
 \end{figure}
