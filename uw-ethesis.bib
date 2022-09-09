@@ -299,14 +299,12 @@ publisher = {ACM Press},
 author = {Würthinger, Thomas and Wimmer, Christian and Wöß, Andreas and Stadler, Lukas and Duboscq, Gilles and Humer, Christian and Richards, Gregor and Simon, Doug and Wolczko, Mario},
 year = {2013},
 pages = {187--204},
-file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/7AS8H4Y6/Würthinger et al. - 2013 - One VM to Rule Them All.pdf:application/pdf},
 }
 
 @misc{java:reflection,
 	title = {Using {Java} {Reflection}},
 	url = {https://www.oracle.com/technical-resources/articles/java/javareflection.html},
 	urldate = {2022-08-11},
-	file = {Using Java Reflection:/home/jyou/snap/zotero-snap/common/Zotero/storage/IWTFS5KG/javareflection.html:text/html},
 }
 
 @inproceedings{java:performance-analysis,
@@ -324,8 +322,7 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = jun,
 	year = {2006},
 	keywords = {caches, garbage collection, hardware counters, Java, performance analysis},
-	pages = {111--121},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/9598B6RS/Gu et al. - 2006 - Relative factors in performance analysis of Java v.pdf:application/pdf},
+	pages = {111--121}
 }
 
 @article{java:statistically-rigor-performance-analysis,
@@ -342,8 +339,7 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = oct,
 	year = {2007},
 	keywords = {benchmarking, data analysis, java, methodology, statistics},
-	pages = {57--76},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/QRLRE8IM/Georges et al. - 2007 - Statistically rigorous java performance evaluation.pdf:application/pdf},
+	pages = {57--76}
 }
 
 @article{java:agesen-type-params,
@@ -360,7 +356,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = oct,
 	year = {1997},
 	pages = {49--65},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/L4SXT4IS/Agesen et al. - 1997 - Adding type parameterization to the Java language.pdf:application/pdf},
 }
 
 @inproceedings{java:pizza,
@@ -379,7 +374,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = jan,
 	year = {1997},
 	pages = {146--159},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/ZI8ZKW9J/Odersky and Wadler - 1997 - Pizza into Java translating theory into practice.pdf:application/pdf},
 }
 
 @article{java:odersky-type-params,
@@ -416,8 +410,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = oct,
 	year = {1998},
 	pages = {201--215},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/XDBEGEDE/Cartwright and Steele - 1998 - Compatible genericity with run-time types for the .pdf:application/pdf},
-}
 
 @article{java:gj,
 	author = {Bracha, Gilad and Odersky, Martin and Stoutamire, David and Wadler, Philip},
@@ -445,9 +437,7 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	author = {Duboscq, Gilles and Stadler, Lukas and Wuerthinger, Thomas and Simon, Doug and Wimmer, Christian and Mössenböck, Hanspeter},
 	month = feb,
 	year = {2013},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/WLX5AHLQ/Duboscq et al. - 2013 - Graal IR An Extensible Declarative Intermediate R.pdf:application/pdf},
 }
-
 
 @inproceedings{graalvm:speculative-ir,
 	address = {Indianapolis, Indiana, USA},
@@ -463,7 +453,32 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	author = {Duboscq, Gilles and Würthinger, Thomas and Stadler, Lukas and Wimmer, Christian and Simon, Doug and Mössenböck, Hanspeter},
 	year = {2013},
 	pages = {1--10},
-	file = {Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/MRTS3L3V/Duboscq et al. - 2013 - An Intermediate Representation for Speculative Opt.pdf:application/pdf},
+}
+
+@inproceedings{graalvm:sulong,
+	address = {New York, NY, USA},
+	series = {Programming'18 {Companion}},
+	title = {Sulong, and thanks for all the fish},
+	isbn = {978-1-4503-5513-1},
+	url = {https://doi.org/10.1145/3191697.3191726},
+	doi = {10.1145/3191697.3191726},
+	abstract = {Dynamic languages rely on native extensions written in languages such as C/C++ or Fortran. To efficiently support the execution of native extensions in the multi-lingual GraalVM, we have implemented Sulong, which executes LLVM IR to support all languages that have an LLVM front end. It supports configurations with respect to memory-allocation and memory-access strategies that have different tradeoffs concerning safety and interoperability with native libraries. Recently, we have been working on balancing the tradeoffs, on supporting inline assembly and GCC compiler builtins, and on executing a complete libc on Sulong.},
+	urldate = {2022-09-02},
+	booktitle = {Conference {Companion} of the 2nd {International} {Conference} on {Art}, {Science}, and {Engineering} of {Programming}},
+	publisher = {Association for Computing Machinery},
+	author = {Rigger, Manuel and Schatz, Roland and Kreindl, Jacob and Häubl, Christian and Mössenböck, Hanspeter},
+	month = apr,
+	year = {2018},
+	keywords = {GraalVM, LLVM, Sulong},
+	pages = {58--60},
+}
+
+@book{graalvm:espresso,
+	title = {Optimizing {Java} on {Truffle}},
+	abstract = {Java on Truffle is an early-stage implementation of a Java Virtual Machine in Java. So far its development has focused on compatibility and functionality, not addressing performance in a systematic way. This thesis presents a series of experiments on Java on Truffle performance, namely adding Class Hierarchy Analysis, improving receiver profiling at callsites of virtual and interface methods, splitting methods per-callsite, delaying the collection of profiling information, and investigating and improving System.arraycopy performance},
+	editor = {Goltsova, Ekaterina},
+	year = {2022},
+	keywords = {Java, Truffle, virtual machine, partial evaluation},
 }
 
 @article{simula:classes,
@@ -892,7 +907,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	year = {2003},
 	keywords = {Computer languages, Computer science, Counting circuits, Java, Optimizing compilers, Power system modeling, Runtime, Virtual machining, Virtual manufacturing, Voice mail},
 	pages = {241--252},
-	file = {IEEE Xplore Abstract Record:/home/jyou/snap/zotero-snap/common/Zotero/storage/PDK2DXDG/1191549.html:text/html},
 }
 
 
@@ -910,7 +924,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = jun,
 	year = {1984},
 	pages = {233--246},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/CQ85R8HI/Allen and Kennedy - 1984 - Automatic loop interchange.pdf:application/pdf},
 }
 
 @article{abdc:pi-nodes,
@@ -928,7 +941,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = may,
 	year = {2000},
 	pages = {321--333},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/C6XEN9ZW/Bodík et al. - 2000 - ABCD eliminating array bounds checks on demand.pdf:application/pdf},
 }
 
 
@@ -947,7 +959,6 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	month = may,
 	year = {1997},
 	pages = {146--158},
-	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/6NZYVBW9/Bodík et al. - 1997 - Interprocedural conditional branch elimination.pdf:application/pdf},
 }
 
 @article{clr:overview,
@@ -960,7 +971,7 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	publisher={Citeseer}
 }
 
-@article{types-of-polymorphism,
+@article{napier88:polymorphism,
 	author = {Morrison, R. and Dearle, A. and Connor, R. C. H. and Brown, A. L.},
 	title = {An Ad Hoc Approach to the Implementation of Polymorphism},
 	year = {1991},
@@ -977,4 +988,12 @@ file = {Würthinger et al. - 2013 - One VM to Rule Them All.pdf:/home/jyou/snap/
 	pages = {342–371},
 	numpages = {30}
 }
+
+@book{c++,
+	title={The C++ programming language},
+	author={Stroustrup, Bjarne},
+	year={2013},
+	publisher={Pearson Education}
+}
+
 

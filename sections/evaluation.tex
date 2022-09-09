@@ -71,43 +71,92 @@ We will also summarize the motivations from \cite{scala:miniboxing} for the sele
 
 \section{Methodology}
 
-Performance measurements of a just-in-time compiled programs are an infamous issue\cite{java:performance-analysis}\cite{java:statistically-rigor-performance-analysis}.
+Performance measurement of just-in-time compiled programs are is infamously difficult issue\cite{java:performance-analysis}\cite{java:statistically-rigor-performance-analysis}.
 Many non-deterministic effects, such as speculative optimization, garbage collection, thread scheduling to name a few, affect the performance of programs executing on the Java Virtual Machine.
-As result, the JVM must be \textit{warmed up} prior to measure of program performance 
+As result, the JVM must be \textit{warmed up} prior to measure of program performance.
+A benchmarking routine is warmed up with several iterations of invocations in order for profiling data to be collected and JIT compilation to finished.
+Therefore the measured performance of a microbenchmark will record the program executing the stable JIT compiled code instead of code executing in the interpreter.
+
+Each benchmark method in this chapter is warmed up with $10$ iterations of warmup lasting $10$ seconds each.
+Results of these is measured in throughput, the number of executions that successfully completed in a second.
+The results are averaged from $10$ measurements iterations for a period of $10$ seconds each.
+We evaluate our microbenchmarks on input sizes between one hundred thousand and one million elements to account for factors of memory in our benchmarks. 
+Each benchmark is run on three different implementations, Scala on GraalVM (Graal), the monomorphic interpreter (Mono), and the polymorphic interpreter (Poly).
+
 \section{Experimental Results}
 
-\begin{figure}
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/ArrayBuffer.Append.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.append}.}
 \end{figure}
 
-\begin{figure}
+The benchmark for \scalainline{ArrayBuffer.append} inserts a sequence of elements into a newly initialized array buffer. 
+This benchmark stresses array memory movement.
+Each time the backing array is too small for an additional element, the backing array is resized by creating a new larger and copying over existing elements.
+This resizing operation (\scalainline{ensureSize} in \ref{example:arraybuffer-benchmark}) dominates the time spent in execution.
+Because of this bottleneck, executing compiled Scala bytecode on GraalVM is up to 4 times faster than the monomorphic and polymorphic interpreter.
+
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/ArrayBuffer.Contains.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.contains}.}
 \end{figure}
 
-\begin{figure}
+The \scalainline{ArrayBuffer.contains} benchmark tests array operations in isolation. 
+The benchmark checks an array buffer for the existence of a element.
+It exercises a polymorphic array access as well as 
+
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/ArrayBuffer.Reverse.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.reverse}.}
 \end{figure}
 
-\begin{figure}
+\scalainline{ArrayBuffer.reverse} reverses the order of the elements in the array buffer.
+Reversing an array is performance-bound by the loop of swap operations.
+A swap operation (given in \ref{impl:swap}) consists two polymorphic value definitions initialized from polymorphic array accesses followed by the inverse of those two operations.
+
+\begin{figure}[!htb]
+\begin{minted}{scala}
+	def swap(i: Int, j: Int): Unit = {
+		val tmp1: T = get(i)
+		val tmp2: T = get(j)
+		set(i, tmp2)
+		set(j, tmp1)
+	}
+\end{minted}
+\caption{Code to swap two elements in an array buffer}
+\label{impl:swap}
+\end{figure}
+
+The optimization of this microbenchmark proved to be the most difficult benchmark in terms of matching hand written monomorphic code in \cite{scala:miniboxing}.
+The performance between the monomorphic interpreter and GraalVM is roughly equal between all types; 
+Neither implementation is able to specialize the polymorphic reads and array accesses.
+The polymorphic interpreter has up to $25$ times more throughput than the monomorphic interpreter and GraalVM.
+
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/List.Append.svg}
 	\caption{Benchmark results for \scalainline{List.append}.}
 \end{figure}
 
-\begin{figure}
+The \scalainline{List.append} benchmark constructs a list from an array.
+As the creation of polymorphic instances is predominantly memory-bound and not compute-bound, there is no significant improvement throughput from specialization.
+In fact, executing Scala via Java bytecode on the JMV results in substantially greater throughput.
+
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/List.Contains.svg}
 	\caption{Benchmark results for \scalainline{List.contains}.}
 \end{figure}
 
-\begin{figure}
+Like \scalainline{ArrayBuffer.contains}
+
+\begin{figure}[!htb]
 	\centering
 	\includesvg[width=\textwidth]{data/List.Hashcode.svg}
 	\caption{Benchmark results for \scalainline{List.hashCode}.}
 \end{figure}
+
+\scalainline{List.hashCode}
