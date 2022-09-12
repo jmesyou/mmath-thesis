@@ -1435,6 +1435,15 @@ For example, a \scalainline{List[Int]} and \scalainline{List[Double]} will each 
 However, a \scalainline{List[String]} and \scalainline{List[List[Int]]} will share the same data representation as their type arguments are reference types and will not see any benefit from independent specialization.
 Therefore, the creation of an object instance with a polymorphic class definition will have its shape determined when its created.
 
+$$
+index(\tau) = 
+\begin{cases}
+	i  & \textbf{def } f[t_0, \ldots, t_i, \ldots, t_n](\ldots) \text{ if } t_i = \tau, owner(\tau)=f \\
+	j  & \textbf{class } C[t_0, \ldots, t_j, \ldots, t_m](\ldots) \text{ if } t_j = \tau, owner(\tau)=C \\
+	-1 & \text{otherwise}
+\end{cases}
+$$
+
 This approach avoids the issue of \textit{name mangling}.
 Name mangling is a technique to disambiguate distinct entities in a program that share the same name but do not inhabit the same namespace (e.g. a \javainline{package}).
 In the context of parametric polymorphism and specialization, many approaches to specialization require require the specialized classes and methods to have mangled names.
@@ -1564,10 +1573,6 @@ In more succinct terms, the \javainline{instanceof} node $285$ checks that value
 If the assumptions are not violated in compiled code, the boxed integer value is then returned from the compiled code.
 Note that no unboxing happens because the value of \scalainline{head0} has not yet been used in a polymorphic context.
 
-When the access or method \scalainline{List.head} is inlined into its callsite in \scalainline{Cons.contains} (see figure \ref{graalir:cons-contains-head-focus-boxed}), an unbox operation is introduced because the equality operation in node $1744$ compares primitives and not references.
-Notice that the two guards node previously seen in figure \ref{graalir:cons-head-boxed} are folded into one node because the \javainline{instanceof} node is an extension of the null check node.
-Because polymorphic field values are stored as an reference on the object instance, these speculative assumptions are necessary in order to generate compiled code.
-To eliminate the overhead of the unbox operation and the accompanying guard nodes, The polymorphic fields of a class must be specialized.
 
 \begin{figure}[!htb]
 	\centering
@@ -1586,6 +1591,11 @@ To eliminate the overhead of the unbox operation and the accompanying guard node
 	\end{subfigure}
 	\hfill
 \end{figure}
+
+When the access or method \scalainline{List.head} is inlined into its callsite in \scalainline{Cons.contains} (see figure \ref{graalir:cons-contains-head-focus-boxed}), an unbox operation is introduced because the equality operation in node $1744$ compares primitives and not references.
+Notice that the two guards node previously seen in figure \ref{graalir:cons-head-boxed} are folded into one node because the \javainline{instanceof} node is an extension of the null check node.
+Because polymorphic field values are stored as an reference on the object instance, these speculative assumptions are necessary in order to generate compiled code.
+To eliminate the overhead of the unbox operation and the accompanying guard nodes, The polymorphic fields of a class must be specialized.
 
 Figure \ref{graalir:cons-head-specialized} contains the field access of \scalainline{head0} after the field has been specialized and has the appropriate storage type in the storage layout of \scalainline{Cons[Int]}.
 Notice that a box node has been introduced prior to the value of \scalainline{head0} prior to the return node of \scalainline{Cons.head}.

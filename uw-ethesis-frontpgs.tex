@@ -73,15 +73,23 @@ I understand that my thesis may be made electronically available to the public.
 
 \begin{center}\textbf{Abstract}\end{center}
 
-Scala is a multi-paradigm programming language with higher-order abstractions. 
-The features of Scala exemplify reusability and extensibility.
+Scala is a generic object-oriented programming language with higher-order abstractions. 
+Programming abstractions in Scala exemplify reusability and extensibility in the context of type safety.
+Generic programming in particular allows user-defined data structures to behave identically irrespective of the types of their values while remaining free of type errors.
 
-The standard implementation of Scala compiles to Java bytecode, executing in the Java run-time environment, on a \textit{Java Virtual Machine} (JVM). 
-As a result, Scala is reliant on JVMs for compilation to low-level machine code and efficient execution. 
-However, JVMs are predominantly optimized to improve the performance of Java programs. 
-Furthermore, Scala program type information is significantly reduced during type erasure, a compilation phase which removes generic type information. 
-Consequently, boxing, the operation of wrapping primitive values in an object, is unnecessarily introduced into the final program. 
-Current state of the art techniques on eliminating boxing and achieving optimal object layouts at run-time, known as type specialization, rely on static program analysis.
+The implementation of reusability in Scala comes at cost; The standard implementation of Scala compiles to Java bytecode, where type erasure significantly reduces Scala program type information to create compatible Java bytecode.
+Consequently, autoboxing, operations that are needed when using primitive values in a generic context, is unnecessarily introduced into the final program. 
+
+Java bytecode is executed in the Java run-time environment, on a Java Virtual Machine. 
+As a result, compiled Scala programs are reliant on JVMs for efficient execution using just-in-time compilation to low-level machine code. 
+However, JVMs are predominantly optimized to improve the performance of Java programs.  
+Current state of the art techniques on eliminating boxing and achieving optimal data representations at run-time, known as specialization, rely on static program analysis.
+Such techniques must mitigate the problem of code duplication as static optimizations are unable to make use of runtime information to best select which data structures to specialization
+
+We propose a new approach to the specialization of Scala programs.
+Our approach integrates type information from a high-level source-like input language with the mechanisms of just-in-time compilation.
+We propose an ad-hoc specialization mechanism where specialized objects are compatible with non-specialized code.
+We demonstrate that our approach is viable and produces improvements in throughput for simplified implementations of real-world Scala programs.
 
 \cleardoublepage
 
