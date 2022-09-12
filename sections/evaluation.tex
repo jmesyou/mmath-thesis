@@ -1,6 +1,6 @@
 \chapter{Evaluation}
 
-In this chapter, we will evaluate and discuss the performance of our polymorphic interpreter on two benchmarks.
+In this chapter, we will evaluate and discuss the performance of our polymorphic interpreter on six microbenchmarks.
 We use an existing set of benchmarks from \cite{scala:miniboxing} as they exercise many features of the Scala runtime that require specialization to perform optimally.
 We will evaluate performance of these benchmarks on the monomorphic interpreter as well as Scala bytecode on GraalVM as points of comparison for relative performance.
 Finally, we will discuss the results of the benchmarks.
@@ -69,6 +69,15 @@ Finally, we will discuss the results of the benchmarks.
 In this section, we will introduce an additional program on top of our running example for benchmarking.
 We will also summarize the motivations from \cite{scala:miniboxing} for the selection of these benchmarks.
 
+Each microbenchmark exercises unique polymorphic operations which are typically performance bottlenecks\cite{scala:collections-optimization}\cite{scala:dacapo} in Scala programs.
+The \scalainline{ArrayBuffer} class is an implementation of a resizable buffer backed by an array.
+It contains three microbenchmarks which stress polymorphic operations in the context of contiguous memory access.
+
+The \scalainline{List} class is the implementation of a linked list that we have used as the running example in this thesis.
+We use the \scalainline{List} class to evaluate polymorphic operations in the context of random heap access.
+Like the \scalainline{ArrayBuffer} benchmarks, there is an \scalainline{append} and \scalainline{contains} microbenchmark.
+We will use lists to test the performance of polymorphic hash computations using \scalainline{List.hashCode}.
+
 \section{Methodology}
 
 Performance measurement of just-in-time compiled programs are is infamously difficult issue\cite{java:performance-analysis}\cite{java:statistically-rigor-performance-analysis}.
@@ -105,7 +114,9 @@ Because of this bottleneck, executing compiled Scala bytecode on GraalVM is up t
 
 The \scalainline{ArrayBuffer.contains} benchmark tests array operations in isolation. 
 The benchmark checks an array buffer for the existence of a element.
-It exercises a polymorphic array access as well as 
+It exercises a polymorphic array access followed by a polymorphic equality operation (e.g. \scalainline{(x: T) == (y: T)}).
+A polymorphic equality operator is dispatched the \javainline{equals} method of its left hand side argument.
+This results in the boxing of one or both arguments in equality checks between polymorphic values.
 
 \begin{figure}[!htb]
 	\centering
@@ -115,7 +126,7 @@ It exercises a polymorphic array access as well as
 
 \scalainline{ArrayBuffer.reverse} reverses the order of the elements in the array buffer.
 Reversing an array is performance-bound by the loop of swap operations.
-A swap operation (given in \ref{impl:swap}) consists two polymorphic value definitions initialized from polymorphic array accesses followed by the inverse of those two operations.
+A swap operation (given in \ref{impl:swap}) consists of two polymorphic value definitions (frame writes) initialized from polymorphic array accesses followed by the inverse of those two operations.
 
 \begin{figure}[!htb]
 \begin{minted}{scala}
@@ -142,7 +153,7 @@ The polymorphic interpreter has up to $25$ times more throughput than the monomo
 \end{figure}
 
 The \scalainline{List.append} benchmark constructs a list from an array.
-As the creation of polymorphic instances is predominantly memory-bound and not compute-bound, there is no significant improvement throughput from specialization.
+As the creation of polymorphic instances is predominantly memory-bound and not compute-bound, there is no significant improvement in throughput from specialization.
 In fact, executing Scala via Java bytecode on the JMV results in substantially greater throughput.
 
 \begin{figure}[!htb]
@@ -151,7 +162,8 @@ In fact, executing Scala via Java bytecode on the JMV results in substantially g
 	\caption{Benchmark results for \scalainline{List.contains}.}
 \end{figure}
 
-Like \scalainline{ArrayBuffer.contains}
+Like \scalainline{ArrayBuffer.contains} exercises the same performance-bottlenecks as the \scalainline{ArrayBuffer.contains} except under the context of random heap access for a list.
+The polymorphic interpreter 
 
 \begin{figure}[!htb]
 	\centering
@@ -159,4 +171,31 @@ Like \scalainline{ArrayBuffer.contains}
 	\caption{Benchmark results for \scalainline{List.hashCode}.}
 \end{figure}
 
-\scalainline{List.hashCode}
+\begin{figure}[!htb]
+\begin{minted}{java}
+	public static int anyHash(Object x) {
+		if (x == null)           return 0;
+		if (x instanceof Long)   return longHash(((Long) x).longValue());
+		if (x instanceof Double) return doubleHash(((java.lang.Double) x).doubleValue());
+		if (x instanceof Float)  return floatHash(((Float) x).floatValue());
+		
+		return x.hashCode();
+	}
+\end{minted}
+\caption{Implementation of the \scalainline{anyHash} function.}
+\label{impl:anyHash}
+\end{figure}
+
+\scalainline{List.hashCode} tests the specialization of the hash code function.
+Every class in Scala inherits the \scalainline{hashCode} function from the $\top$ type.
+When the \scalainline{hashCode} method is invoked in a polymorphic context, the Scala compiler inserts the \scalainline{anyHash} bridge.
+The semantics of computing hash codes between on the same values with differing types such as \scalainline{Int} and \scalainline{Long} necessitates the insertion of this bridge, which complicates JIT complication.
+
+Figure \ref{impl:anyHash} gives the implementation of the \scalainline{anyHash} function.
+In the \scalainline{Int} and \scalainline{Long} invocations of \scalainline{List.hashCode}, the polymorphic interpreter keeps parity with the implementation of Scala on GraalVM.
+In the \scalainline{Double} invocation of \scalainline{List.hashCode}, the throughput on the polymorphic interpreter is $2.5$ times greater than that the implementation of the monomorphic interpreter.
+
+
+
+
+

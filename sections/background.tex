@@ -190,6 +190,10 @@ A top level \scalainline{ValDef}, that is a \scalainline{ValDef} with no parent 
 The \scalainline{object} abstraction is commonly used to represent the \textit{Singleton} pattern\cite{go4:design-patterns} or as a class-like interface to define static methods.
 Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a simplified TASTy-like equivalent would resemble the following:
 
+A \scalainline{ValDef} tree defined in the \scalainline{body} of a \scalainline{ClassDef} tree represent field definitions.
+A \scalainline{ValDef} tree defined in the \scalainline{TermParam} section of a \scalainline{DefDef} tree represent parameter definitions of the method.
+A \scalainline{ValDef} tree defined among the statements in a \scalainline{Block} tree is a local variable definition limited to the scope of the block.
+
 \begin{figure}[!htb]
 	\begin{minted}{scala}
 	val Nil = new Nil$
@@ -199,9 +203,6 @@ Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a s
 	\label{example:decomp-object}
 \end{figure}
 
-A \scalainline{ValDef} tree defined in the \scalainline{body} of a \scalainline{ClassDef} tree represent field definitions.
-A \scalainline{ValDef} tree defined in the \scalainline{TermParam} section of a \scalainline{DefDef} tree represent parameter definitions of the method.
-A \scalainline{ValDef} tree defined among the statements in a \scalainline{Block} tree is a local variable definition limited to the scope of the block.
 
 Similarly, \scalainline{TypeDef} trees refer to different kinds of definitions depending on their definition site.
 A \scalainline{TypeDef} in the body of a \scalainline{ClassDef} refers to a polymorphic class type parameter in our subset of TASTy.
@@ -515,7 +516,6 @@ The second is \textit{Truffle}, a framework for translating the semantics of a s
 This thesis makes substantial of both components of GraalVM to create a runtime for Scala programs using TASTy.
 The runtime is able to incorporate source level information for speculative optimizations.
 
-
 \subsection{Graal}
 
 GraalVM incorporates an existing implementation of a JVM\cite{java:hotspot} for the actual execution of programs.
@@ -588,8 +588,8 @@ In this thesis, the guest language which our Truffle AST encodes and executes is
 
 \begin{figure}[!htb]
 \begin{minted}{java}
-	@GeneratedBy(AnyEqNode.class)
-	public final class AnyEqNodeGen extends AnyEqNode {
+	@GeneratedBy(EqualsNode.class)
+	public final class EqualsNodeGen extends EqualsNode {
 		@Child
 		private TermNode lhs_;
 		@Child
@@ -597,7 +597,7 @@ In this thesis, the guest language which our Truffle AST encodes and executes is
 		@CompilationFinal
 		private int state_0_;
 		
-		private AnyEqNodeGen(TermNode lhs, TermNode rhs) {
+		private EqualsNodeGen(TermNode lhs, TermNode rhs) {
 			this.lhs_ = lhs;
 			this.rhs_ = rhs;
 		}
@@ -609,6 +609,8 @@ In this thesis, the guest language which our Truffle AST encodes and executes is
 				this.execute_generic1(state, frame);
 		}
 \end{minted}
+\caption{Generated code by the Truffle DSL for the \scalainline{AnyEqNode}.}
+\label{impl:node-rewriting-gen}
 \end{figure}
 
 During execution of the AST, profiling information collected from the interpreter is used to drive \textit{node rewriting}.

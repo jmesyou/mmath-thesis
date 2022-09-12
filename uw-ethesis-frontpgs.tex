@@ -14,7 +14,7 @@
         \vspace*{1.0cm}
 
         \Huge
-        {\bf Title: A Subtitle }
+        {\bf Specializing Scala with Truffle}
 
         \vspace*{1.0cm}
 
@@ -73,7 +73,15 @@ I understand that my thesis may be made electronically available to the public.
 
 \begin{center}\textbf{Abstract}\end{center}
 
-This is the abstract.
+Scala is a multi-paradigm programming language with higher-order abstractions. 
+The features of Scala exemplify reusability and extensibility.
+
+The standard implementation of Scala compiles to Java bytecode, executing in the Java run-time environment, on a \textit{Java Virtual Machine} (JVM). 
+As a result, Scala is reliant on JVMs for compilation to low-level machine code and efficient execution. 
+However, JVMs are predominantly optimized to improve the performance of Java programs. 
+Furthermore, Scala program type information is significantly reduced during type erasure, a compilation phase which removes generic type information. 
+Consequently, boxing, the operation of wrapping primitive values in an object, is unnecessarily introduced into the final program. 
+Current state of the art techniques on eliminating boxing and achieving optimal object layouts at run-time, known as type specialization, rely on static program analysis.
 
 \cleardoublepage
 

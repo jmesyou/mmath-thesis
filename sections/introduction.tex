@@ -1,1 +1,44 @@
 \chapter{Introduction}
+
+\acrfull{jit} compilation has seen great success in the implementation of runtimes for  objected-oriented programming languages.
+It has been effective in generating efficient machine code in the presence of virtual dispatch arising from \textit{subtype} polymorphism.
+While a call site may statically have many possible call targets, JIT compilation is a able to incorporate dynamic run-time information to speculative optimize the most frequently invoked call targets.
+These speculative optimizations often enable compiled code to be inlined, a critical transformation in the context of JIT compilation.
+Inlining compiled code generates opportunities for many further optimizations.
+
+Many object-oriented languages have since incorporated the notion of generic programming , otherwise known as \textit{parametric} polymorphism.
+Parametric polymorphism enables programs to more modular and reusable as a functions and data structures behave identically\cite{tapl} regardless of the types of their inputs.
+Implementations of generic programming often comes at the expense of program complexity and performance.
+Static compilers for object-oriented languages with parametric polymorphism must compromise when selecting an appropriate data representation for polymorphic data types and functions.
+This trade-off comes down to more optimal data layouts at the expense of space or uniform data layouts which are not optimal for every type at the expense of performance.
+
+The selection of an optimal data representation, or \textit{specialization}, of a polymorphic data structure relies on information typically found in the type-rich source language of programming languages.
+Representations must be consistent throughout the whole program as code which manipulates such data structures assume their representations to be consistent.
+Consequent, the specialization problem is best suited to compilers which have access to whole program information during compilation
+This not the case for object-oriented languages such as Java and Scala, which statically generate a uniform data representation for their polymorphic definitions to guarantee consistency throughout the whole program. 
+Additionally, static compilers do not have sufficient runtime information that is critical in making favourable optimization decisions when compared to JIT compilers.
+On the other hand, JIT compilers are ill-suited to whole program optimizations as they are best at the dynamic optimization of small regions of a program.
+The problem of specialization therefore falls in between static compilation and JIT compilation.
+
+This thesis introduces \textsc{TastyTruffle}, an interpreter and JIT compiler which incorporates rich source-level type information with speculative optimizations to specialize data representations for the Scala programming language.
+\textsc{TastyTruffle} is implemented in Truffle, a framework which simplifies the implementation of a JIT compiler for a source language through the implementation of a interpreter for that language. 
+Our source language is the \acrfull{tasty} serialization format emitted by the Scala 3 compiler.
+TASTy is an abstract syntax tree format emitted after parsing and type checking of Scala programs.
+By using TASTy is a suitable source language, we are to access source-level type information without having parse and type check a Scala source program.
+
+The contributions of this thesis are as follows: 
+The implementation of an interpreter for the TASTy format using Truffle and the necessary transformations to make a TASTy program executable.
+An extension to the interpreter to support ad-hoc data representations for generic data structures.
+The evaluation of the interpreter on simple and realistic programs that are present a challenge on existing state-of-the-art techniques.
+
+We describe the layout of the remainder of this thesis.
+Chapter 2 provides an overview on the many intermediate representations of Scala from compilation to execution.
+It explores the advantages and drawbacks of each intermediate representation with respect to specialization.
+Chapter 3 details the implementation of \textsc{TastyTruffle}.
+It covers the translation of TASTy into a more suitable IR for execution in an interpreter where each polymorphic data structure has a uniform representation.
+The chapter then provides extensions to the interpreter to the support just-in-time specialization of polymorphic data structures.
+Chapter 4 evaluates the interpreter with and without extensions for dynamic specialization on simple but realistic data structures.
+The chapter provides the performance of these evaluated data structures in the context of the standard implementation of Scala with the underlying JIT compiler of our interpreter without any augmentation.
+Chapter 5 explores related work in various implementations of parametric polymorphism as well as other Truffle interpreters.
+Chapter 6 discusses possible extensions to \textsc{TastyTruffle} to better integrate source-level type semantics with JIT compilation.
+Chapter 7 concludes the thesis.
