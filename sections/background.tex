@@ -634,6 +634,22 @@ While such types of optimizations are widely applicable to many languages using 
 				this.execute_int_int0(state, frame) : 
 				this.execute_generic1(state, frame);
 		}
+	
+		private Object execute_generic1(int state, VirtualFrame frame) {
+			Object lhs = this.lhs_.execute(frame);
+			Object rhs = this.rhs_.execute(frame);
+			if ((state & 1) != 0 && lhs instanceof Integer) 
+				if (rhs instanceof Integer) 
+					return this.executeInt((Integer) lhs, (Integer) rhs);
+			
+			if ((state & 2) != 0) {
+				return this.executeObject(lhs, rhs);
+			} else {
+				CompilerDirectives.transferToInterpreterAndInvalidate();
+				return this.executeAndSpecialize(lhs, rhs);
+			}
+		}	
+	}
 \end{minted}
 \caption{Generated code by the Truffle DSL for the \scalainline{AnyEqNode}.}
 \label{impl:node-rewriting-gen}
@@ -651,31 +667,6 @@ A Truffle node that supports node rewriting begins in an uninitialized state.
 When both the left and right-hand side operands are integers, the node is rewritten to \javainline{equalsInt} state.
 When arguments of any other combination of types are detected, either in the uninitialized state or the \javainline{equalsInt} state, the node is rewritten to the \javainline{equals} state.
 
-\begin{figure}[!htb]
-	\begin{minted}{java}
-	private Object execute_generic1(int state, VirtualFrame frame) {
-		Object lhs = this.lhs_.execute(frame);
-		Object rhs = this.rhs_.execute(frame);
-		if ((state & 1) != 0 && lhs instanceof Integer) {
-			int lhs_int = (Integer) lhs;
-			if (rhs instanceof Integer) {
-				int rhs_int = (Integer) rhs;
-				return this.executeInt(lhs_int, rhs_int);
-			}
-		}
-			
-		if ((state & 2) != 0) {
-			return this.executeObject(lhs, rhs);
-		} else {
-			CompilerDirectives.transferToInterpreterAndInvalidate();
-			return this.executeAndSpecialize(lhs, rhs);
-		}
-	}
-	\end{minted}
-	\caption{Implementation of \scalainline{execute_generic1} of \scalainline{EqualsNodeGen}}
-	\label{impl:node-rewriting-state1}
-\end{figure}
-
 Figure \ref{impl:node-rewriting-gen} gives the auto-generated Java program that implements the semantics defined in \ref{example:node-rewriting}.
 We will not discuss the semantics of every possible state in our generated node for brevity.
 Instead, we will discuss the possible state transitions when a node starts in the uninitialized state.
@@ -684,32 +675,10 @@ States are encoded as bit fields.
 The uninitialized state is the $0$ value with no states encoded.
 The \scalainline{equalsInt} state is encoded with $1$ and the \scalainline{equals} state is encoded with $2$.
 \javainline{execute_generic1} is invoked when no states (specializations) are active in a \scalainline{EqualsNode}.
-Figure \ref{impl:node-rewriting-state1} gives the implementation of \scalainline{execute_generic1}.
 The first state transition checks whether the node is in one of two possible states (\scalainline{equalsInt} or \scalainline{equals}).
 The corresponding specialization is invoked if the node is in either state and its arguments satisfy the preconditions.
 This portion of the node may exist in either interpreted or compiled code.
 However, if the node is not initialized, i.e., it is in neither possible state, the code is deoptimized (if compiled), and execution resumes from the interpreter.
-
-\begin{figure}[!htb]
-	\begin{minted}{java}
-	private boolean executeAndSpecialize(Object lhs, Object rhs) {
-		int prev_state = this.state_0_;
-		if (lhs instanceof Integer) {
-			int lhs_int = (Integer) lhs;
-			if (rhs instanceof Integer) {
-				int rhs_int = (Integer) rhs;
-				this.current_state = prev_state |= 1;
-				return this.equalsInt(lhs_int, rhs_int);
-			}
-		}
-		
-		this.current_state = prev_state |= 2;
-		return this.equals(lhs, rhs);
-	}
-	\end{minted}
-	\caption{Implementation of \scalainline{executeAndSpecialize} of \scalainline{EqualsNodeGen}}
-	\label{impl:node-rewriting-specialize}
-\end{figure}
 
 The \javainline{executeAndSpecialize} method (figure \ref{impl:node-rewriting-specialize}) initializes the node to a specialized state.
 If both arguments satisfy the \javainline{Int} type check invariant, the node is initialized to the \scalainline{equalsInt} state.
@@ -719,10 +688,38 @@ Node rewriting narrows down a node's best implementation(s) for a particular pro
 If a Truffle AST cannot be rewritten further, it is considered \textit{stable}.
 Stable nodes vastly simplify JIT compilation because of partial evaluation, a critical transformation applied to ASTS for JIT compilation that we will describe next.
 
+\begin{figure}[!htb]
+	\begin{minted}{java}
+	private boolean executeAndSpecialize(Object lhs, Object rhs) {
+		int prev_state = this.state_0_;
+		if (lhs instanceof Integer) 
+			if (rhs instanceof Integer) {
+				this.current_state = prev_state |= 1;
+				return this.equalsInt((Integer) lhs, (Integer) rhs);
+			}
+	
+		this.current_state = prev_state |= 2;
+		return this.equals(lhs, rhs);
+	}
+	\end{minted}
+	\caption{Implementation of \scalainline{executeAndSpecialize} of \scalainline{EqualsNodeGen}}
+	\label{impl:node-rewriting-specialize}
+\end{figure}
+
+
 When invocations of a root node exceed a limit, Graal JIT compiles its children trees into native machine code using \textit{partial evaluation}.
 Partial evaluation is a program optimization technique for specializing a program (code) for a given input (data)\cite{futamura:partial-eval}.
 In the context of Truffle, this means specializing an AST node (code) based on the values (or types of values) produced by their children nodes (data)\cite{truffle:partial-eval}.
 We can say that the partial evaluation of an AST  will produce an AST which is \textit{specialized} for a particular set of values, or more commonly, in our case, a particular set of types.
+
+For example, consider the partial evaluation of a \scalainline{EqualsNodeGen} node in the \scalainline{equalsInt} state.
+The \javainline{current_state} field of the node is annotated with the \javainline{CompilationFinal} directive.
+Truffle provides the \javainline{CompilationFinal} directive to indicate that a value that may not be a constant in the guest language implementation \textit{will} be a constant when being partially evaluated.
+Because the state is a compilation constant, the condition on line $17$ of \ref{impl:node-rewriting-gen} evaluates to \javainline{true} when the state is $1$ (\scalainline{equalsInt}).
+As a result, only the code for \javainline{execute_int_int0} (provided in \ref{impl:node-rewriting-state2}) will be compiled.
+The generated implementation of \javainline{execute_int0_int0} contains checks for the specialization invariant.
+These checks act as points in the control flow of the compiled code to deoptimize if these invariants are violated.
+The resulting code supplied to JIT compilation is the specialization of the \scalainline{EqualsNode} for the \scalainline{equalsInt} state.
 
 \begin{figure}[!htb]
 	\begin{minted}{java}
@@ -743,22 +740,12 @@ We can say that the partial evaluation of an AST  will produce an AST which is \
 		}
 		
 		assert (state & 1) != 0;
-	
 		return this.executeInt(lhs_int, rhs_int);
 	}
 	\end{minted}
 	\caption{Implementation of \scalainline{execute_int_int0} of \scalainline{EqualsNodeGen}}
 	\label{impl:node-rewriting-state2}
 \end{figure}
-
-For example, consider the partial evaluation of a \scalainline{EqualsNodeGen} node in the \scalainline{equalsInt} state.
-The \javainline{current_state} field of the node is annotated with the \javainline{CompilationFinal} directive.
-Truffle provides the \javainline{CompilationFinal} directive to indicate that a value that may not be a constant in the guest language implementation \textit{will} be a constant when being partially evaluated.
-Because the state is a compilation constant, the condition on line $17$ of \ref{impl:node-rewriting-gen} evaluates to \javainline{true} when the state is $1$ (\scalainline{equalsInt}).
-As a result, only the code for \javainline{execute_int_int0} (provided in \ref{impl:node-rewriting-state2}) will be compiled.
-The generated implementation of \javainline{execute_int0_int0} contains checks for the specialization invariant.
-These checks act as points in the control flow of the compiled code to deoptimize if these invariants are violated.
-The resulting code supplied to JIT compilation is the specialization of the \scalainline{EqualsNode} for the \scalainline{equalsInt} state.
 
 The sequence of optimizations given in figure \ref{diagram:graal-loop}, node rewriting, partial evaluation into machine code, and deoptimization is the advantage that a TASTy Truffle interpreter has over the traditional JVM bytecode interpreter for Scala.
 Truffle allows for the incorporation of source-level type information into the just-in-time compilation loop.
