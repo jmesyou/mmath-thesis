@@ -1,26 +1,25 @@
 \chapter{Implementation}
 \label{chapter:implementation}
-% \epigraph{The best presents don't come in boxes.}{Bill Watterson}
 % \epigraph{Typing is no substitute for thinking.}{Dartmouth Basic manual, 1964}
 
 This chapter is divided into two halves which detail the implementation of a Truffle interpreter and extensions for parametric polymorphism.
 The first half of this chapter will describe the methods used to transform TASTy to make it suitable for a Truffle interpreter, \textsc{TastyTruffle}, \textit{without} polymorphism.
 In particular, the first section covers how to translate the organization of data and code in the \scalainline{DefDef}, \scalainline{ClassDef}, and \scalainline{Term} tree nodes into a Truffle implementation which is amenable to execution and JIT optimization.
-The second half of this chapter will then discuss extensions to our implementation support parametric polymorphism and cover the techniques we use to specialize nodes to eliminate autoboxing in the presence of polymorphism. 
+The second half of this chapter will then discuss extensions to our implementation to support parametric polymorphism and cover the techniques we use to specialize nodes to eliminate autoboxing in the presence of polymorphism. 
 
 \section{The Monomorphic Interpreter}
 \label{impl:section:monomorphic}
 
 Scala programs in \acrshort{tasty} format are unsuitable for execution in a Truffle interpreter. 
 Programs in TASTy must be parsed and transformed into an executable representation in Truffle.
-This involves translating the TASTy tree structure into a simpler, but semantically equivalent Truffle AST.
+These transformations translate the TASTy tree structure into a more straightforward but semantically equivalent Truffle AST.
 For the rest of this thesis, we refer to the Truffle AST of TASTy as \textit{TastyTruffle IR}.
 As TASTy represents a Scala program close to its equivalent source representation, canonicalization compiler passes (see appendix \ref{appendix:dotty-phases}) that would otherwise normalize the IR are not present. 
 Instead, we implement TastyTruffle IR to represent a canonicalized executable intermediate representation which can later be specialized on demand. 
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	def evaluate(tree: Tree): Object = tree match {
+	def parseTopLevel(tree: Tree): Object = tree match {
 		case vdef: ValDef   => 
 			lazy val obj = initializeObject(vdef)
 			registerObject(vdef.symbol, obj)			
@@ -33,24 +32,27 @@ Instead, we implement TastyTruffle IR to represent a canonicalized executable in
 	\label{impl:top-level}
 \end{figure}
 
-Figure \ref{impl:top-level} gives an evaluation loop that is common in other interpreters in the context of this one.
-A top level tree is any tree without a parent.
+Figure \ref{impl:top-level} gives an evaluation loop typical in other interpreters in the context of this one.
+A top-level tree is any tree without a parent.
 In our subset of TASTy, a top level tree may be a \scalainline{ValDef} (a singleton object) or a \scalainline{ClassDef}.
 Here we only present the pseudocode sufficient to traverse a program in TASTy. 
-Each top level definition is parsed and saved.
-Note that we intentionally omit \textit{how} to execute the program.
+Each top-level definition is parsed and saved in a global interpreter context (\scalainline{registerShape} and \scalainline{registerObject}).
+Top-level objects are lazily initialized as their class definitions may not have been parsed.
+Registered objects and classes are then used in subsequent executions of the program.
+
+We omit details on \textit{how} to execute the program to be concise.
 Entry points in \scalainline{TASTy} are defined by a special method \scalainline{main}.
-As multiple entry points may exist in a given program, we consider the selection of entry points an implementation-specific detail.
-In the following sections, we will describe the individual types of TASTy nodes and why some are directly unsuitable for execution and how to simplify their semantics for execution.
+As multiple entry points may exist in a given program, we consider the selection of entry points as an implementation-specific detail.
+In the following sections, we will describe the individual types of TASTy nodes, why some are directly unsuitable for execution, and how to simplify their semantics.
 
 \subsection{Converting the \texttt{DefDef} tree into a Truffle \texttt{RootNode}}
 \label{impl:subsection:defdef}
 
 In this section, we describe the conversion of \scalainline{DefDef} trees to \textit{root nodes}.
-\scalainline{DefDef} trees are the primary structure which organizes code (terms) in TASTY.
+\scalainline{DefDef} trees are the primary structure that organizes code (terms) in TASTY.
 Root nodes represent the root of an executable Truffle AST, the primary abstraction which organizes code in Truffle.
 In our case, root nodes are the Truffle analog of a \scalainline{DefDef}.
-Each root node has a corresponding \textit{call target}, which is used for invocation of the root node.
+Each root node has a corresponding \textit{call target}, which is used for the invocation of the root node.
 Call targets are the primary compilation unit for Graal.
 A compilation unit is an organization of code that can be independently compiled.
 A root node is automatically instrumented\cite{profiling:atom} to profile its number of invocations. 
@@ -70,24 +72,12 @@ Subsequent invocations of the call target will then use the more efficient compi
 
 Figure \ref{example:root-node} gives a simplified implementation of a root node.
 Each root node in Truffle has a \textit{frame descriptor} and execution semantics.
-A guest language must subclass and implement its own root node in order to enable function invocation semantics.
+A guest language must subclass and implement its root node to enable function invocation semantics.
 
-A frame descriptor describes guest language variables which are in scope during execution.
+A frame descriptor describes guest language variables that are in scope during execution.
 The abstract \javainline{execute} method describes the invocation behaviour of a root node.
-When a root node is executed, it always supplied with a \textit{frame}.
+When a root node is executed, it is always supplied with a \textit{frame}.
 A frame contains the arguments supplied during invocation and storage slots for local variable definitions in the body of the method.
-By default, all frames start off \textit{virtual}.
-Virtual frames are Truffle abstractions that provide guest languages an opportunity to exploit escape analysis.
-Escape analysis\cite{escape-analysis} reasons about the dynamic scope of object allocations. 
-Truffle and Graal both exploit the observations of \textit{Partial Escape Analysis}\cite{java:partial-escape-analysis}, a path-sensitive variant of escape analysis, to enable the following optimizations for guest languages:
-
-\begin{description}
-	\item[Region Allocation\cite{java:escape-analysis}\cite{tofte:region-memory}] The substitution of heap allocations with stack allocations to eliminate unnecessary garbage collection.
-	\item[Scalar Replacement\cite{java:escape-analysis-optimizations}] The complete elimination of an object allocation, where the fields of the replaced object are substituted by local variables.
-\end{description}
-
-The virtual frame abstraction allows guest languages to read and write to a frame without the requirement to optimize their object allocations.
-Instead, escape analysis and subsequently scalar replacement is responsible for optimizing guest language object allocations during partial evaluation. 
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -98,13 +88,13 @@ Instead, escape analysis and subsequently scalar replacement is responsible for 
 \end{figure}
 
 A further simplified definition of a \scalainline{DefDef} tree is provided in figure \ref{recall:defdef}.
-In this section, we focus on two members of a \scalainline{DefDef} trees.
+This section focuses on two members of a \scalainline{DefDef} tree.
 The parameters of a \scalainline{DefDef} tree are given by the \scalainline{params} field.
 In practice, the type of a \scalainline{ParamClause} is an alias for the union type \scalainline{TypeParams {|} TermParams}, so we omit the \scalainline{ParamClause} definition.
-A \scalainline{DefDef} tree will have a parameter section for type parameters when they are polymorphic and will always have term parameters section.
+A \scalainline{DefDef} tree will have a parameter section for type parameters when they are polymorphic and will always have a term parameters section.
 \scalainline{DefDef} trees may optionally have a body defined in the \scalainline{rhs} field.
-When trees do not have a body defined, they are abstract method definitions and do not have  corresponding root node in Truffle.
-We will only consider non-abstract method definitions which have a body (a term) defined to be executable.
+When trees do not have a body defined, they are abstract method definitions and do not have a corresponding root node in Truffle.
+We will only consider non-abstract method definitions with a body (a term) defined to be executable.
 We will cover the parsing of terms into nodes for execution in detail after section \ref{impl:subsection:classdef}
 
 \begin{figure}[!htb]
@@ -126,15 +116,15 @@ We will cover the parsing of terms into nodes for execution in detail after sect
 
 Each value definition in the parameters of a \scalainline{DefDef} will have a corresponding frame slot in its parent frame descriptor. 
 A frame slot references a unique frame value in the context of a root node.
-Truffle permits each frame slot in a frame descriptor be described by a \textit{frame slot kind}.
+Truffle permits each frame slot in a frame descriptor to be described by a \textit{frame slot kind}.
 In Truffle, there is a corresponding frame slot kind for reference types and each \acrshort{jvm} primitive type. 
-Pseudocode of a frame slot kind and a method to convert a type into a slot kind is given in \ref{impl:frameslot-kind}.
+The pseudocode of a frame slot kind and a method to convert a type into a slot kind is given in \ref{impl:frameslot-kind}.
 
-Truffle profiles frame accesses in order to minimize the amount of autoboxing which occurs when reading from frame slot with an \javainline{Object} kind. 
+Truffle profiles frame accesses to minimize the amount of autoboxing that occurs when reading from frame slot with an \javainline{Object} kind. 
 To eliminate unnecessary specialization of frame accesses where types are monomorphic and statically refer to a primitive type, a parameter is assigned the matching primitive frame slot kind in the frame descriptor. 
 In cases where the type is not a primitive type or a polymorphic applied type, e.g. \scalainline{List[T]} but not \scalainline{T}, we assign its frame slot the \scalainline{Object} kind.
-Otherwise, the type is a polymorphic parameter which \textit{could} resolve to a primitive type and the frame slot kind cannot be resolved statically.
-We will defer discussion on how to handle parameters of such polymorphic types that cannot be resolved statically until section \ref{implementation:specialization}.
+Otherwise, the type is a polymorphic parameter which \textit{could} resolve to a primitive type, and the frame slot kind cannot be resolved statically.
+We will defer discussion on handling parameters of such polymorphic types that cannot be resolved statically until section \ref{implementation:specialization}.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -168,13 +158,11 @@ We will defer discussion on how to handle parameters of such polymorphic types t
 \end{figure}
 
 Figure \ref{impl:defdefnode} provides the implementation of the \scalainline{DefDefNode} and its parameters, the root node equivalent of a \scalainline{DefDef}.
-The execution of a \scalainline{DefDefNode} is divided into two stages, argument preparation and execution.
-First, the arguments of the frame constructed during invocation (see \ref{impl:subsection:apply}), are copied into their respective parameter frame slots.
-Frames contains separate regions for values of each frame slot kind.
-Based on the frame slot kind prescribed to a parameter, we copy each argument into the appropriate frame slot region.
-Storing parameters in this manner eliminates any unnecessary unboxing which would otherwise occur during a frame access.
-After arguments are copied into the frame, their values become available for access during the execution of the body.
-The body of a \scalainline{DefDefNode} is then executed and its computed value returned.
+The execution of a \scalainline{DefDefNode} is divided into two stages, argument preparation, and execution.
+First, the arguments of the frame constructed during invocation (see \ref{impl:subsection:apply}) are copied into their respective parameter frame slots.
+Frames contain separate regions for values of each frame slot kind.
+We copy each argument into the appropriate frame slot region based on the frame slot kind prescribed to a parameter.
+Storing parameters in this manner eliminates any unnecessary boxing that would otherwise occur when passing primitives as arguments.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -198,9 +186,24 @@ The body of a \scalainline{DefDefNode} is then executed and its computed value r
 	\label{impl:parse-defdef}
 \end{figure}
 
+By default, all frames start off \textit{virtual}.
+Virtual frames are Truffle abstractions that provide guest languages an opportunity to exploit escape analysis.
+Escape analysis\cite{escape-analysis} reasons about the dynamic scope of object allocations. 
+Truffle and Graal both exploit the observations of \textit{Partial Escape Analysis}\cite{java:partial-escape-analysis}, a path-sensitive variant of escape analysis, to enable the following optimizations for guest languages:
+
+\begin{description}
+	\item[Region Allocation\cite{java:escape-analysis}\cite{tofte:region-memory}] The substitution of heap allocations with stack allocations to eliminate unnecessary garbage collection.
+	\item[Scalar Replacement\cite{java:escape-analysis-optimizations}] The complete elimination of an object allocation, where the fields of the replaced object are substituted by local variables.
+\end{description}
+
+The virtual frame abstraction allows guest languages to read and write to a frame without the requirement to optimize their object allocations.
+Instead, escape analysis and scalar replacement are responsible for optimizing guest language object allocations during partial evaluation. 
+After arguments are copied into the frame, their values become available for access during the execution of the body.
+The body of a \scalainline{DefDefNode} is then executed, and its computed value is returned.
+
 Figure \ref{impl:parse-defdef} provides a summary on parsing a \scalainline{DefDef} tree into its Truffle equivalent \scalainline{DefDefNode}.
-Frame slot and a frame slot kinds provide an abstraction for parameters and arguments to be resolved before the execution of the main body in a \scalainline{DefDefNode}.
-In addition to the parameters which are explictly present in TASTY, the root node will have additional parameter which represents the receiver of the method.
+Frame slot and frame slot kinds provide an abstraction for parameters and arguments to be resolved before executing the main body in a \scalainline{DefDefNode}.
+In addition to the parameters explicitly present in TASTY, the root node will have an additional parameter representing the method's receiver.
 The receiver is an object instance whose class definition owns the method being invoked.
 In Scala, every method invocation has a receiver.
 In TASTy, this translates to every \scalainline{DefDef} is owned by a \scalainline{ClassDef}.
@@ -239,16 +242,16 @@ In the next section, we detail how to organize call targets in Truffle by using 
 	\end{subfigure}
 \end{figure}
 
-\scalainline{ClassDef} tree define the layout of an object in TASTy.
-The layout of a object dictate the values which an object instance stores as well the methods which can be invoked on an object instance.
+\scalainline{ClassDef} tree defines the layout of an object in TASTy.
+The layout of an object dictates the values that an object instance stores and the methods that can be invoked on an object instance.
 The data layout of an object in a Truffle interpreter is described by a \textit{shape}\cite{self:prototypes}\cite{truffle:object-model}.
-Shapes are a language-agnostic model for defining the properties of a object instance in Truffle.
+Shapes are a language-agnostic model for defining the properties of an object instance in Truffle.
 A property in a shape describes one member of an object instance; it has an identifier and a value.
-A Truffle object instance consists of \textit{object storage}, which contains instance-specific data, and its shape.
+A Truffle object instance consists of \textit{object storage}, which contains instance-specific data and its shape.
 Shapes map property identifiers to object storage locations; guest languages interface with object storage indirectly through properties.
-In this thesis we use a \textit{static shape}, an immutable variant of a shape.
-Normally, shapes are mutable and their list of properties may change throughout the lifetime of a program\cite{truffleruby:object-model}.
-However, programs which dynamically change the layout of their objects\cite{java:reflection} are out of the scope of this thesis.
+In this thesis, we use a \textit{static shape}, an immutable variant of a shape.
+Normally, shapes are mutable, and their list of properties may change throughout the lifetime of a program\cite{truffleruby:object-model}.
+However, programs that dynamically change the layout of their objects\cite{java:reflection} are out of the scope of this thesis.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -310,12 +313,20 @@ For the remainder of this thesis, we will use a \scalainline{ClassInstance} to r
 \end{figure}
 
 A \scalainline{ValDef} tree in the body of a \scalainline{ClassDef} translates to a field definition in the \scalainline{ClassShape}.
-A \scalainline{ClassShape} has an collection of fields, which implement the static shape property.
+A \scalainline{ClassShape} has a collection of fields that implement the static shape property.
 Figure \ref{impl:field} gives our implementation of a field.
 Fields define operations to read and write from the object storage on a \scalainline{ClassInstance}.
 Like frames with frame slot kinds, object instances in Truffle have separate regions for storing values of each primitive type and one for reference types.
 Following the same rules with types and frame slot kinds described in section \ref{impl:subsection:defdef}, the data access of a field depends on the type of the \scalainline{ValDef} tree from which the field originates.
-The remaining members of a \scalainline{ClassShape} do not describe data which has to be stored in the object storage of a \scalainline{ClassInstance}.
+The remaining members of a \scalainline{ClassShape} do not describe data that has to be stored in the object storage of a \scalainline{ClassInstance}.
+
+After the constructor and the \scalainline{DefDef} statements of a \scalainline{ClassDef} are converted into root nodes, they are stored in the \scalainline{ClassShape} mapped by a method signature.
+The pseudocode for a method signature is given in figure \ref{impl:method-signature}.
+Method signatures disambiguate method invocations in the presence of \textit{ad hoc polymorphism}\cite{strachey:fundamental-concepts}, where methods share the same name but have different arguments.
+When combined with parametric polymorphism, method signatures must also be able to disambiguate between methods sharing the same name but having different type parameters.
+However, method signatures do not have to disambiguate between different type parameters by name, only the number of type parameters a method has.
+Because type erasure erases polymorphic type parameters from methods, methods that share the same number of parameters, as well as the same arguments, will conflict and therefore are invalid.
+As previously mentioned, methods are shared between all \scalainline{ClassInstance} objects with the same shape; call targets are stored on their owning shape.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -325,18 +336,10 @@ The remaining members of a \scalainline{ClassShape} do not describe data which h
 	\label{impl:method-signature}
 \end{figure}
 
-After the constructor and the \scalainline{DefDef} statements of a \scalainline{ClassDef} are converted into root nodes, they are stored in the \scalainline{ClassShape} mapped by a method signature.
-The pseudocode for a method signature is given in figure \ref{impl:method-signature}.
-Method signatures disambiguate method invocations in the presence of \textit{ad hoc polymorphism}\cite{strachey:fundamental-concepts}, where methods share the same name but have different arguments.
-When combined with parametric polymorphism, method signatures must also be able to disamibguate between methods sharing the same name but having different type parameters.
-However, method signatures do not have to disambiguate between different type parameters by name, only the number of type parameters that a method has.
-Because type erasure erases polymorphic type parameters from methods, methods which share the same number of parameters as well as the same arguments will conflict and therefore are invalid.
-As previously mentioned, methods are shared between all \scalainline{ClassInstance} objects with the same shape, call targets are stored on the shape itself.
-
-Often a shape will not contain the call target referenced by a signature because the dispatch is dynamic and the original type inherits the method.
-A \scalainline{ClassShape} contains a \textit{virtual method table}, which maps a method signature to the symbol of a shape which contains the call target matching the signature.
+Often a shape will not contain the call target referenced by a signature because the dispatch is dynamic, and the original type inherits the method.
+A \scalainline{ClassShape} contains a \textit{virtual method table}, which maps a method signature to the symbol of a shape that contains the call target matching the signature.
 If a method signature does not have a call target in the current shape, the shape which holds the target is indirectly resolved using the virtual method table during execution.
-While this resolution carries signficant performance overhead both in Truffle and other implementations of programming languages, we will describe a technique which partially mitigates this overhead further on this half of chapter.
+While this resolution carries significant performance overhead in Truffle and other programming language implementations, we will describe a technique that partially mitigates this overhead further in this half of the chapter.
 
 \subsection{Transforming \texttt{Terms} into \texttt{Nodes}}
 
@@ -355,12 +358,12 @@ While this resolution carries signficant performance overhead both in Truffle an
 	\label{impl:term-node}
 \end{figure}
 
-In this section we will cover the conversion of a \scalainline{Term} trees into Truffle nodes.
+In this section, we will cover the conversion of \scalainline{Term} trees into Truffle nodes.
 The Truffle \scalainline{Node} abstraction allows guest languages to implement executable fragments of an AST.
 Figure \ref{impl:term-node} is our subclass of a Truffle \scalainline{Node}.
 Subclasses of the \scalainline{TermNode} will define node-specific semantics encapsulating a particular functionality of the interpreter.
 The \scalainline{TermNode} takes advantage of Truffle's autoboxing elimination by defining companion \scalainline{execute[TYPE]} methods to allow subclasses to declare when an expected result from a child node must conform to a specific primitive type.
-In the following subsections, we give the subclasses which individually implement functionality of the monomorphic interpreter.
+In the following subsections, we give the subclasses that individually implement the monomorphic interpreter's functionality.
 
 \subsubsection*{Creating Instances}
 
@@ -380,7 +383,7 @@ The \scalainline{New} tree represents the allocation of an instance of a \scalai
 The Truffle equivalent allocate node given in figure \ref{impl:new-node} is not so different, but it allocates an instance with properties described by the \scalainline{ClassShape} instead of a \scalainline{ClassDef}.
 Note that a \scalainline{NewNode} only \textit{creates} an object; the parameters and fields of an object remain uninitialized.
 An object is \textit{initialized} when the initializer, \scalainline{<init>}, method is invoked on a newly created object.
-TASTy is emitted with this sequence of events in mind, object creation is always followed by object initialization.
+TASTy is emitted with this sequence of events in mind; object creation is always followed by object initialization.
 Structurally, this means that a \scalainline{New} tree is always the child of an initializer \scalainline{Apply} tree.
 
 \subsubsection*{Function Application}
@@ -405,33 +408,34 @@ Structurally, this means that a \scalainline{New} tree is always the child of an
 	\caption{Pseudocode of parsing an \scalainline{Apply} tree.}
 	\label{impl:parse-apply}
 \end{figure}
-The \scalainline{Apply} tree is a context-dependent tree which represents multiple types of operations.
-These operations are disambiguated by the types of their receiver.
-Figure \ref{impl:parse-apply} provides an overview on the transformations discussed in this section as pseudocode for parsing an \scalainline{Apply} into TastyTruffle IR.
+The \scalainline{Apply} tree is a context-dependent tree that represents multiple types of operations.
+The types of their receiver disambiguate these operations.
+Figure \ref{impl:parse-apply} provides an overview of the transformations discussed in this section as pseudocode for parsing an \scalainline{Apply} into TastyTruffle IR.
 We omit the implementations of \scalainline{unaryOp}, \scalainline{binaryOp}, \scalainline{arrayOp} to remain concise; 
-These methods generate an Truffle intrinsic node intrinsic which represent a similar JVM equivalent.
+These methods generate a Truffle intrinsic intrinsic node, representing a similar JVM equivalent.
 In the following subsections, we enumerate all possible semantics in our subset of TASTy:
 
 \paragraph{Arithmetic and Logical Operators}
 
-In TASTy there are no unary and binary operators typically found in Java or other imperative languages.
-Unary and binary operators are actually an invocation of 0-argument (unary operator) or 1-argument (binary operator) method. 
+In TASTy, there are no unary and binary operators, typically found in Java or other imperative languages.
+Unary and binary operators are an invocation of the 0-argument (unary operator) or 1-argument (binary operator) method. 
 For example, the following addition operator in Scala \scalainline{1 + 2} is desugared to \scalainline{1.+(2)}. 
 That is, the binary operator \scalainline{+} is represented as the invocation of the instance function \scalainline{Int.+} on the receiver with value \scalainline{1} and type \scalainline{Int} with a single argument \scalainline{2}.
-Normally in the Scala compilation pipeline, methods which operate on primitive types and have an equivalent bytecode instruction on the JVM\cite{java:vm-spec} are replaced by those instructions in compiled program bytecode. 
-This process of selecting efficient implementations for numerical or logical operations is commonly known as intrinsification.
+Generally, in the Scala compilation pipeline, methods that operate on primitive types and have an equivalent bytecode instruction on the JVM\cite{java:vm-spec} are replaced by those instructions in compiled program bytecode. 
+This process of selecting efficient implementations for numerical or logical operations is called intrinsification.
 Similarly, TastyTruffle avoids implementing methods of primitive types with actual call semantics as primitive operations are frequently used and simplify optimization for Graal.
 
 \paragraph{Array Access}
 
-The syntax for accessing array elements in Scala does not differ from the invocation of method on an array.
-In other imperative languages such as Java, the syntax for accessing arrays is commonly separate from the syntax of invoking a method.
+The syntax for accessing array elements in Scala does not differ from the invocation method on an array.
+In other imperative languages, such as Java, the syntax for accessing arrays is commonly separate from the syntax of invoking a method.
 For example, the access \scalainline{array(0)} is desugared to \scalainline{array.apply(0)} once the program is emitted in TASTy.
+However, an array write \scalainline{array(0) = 42} is desugared to \scalainline{array.update(0, 42)}.
 
-Similar to unary and binary operators, the underlying implementation of array operations are intrinsified into JVM bytecode instructions where possible.
+Similar to unary and binary operators, the underlying implementation of array operations is intrinsified into JVM bytecode instructions where possible.
 However, using the bytecode provided in figure \ref{example:contains-bytecode} as an analog, operations on polymorphic arrays \scalainline{cannot} be intrinsified.
 Instead, polymorphic array operations are handled by functions in the Scala runtime library.
-The overhead of such operations are substantial and commonly represent the largest performance bottlenecks in array-bound programs.
+The overhead of such operations is substantial and commonly represents the most significant performance bottlenecks in array-bound programs.
 These costs are additionally abstracted from the user as they commonly arise when using array-backed collections from the Scala standard library.
 
 To operate without specialization, the implementation of our interpreter also incorporates the same runtime code to handle polymorphic array operations.
@@ -469,26 +473,26 @@ In the second half of this chapter, we will discuss the methods used to eliminat
 	\label{implementation:poly-cache-call-node}
 \end{figure}
 
-Otherwise, the \scalainline{Apply} tree actually encodes a `normal' method invocation.
+Otherwise, the \scalainline{Apply} tree encodes a `normal' method invocation.
 Truffle provides two abstractions for call nodes, the \textit{direct call node} is used when the call target can be statically resolved. 
-In our subset of TASTy, this is the set of methods which have private or final modifiers\cite{java:lang-spec} and class constructors. 
+In our subset of TASTy, this is the set of methods with private or final modifiers\cite{java:lang-spec} and class constructors. 
 Otherwise, the Truffle \textit{indirect call node} is used for calls where call targets must be dynamically resolved. 
-Using indirect calls instead of direct calls comes with performance overhead as indirect call nodes cannot be inlined and inhibits Graal's dynamic intraprocedural analyses.
-In this thesis, we describe a singular call node implementation for both statically and dynamically dispatched calls. 
+Using indirect calls instead of direct calls comes with performance overhead as indirect call nodes cannot be inlined and inhibit Graal's dynamic intraprocedural analyses.
+In this thesis, we describe a call node implementation for both statically and dynamically dispatched calls. 
 In order to minimize the use of indirect call nodes, we take advantage of a polymorphic inline cache\cite{self:polymorphic-inline-caches} to eliminate the overhead of resolving virtual calls for \acrshort{jit} compilation. 
 
 Figure \ref{implementation:poly-cache-call-node} shows a simplified Truffle call node in \textsc{TastyTruffle} which implements a polymorphic inline cache.
 The \scalainline{ApplyNode} is declared using the Truffle DSL.
-The \scalainline{@NodeChild} and \scalainline{@NodeField} annotations declare that the DSL should generate children and properties of those names and types respectively. 
+The \scalainline{@NodeChild} and \scalainline{@NodeField} annotations declare that the DSL should generate children and properties of those names and types, respectively. 
 The \scalainline{@Specialization} annotation declares the node writing semantics for method invocation.
 Because we have defined a limit on the number of specializations, the DSL will also generate additional code for a polymorphic inline cache.
 This cache saves call targets based on the type of receiver seen at the call site. 
 
 When the type of receiver has not been seen in the inline cache, an additional cache entry is generated and appended to the cache for the next call.
-Because a polymorphic inline cache dispatches direct calls based on the type of the receiver value seen, Graal is able to speculatively optimize the call site with the assumption that the receiver is always the same type and therefore the call target does change between invocations.
+Because a polymorphic inline cache dispatches direct calls based on the type of the receiver value seen, Graal can speculatively optimize the call site with the assumption that the receiver is always the same type and, therefore, the call target does change between invocations.
 Furthermore, this allows the calls site to be inlined, allowing a feedback loop of intraprocedural optimizations\cite{conditional-constant-prop}\cite{variable-congruence} to propagate through the inlined tree.
-One important aspect to note is the size of an polymorphic inline cache must be kept reasonable such that the cost of searching the cache should not defeat the speedup afforded by using the cache.
-If the size of the cache exceeds the limit set, the call node is rewritten to use an indirect call as the cost of inline cache lookup will outweigh the penalty of an indirect call. 
+One important aspect to note is that the size of a polymorphic inline cache must be kept reasonable such that the cost of searching the cache should not defeat the speedup afforded by using the cache.
+If the size of the cache exceeds the limit set, the caller node is rewritten to use an indirect call, as the cost of inline cache lookup will outweigh the penalty of an indirect call. 
 
 \begin{figure}[!htb]
 	\centering
@@ -498,20 +502,20 @@ If the size of the cache exceeds the limit set, the call node is rewritten to us
 \end{figure}
 
 Figure \ref{example:poly-cache-call-node} shows a data flow diagram of the application of a polymorphic inline cache to a call site of \scalainline{contains} when the receiver type is statically known to be \scalainline{List}. 
-The diagram shown assumes that the call site has previously been called with a receiver where the dynamic type has been both \scalainline{Cons} and \scalainline{Nil}.
-The \scalainline{ApplyNode} will first check if the type of receiver at the call site has the type \scalainline{Cons}; If the check passes then the cached direct call node is invoked and the call is complete.
-It will then do the same for the type \scalainline{Nil}.
-Otherwise, the type of the receiver has not been seen before and the call target is resolved virtually then cached for the next invocation at this call site.
+The diagram shows that the call site was previously called with a receiver where the dynamic type has been both \scalainline{Cons} and \scalainline{Nil}.
+The \scalainline{ApplyNode} will first check if the type of receiver at the call site has the type \scalainline{Cons}; If the check passes, then the cached direct call node is invoked, and the call is complete.
+It will do the same for the type \scalainline{Nil}.
+Otherwise, the type of receiver has not been seen before, and the call target is resolved virtually and then cached for the following invocation at this call site.
 
 When the polymorphic inline cache is applied to a monomorphic call site (where the type of the receiver does not change), it simplifies to a single element inline cache\cite{smalltalk:inline-caches}. 
-Because the type of the receiver at the call site remains stable, the cache look up of the call target based on the type always succeeds and the call site never fallbacks to using an indirect call node.
+Because the type of the receiver at the call site remains stable, the cache look-up of the call target based on the type always succeeds, and the call site never fallbacks to using an indirect call node.
 
 \subsubsection*{Accessing Fields}
 
 In our subset of TASTy, the \scalainline{Select} tree represents a read of a field of a \scalainline{ClassInstance}.
 Notice in the resolution of the \scalainline{Apply} tree that an \scalainline{Apply} tree represents a method invocation when the applicator is a \scalainline{Select}.
-Because functions are first-class objects in Scala, the TASTy tree for a method invocation is the access of a method as if it were a field then the application of the subsequent function value read to a list of arguments.
-Since this case is handled previously when parsing the \scalainline{Apply} tree, a \scalainline{Select} tree always selects a value definition.
+Because functions are first-class objects in Scala, the TASTy tree for a method invocation is the access of a method as if it were a field, then the application of the subsequent function value read to a list of arguments.
+Since this case has been previously handled when parsing the \scalainline{Apply} tree, a \scalainline{Select} tree always selects a value definition.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -540,6 +544,14 @@ Since this case is handled previously when parsing the \scalainline{Apply} tree,
 	\label{impl:field-read-node}
 \end{figure}
 
+However, fields may only be directly accessed in the immediate class scope.
+Field access from an outside context is achieved through an \scalainline{accessor}.
+Accessors are special methods generated in the compilation pipeline solely to access a field.
+We apply the transformation to generate accessors in class definitions because accessors are normally generated after TASTy is emitted in the standard Scala compilation pipeline.
+Accessors also conveniently provide a mechanism to resolve indirect field access.
+Indirect field access occurs when an inherited field is accessed in a subclass.
+As we already have a mechanism for resolving method applications, we will combine this mechanism with a new direct field read node to implement field access.
+
 Figure \ref{impl:field-read-node} gives a simplified implementation of a field read node.
 Like the virtual dispatch of call targets, fields are resolved dynamically with the shape of a \scalainline{ClassInstance}.
 We apply a polymorphic inline cache to the lookup of field properties to eliminate the performance overhead associated with this kind of virtual dispatch.
@@ -559,7 +571,7 @@ We apply a polymorphic inline cache to the lookup of field properties to elimina
 	\label{impl:parse-ident}
 \end{figure}
 
-The \scalainline{Ident} tree is a name that refers to either a local value or a global value.
+The \scalainline{Ident} tree is a name that refers to either a local or global value.
 Local values take the form of a local variable or a method parameter.
 Global values refer to a top level \scalainline{object} definition.
 We differentiate between a local and a global based on whether the symbol of the \scalainline{Ident} tree refers to an \scalainline{object} definition (shown in figure \ref{impl:parse-ident}).
@@ -581,14 +593,13 @@ We differentiate between a local and a global based on whether the symbol of the
 	\caption{Pseudocode of local and global value read nodes.}
 	\label{impl:local-global-node}
 \end{figure}
-
 Figure \ref{impl:local-global-node} provides the implementations the \scalainline{ReadGlobalNode} and \scalainline{ReadLocalNode}.
 In our interpreter, local variables and method parameters are uniformly represented by the frame slot abstraction.
-During parsing, it is sufficient to maintain a mapping from symbols to a \scalainline{Local} to adequately resolve which local variable is read.
+During parsing, it is sufficient to maintain a mapping from symbols to a \scalainline{Local} to resolve which local variable is read.
 Truffle does not provide an abstraction for storing global values.
 Instead, we retain a mapping of symbols to instances for all global object value definitions.
 Recall from figure \ref{impl:top-level} that a top level value definition is registered.
-When the symbol of an \scalainline{Ident} refers a \scalainline{object} definition, the value is resolved by using the symbol.
+When the symbol of an \scalainline{Ident} refers to a \scalainline{ObjectDef}, or a top-level \scalainline{ValDef}, it is resolved using the symbol to look up top-level global values previously registered in \ref{impl:top-level}.
 
 \subsubsection*{Mutating Values}
 
@@ -607,10 +618,12 @@ When the symbol of an \scalainline{Ident} refers a \scalainline{object} definiti
 
 The \scalainline{Assign} tree has context-dependent semantics based on the structure of its left-hand side term.
 Figure \ref{impl:parse-assign} contains the simplified logic to resolve \scalainline{Assign} trees into the appropriate term nodes.
-If the left hand side term is a \scalainline{Select} tree, the current tree mutates the field of a \scalainline{ClassInstance}.
-Otherwise, the left hand side is an \scalainline{Ident} which refers to local variable in the frame.
-We differentiate between which node to generate based on the type of the tree seen on the left hand side.
-The \scalainline{WriteFieldNode} and \scalainline{WriteLocalNode} mirror their read node counterparts but instead of reading from their respective locations, they update the value at their locations instead.
+If the left-hand side term is a \scalainline{Select} tree, the current tree mutates the field of a \scalainline{ClassInstance}.
+Otherwise, the left-hand side is an \scalainline{Ident} which refers to the local variable in the frame.
+We differentiate between which node to generate based on the type of the tree seen on the left-hand side.
+The \scalainline{WriteFieldNode} and \scalainline{WriteLocalNode} mirror their read node counterparts, but instead of reading from their respective locations, they update the value at their locations.
+Like field reads, field writes in scopes outside of the class are dispatched through \textit{mutators}.
+Mutators serve the same purpose as accessors but carry an argument to update the value of the field.
 
 \subsubsection*{Conditionals}
 
@@ -634,7 +647,7 @@ The \scalainline{WriteFieldNode} and \scalainline{WriteLocalNode} mirror their r
 \end{figure}
 
 The implementation of conditional control flow in our interpreter is quite simple.
-Two execution paths exists for the two possible results from evaluating the condition term; The path taken depends on the boolean after evaluation.
+Two execution paths exist for the two possible results from evaluating the condition term; The path taken depends on the boolean after evaluation.
 An \scalainline{IfNode} is derived from an \scalainline{If} tree (given in figure \ref{impl:if}), which allows for divergence in program control flow.
 The implementation of the TastyTruffle IR mirrors the semantics given by its original TASTy tree.
 In order to take advantage of conditional speculative optimization, we add a \javainline{ConditionProfile} onto the result of the condition term.
@@ -647,7 +660,7 @@ In our subset of TASTy, the \scalainline{While} tree is the only looping constru
 The control flow of the \scalainline{While} tree is quite simple; the body term is executed as long as the condition term holds at the beginning of every iteration.
 Truffle provides the \scalainline{LoopNode} abstraction for implementations of guest language loop structures.
 The loop node abstraction allows guest languages to take advantage of \textit{On-Stack Replacement}\cite{osr}.
-On-stack replacement is a technique which switches control of part of a program running in the interpreter to compiled code while that part is executing.
+On-stack replacement is a technique that switches control of part of a program running in the interpreter to compiled code while that part is executing.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -683,8 +696,8 @@ On-stack replacement is a technique which switches control of part of a program 
 \end{figure}
 
 So far in this thesis, the root node has been the primary compilation unit in Graal.
-Root nodes profile their invocation count and get JIT compiled when they've been invoked frequently.
-However, loop constructs which are executed for many iterations also justify JIT compilation.
+Root nodes profile their invocation count and get JIT compiled when they have been invoked frequently.
+However, loop constructs that are executed for many iterations also justify JIT compilation.
 The loop node is an additional type of JIT compilation unit which Graal can compile.
 A key difference between loop nodes and root nodes is when their compiled equivalents are utilized.
 While compiled root nodes are used in subsequent invocations of their call targets after they are JIT compiled, compiled loop nodes are used in the next iteration after they are JIT compiled.
@@ -693,7 +706,7 @@ As on-stack replacement is not a central focus of this thesis, we will only disc
 Figure \ref{impl:while} contains the implementation of a \scalainline{WhileNode} and its derivation from a \scalainline{While} tree.
 Like our implementation of the \scalainline{IfNode}, we add a condition profile onto the node which evaluates the termination condition inside \scalainline{WhileRepeatingNode}.
 Truffle will automatically instrument the \scalainline{WhileNode}.
-After sufficient iterations of the \scalainline{WhileRepeatingNode}, the repeating node is compiled and the next iteration of the \scalainline{WhileNode} will use the compiled repeating node.
+After sufficient iterations of the \scalainline{WhileRepeatingNode}, the repeating node is compiled, and the next iteration of the \scalainline{WhileNode} will use the compiled repeating node.
 
 \subsubsection*{Blocks}
 
@@ -719,19 +732,19 @@ After sufficient iterations of the \scalainline{WhileRepeatingNode}, the repeati
 	\label{impl:parse-block}
 \end{figure}
 
-In this section, we cover the translation of the \scalainline{Block} tree to its TastyTruffle IR equivalent.
-The \scalainline{Block} is unique among term trees as it describes data as well as code.
+This section covers the translation of the \scalainline{Block} tree to its TastyTruffle IR equivalent.
+The \scalainline{Block} is unique among term trees as it describes data and code.
 In our subset of TASTy, this means that a block may contain declarations of local variables as well as executable terms.
 Figure \ref{impl:parse-block} provides an overview on the transformations necessary to convert a \scalainline{Block} tree into \scalainline{BlockNode}.
 We divide the discussion of blocks into the resolution of local variables when encountering a \scalainline{ValDef} tree and the execution of all other trees.
 
-Local variables are variables which are bound to a \textit{scope}. 
-A scope represents the lifetime in which a variable can refer to an value. 
+Local variables are bound to a \textit{scope}. 
+A scope represents the lifetime in which a variable can refer to a value. 
 Similarly, uses of variables are only valid when used under the appropriate scope. 
-Local variables and their use sites are represented in intermediate representations through a myriad of methods. 
-In abstract syntax trees, local variables and their used are represented as nodes \textit{dominated} by their scopes (which are themselves nodes). 
+Local variables and their use sites are represented in intermediate representations through various methods. 
+In abstract syntax trees, local variables and their uses are represented as nodes \textit{dominated} by their scopes (which are themselves nodes). 
 In our subset of TASTy, a \scalainline{ValDef} dominated by a \scalainline{Block} represents a local variable.
-When a \scalainline{ValDef} tree is present in this context, the right hand side of the value definition will be non-empty.
+When a \scalainline{ValDef} tree is present in this context, the right-hand side of the value definition will be non-empty.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -751,9 +764,9 @@ When a \scalainline{ValDef} tree is present in this context, the right hand side
 
 Because terms always return a value, the \scalainline{Block} tree must follow the same semantics.
 Figure \ref{impl:block-node} gives the pseudocode for our implementation of a \scalainline{BlockNode}.
-The \javainline{@ExplodeLoop} is a Truffle DSL directive which guides Graal to unroll\cite{loop-unrolling} the loop for execution of each child node.
-Unrolled loops simplify partial evaluation as each iteration of the loop is treated as an individual statement and thus they reveal constant values which are easier to partial evaluate.
-As the number of children in a \scalainline{BlockNode} is known before execution, it makes sense to unroll this loop in order to simplify optimization.
+The \javainline{@ExplodeLoop} is a Truffle DSL directive that guides Graal to unroll\cite{loop-unrolling} the loop for the execution of each child node.
+Unrolled loops simplify partial evaluation as each iteration of the loop is treated as an individual statement, and thus they reveal constant values, which are simpler for partial evaluation.
+As the number of children in a \scalainline{BlockNode} is known before execution, it makes sense to unroll this loop to simplify optimization.
 
 \subsubsection*{Returns}
 
@@ -772,15 +785,15 @@ As the number of children in a \scalainline{BlockNode} is known before execution
 	\label{impl:return}
 \end{figure}
 
-A \scalainline{Return} trees ends the execution of the current method and passes a value back to the caller.
+A \scalainline{Return} tree ends the execution of the current method and passes a value back to the caller.
 The semantics of returning control flow in Truffle is implemented as a program \textit{exception}.
-An exception is a unexpected disruption of program control flow.
+An exception is an unexpected disruption of program control flow.
 Recall in figure \ref{impl:defdefnode} that a body of a \scalainline{DefDefNode} is executed and a \scalainline{ReturnException} is possibly caught.
 The implementation of the \scalainline{ReturnException} and \scalainline{ReturnNode} is given in figure \ref{impl:return}.
 The \scalainline{ReturnException} is a subclass of the \javainline{ControlFlowException}. 
-Control flow exceptions are a special exception which Truffle treats different from other JVM exceptions for the purposes of control flow analysis.
+Control flow exceptions are special exceptions that Truffle treats differently from other JVM exceptions for control flow analysis.
 A return exception is thrown with the return value evaluated from a return node.
-The exception is then caught by the executing \scalainline{DefDefNode}, where the return value is passed back to the caller as the result. 
+The exception is then caught by the executing \scalainline{DefDefNode}, where the return value is passed back to the caller. 
 
  \subsubsection*{Putting it All Together}
 
@@ -807,7 +820,7 @@ The exception is then caught by the executing \scalainline{DefDefNode}, where th
 
 In this section, we summarize all the tree transformations introduced for the monomorphic variant of our interpreter.
 Figure \ref{tasty:list-contains} is the structure of the \scalainline{Cons.contains} method in TASTy.
-We have omitted the type tree which has been declared inside the local variable definition.
+We have omitted the type tree, which has been declared inside the local variable definition.
 We use the \scalainline{Cons.contains} method as an example to summarize the transformations described in this section.
 
 \begin{figure}[!htb]
@@ -836,11 +849,11 @@ We use the \scalainline{Cons.contains} method as an example to summarize the tra
 \end{figure}
 
 Figure \ref{example:truffle-list-contains} is the Truffle equivalent AST of \scalainline{Cons.contains}.
-We use simple strings to represent symbols and method signatures in order to avoid unnecessary detail in the example.
-Notice that many TASTy nodes have an equivalent TastyTruffle IR which closely mirrors their structure.
+We use simple strings to represent symbols and method signatures to avoid unnecessary detail in the example.
+Notice that many TASTy nodes have an equivalent TastyTruffle IR, which closely mirrors their structure.
 However, other TASTy nodes must be simplified to a representation more suitable for runtime.
 In particular, \scalainline{ValDef} trees are eliminated and replaced by an initializer node which assumes that the frame slot for the local variable definition was added during parsing.
-In the second half of this chapter we will describe the challenges of using these trees in the presence of parametric polymorphism and their associated performance overhead.
+In the second half of this chapter, we will describe the challenges of using these trees in the presence of parametric polymorphism and their associated performance overhead.
 
 \section{The Polymorphic Interpreter}
 \label{implementation:specialization}
