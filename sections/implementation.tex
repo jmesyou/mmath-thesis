@@ -52,7 +52,7 @@ Root nodes represent the root of an executable Truffle AST, the primary abstract
 In our case, root nodes are the Truffle analog of a \scalainline{DefDef}.
 Each root node has a corresponding \textit{call target}, which is used for invocation of the root node.
 Call targets are the primary compilation unit for Graal.
-A compilation unit is an organization of code which can be independently compiled.
+A compilation unit is an organization of code that can be independently compiled.
 A root node is automatically instrumented\cite{profiling:atom} to profile its number of invocations. 
 When a root node has been frequently invoked inside the interpreter, it is JIT compiled into machine code by Graal.
 Subsequent invocations of the call target will then use the more efficient compiled root node.
@@ -1046,7 +1046,6 @@ Figure \ref{impl:defdeftemplate-execute} contains the simplified implementation 
 
 Specializations of polymorphic methods are created on demand then cached based on their reified type signatures.
 One particular challenge of making caching mechanism fold away in partial evaluation is that the cache must be a \textit{compilation constant}.
-Truffle provides the \javainline{CompilationFinal} directive which indicates that a value which may not be a constant in the guest language implementation \textit{will} be a constant when being partially evaluated.
 Type arguments at type application sites are always stable, i.e. their respective type nodes evaluate to the same type, the look up of the specialized call node should have no overhead when JIT compiled with aid of partial evaluation. 
 To make this possible, we exploit a simple array of type signature and specialized call node pairs.
 When the loop for looking up a cache entry in the array is unrolled during partial evaluation (directed by \javainline{ExplodeLoop}), the loop is transformed into a block of conditional expressions for each cache entry.
@@ -1115,7 +1114,7 @@ Apart from extensions given earlier in this section, the parsing of \scalainline
 				val slot = desc.addSlot(kind)
 				LocalFrameVal(slot, ReifiedType)
 			case vdef: ValDef => 
-				val idx = indexOf(vdef.tpt.tpe)
+				val idx  = index(vdef.tpt.tpe)
 				val tpe  = if (idx != -1) types(idx) else vdef.tpt.tpe
 				val kind = getFrameSlotKind(tpe)
 				val slot = desc.addSlot(kind)
@@ -1457,7 +1456,7 @@ In the next section, we give extensions on how to generate a static shape from a
 	\begin{minted}{scala}
 	def generateField(vdef: ValDef, types: Array[Type]): Field = vdef match {
 		case ValDef(_: String, tpt: TypeTree, rhs: Option[Term]) => 
-			val idx = indexOf(tpt.tpe)
+			val idx = index(tpt.tpe)
 			val tpe = if (idx > 0) types(idx) else tpt.tpe
 			new Field(vdef.symbol, tpe)
 	}
@@ -1505,7 +1504,7 @@ As a result, dynamically resolved types are not available for specialization at 
 To address this, we need to be able to \scalainline{partially specialize} methods from the class perspective.
 Figure \ref{impl:parse-poly-defdef-cls} extends the translation of \scalainline{DefDef} nodes with class type arguments.
 If the method is polymorphic under class type parameters, the layout of a frame for the root node of a \scalainline{DefDef} must partially determined.
-We assume that \scalainline{indexOf} is capable of resolving the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e. whether type arguments originate from a type application of a class or a method).
+We assume that \scalainline{index} is capable of resolving the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e. whether type arguments originate from a type application of a class or a method).
 
 After the class specialization of a \scalainline{DefDef}, it is still possible that a \scalainline{DefDef} contains polymorphic semantics.
 However, all polymorphism which is derived from a class type parameter has been specialized and such terms and parameters are now monomorphic.
