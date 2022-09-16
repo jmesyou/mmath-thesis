@@ -52,7 +52,7 @@ Pizza\cite{java:pizza} was a superset of Java that supported heterogeneous and h
 Agesen, Freund, and Mitchell proposed a heterogeneous translation for parametric polymorphism for Java during load-time instead of compile-time\cite{java:agesen-type-params}.
 NextGen\cite{java:nextgen} separates the translation of polymorphic classes into monomorphic and polymorphic components.
 In NextGen, Only the polymorphic members of a class definition are specialized; These specialized classes inherit the implementation of their monomorphic members from a common parent class.
-Finally, GJ\cite{java:gj} proposed the foundations for what is now the accepted implementation of parametric polymorphism in Java.
+Finally, GJ\cite{java:odersky-type-params} proposed the foundations for what is now the accepted implementation of parametric polymorphism in Java.
 Polymorphic class definitions have a single uniform data representation after type erasure.
 These approaches determine the data representation of polymorphic definitions in a static context.
 Our approach is based on the \textit{closed world assumption} as the entire program must be available in order for it to be executed.
@@ -75,7 +75,7 @@ There are many Truffle interpreters in active development at the time of writing
 This section will attempt to provide a brief survey of Truffle interpreters.
 TruffleRuby\cite{trufflyruby:specialization}\cite{truffleruby:object-model},FastR, Graal.js, Graal.Python,\cite{truffle:thesis} are some of the industrial implementations of dynamically typed languages implemented with Truffle.
 They all make substantial use of Truffle facilities, some discussed earlier in this thesis, to speculative optimize program execution. 
-Espresso\cite{graalvm: espresso} is an implementation of a Java bytecode interpreter in Truffle. 
+Espresso\cite{graalvm:espresso} is an implementation of a Java bytecode interpreter in Truffle. 
 Espresso is a metacircular implementation of a Java Virtual Machine.
 Because Espresso executes the same Java bytecode format as other JVM implementations, it uses the same approaches to optimizing polymorphic data layout as the conventional implementation of Java on GraalVM.
 

@@ -1102,7 +1102,11 @@ After the partial evaluation, the typed dispatch mechanism is eliminated and the
 			new DefDefNode(desc, parameters, body)
 		}
 	
-		def specializeValDef(types: Array[Type], desc: FrameDescriptor)v: LocalFrameVal | ValDef): LocalFrameVal = v match {
+		def specializeValDef(
+			types: Array[Type], 
+			desc:  FrameDescriptor, 
+			v:     LocalFrameVal | ValDef
+		): LocalFrameVal = v match {
 			case vdef: ValDef => generateLocal(types, vdef, desc)
 			case v => v
 		}
@@ -1142,9 +1146,6 @@ Figure \ref{impl:gen-poly-locals} gives an extension to generate frame slots fro
 Like its counterpart in the monomorphic interpreter, the abstraction for a local value in a frame in the polymorphic interpreter both have a slot.
 However, a local frame value in the polymorphic interpreter retains a type instead of a frame slot kind.
 If the type of a value parameter can be resolved with the type arguments supplied during specialization, the specialized frame slot is created and added to the descriptor.
-A mapping of types (via their symbols) to their respective index in the type argument array is sufficient to handle this resolution.
-Because we are only discussing methods polymorphic under their own type parameters, there are no polymorphic value parameters which are not resolvable in this context.
-The derivation of local frames values from monomorphic value definitions remain unchanged. 
 
 $$
 index(\tau) = 
@@ -1153,6 +1154,11 @@ index(\tau) =
 	-1 & \text{otherwise}
 \end{cases}
 $$
+
+A mapping of types (via their symbols) to their respective index in the type argument array is sufficient to handle this resolution.
+Because we are only discussing methods polymorphic under their own type parameters, there are no polymorphic value parameters which are not resolvable in this context.
+The derivation of local frames values from monomorphic value definitions remain unchanged. 
+
 A type definition is treated in the same manner as a value definition, it is assigned a frame slot with a \javainline{Object} frame slot kind.
 This allows for the storage of types in the frame of a method, allowing for the resolution of types after the invocation of a method template.
 So far we have only discussed the resolution of type arguments in a intraprocedural context.
@@ -1212,7 +1218,7 @@ Figure \ref{graalir:cons-contains-param-read} is an example of such a speculativ
 This speculative optimization relies on a \javainline{TrustedBoxedValue} to unbox the primitive.
 A \javainline{TrustedBoxedValue} represents injected information from an external source.
 In this particular case, it is known by the compiler that boxed instance comes from a cache; Unique \javainline{int} values may be mapped to a unique \javainline{Integer} instance in the Java runtime, which eliminates unnecessary boxed object creation.
-The unbox operation in node $848$ will be `floated' up the graph such that all subsequent dominated by the read of a boxed frame value has no autoboxing.
+The unbox operation in node $848$ will be `floated' up the graph such that all subsequent nodes dominated by the read of a boxed frame value has no autoboxing.
 
 In contrast, write operations of polymorphic frame values cannot be speculatively eliminated. 
 Because Truffle does not specialize data layouts, i.e. frames are determined by their descriptors, which in turn are determined by the guest language implementation, frame writes of polymorphic values will always have to be boxed.
@@ -1447,15 +1453,6 @@ For example, a \scalainline{List[Int]} and \scalainline{List[Double]} will each 
 However, a \scalainline{List[String]} and \scalainline{List[List[Int]]} will share the same data representation as their type arguments are reference types and will not see any benefit from independent specialization.
 Therefore, the creation of an object instance with a polymorphic class definition will have its shape determined when its created.
 
-$$
-index(\tau) = 
-\begin{cases}
-	i  & \textbf{def } f[t_0, \ldots, t_i, \ldots, t_n](\ldots) \text{ if } t_i = \tau, owner(\tau)=f \\
-	j  & \textbf{class } C[t_0, \ldots, t_j, \ldots, t_m](\ldots) \text{ if } t_j = \tau, owner(\tau)=C \\
-	-1 & \text{otherwise}
-\end{cases}
-$$
-
 This approach avoids the issue of \textit{name mangling}.
 Name mangling is a technique to disambiguate distinct entities in a program that share the same name but do not inhabit the same namespace (e.g. a \javainline{package}).
 In the context of parametric polymorphism and specialization, many approaches to specialization require require the specialized classes and methods to have mangled names.
@@ -1517,7 +1514,17 @@ As a result, dynamically resolved types are not available for specialization at 
 To address this, we need to be able to \scalainline{partially specialize} methods from the class perspective.
 Figure \ref{impl:parse-poly-defdef-cls} extends the translation of \scalainline{DefDef} nodes with class type arguments.
 If the method is polymorphic under class type parameters, the layout of a frame for the root node of a \scalainline{DefDef} must partially determined.
-We assume that \scalainline{index} is capable of resolving the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e. whether type arguments originate from a type application of a class or a method).
+
+$$
+index(\tau) = 
+\begin{cases}
+	i  & \textbf{def } f[t_0, \ldots, t_i, \ldots, t_n](\ldots) \text{ if } t_i = \tau, owner(\tau)=f \\
+	j  & \textbf{class } C[t_0, \ldots, t_j, \ldots, t_m](\ldots) \text{ if } t_j = \tau, owner(\tau)=C \\
+	-1 & \text{otherwise}
+\end{cases}
+$$
+
+We extend the definition of \scalainline{index} to be capable of resolving the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e. whether type arguments originate from a type application of a class or a method).
 
 After the class specialization of a \scalainline{DefDef}, it is still possible that a \scalainline{DefDef} contains polymorphic semantics.
 However, all polymorphism which is derived from a class type parameter has been specialized and such terms and parameters are now monomorphic.
@@ -1526,7 +1533,27 @@ The remaining polymorphic data layout will be specialized when the method templa
 
 \subsubsection*{Example: \texttt{Cons[Int]}}
 
-TODO
+In this section, we give an example on the layout of a specialized class based on a specialization site.
+
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	ClassShape(
+		"Con$Int",
+		Array(
+			Field("T", Object),
+			Field("head", Int),
+			Field("tail", Object)
+		),
+		Map(
+			"length()"               -> DefDefNode("length)
+			"contains[1](scala.Any)" -> DefDefTemplate("contains")
+			"hashCode()"             -> DefDefNode("hashCode")
+		
+		),
+		...
+	)
+	\end{minted}
+\end{figure}
 
 \subsubsection*{Case Study: \texttt{Cons.head}}
 
