@@ -3,7 +3,7 @@
 \epigraph{The best presents don't come in boxes.}{Bill Watterson}
 
 \acrfull{jit} compilation has seen great success in implementing runtimes for objected-oriented programming languages.
-It has effectively generated efficient machine code in the presence of virtual dispatch arising from \textit{subtype} polymorphism.
+It has effectively generated efficient machine code in the presence of virtual dispatch arising from \textit{subtype} polymorphism\cite{smalltalk:inline-caches,self:polymorphic-inline-caches}.
 While a call site may statically have many possible call targets, JIT compilation can incorporate dynamic runtime information to optimize the most frequently invoked call targets speculatively.
 These speculative optimizations often enable compiled code to be inlined, a critical transformation in the context of JIT compilation.
 Inlining compiled code generates opportunities for many further optimizations.
@@ -14,12 +14,12 @@ Implementations of generic programming often come at the expense of program comp
 Static compilers for object-oriented languages with parametric polymorphism must compromise when selecting an appropriate data representation for polymorphic data types and functions.
 This trade-off comes down to more optimal data layouts at the expense of space or uniform data layouts, which are not optimal for every type at the expense of performance.
 
-The selection of an optimal data representation, or \textit{specialization}, of a polymorphic data structure relies on information typically found in the type-rich source language of programming languages.
+The selection of an optimal data representation, or \textit{specialization}, of a polymorphic data structure relies on information typically found in the type-rich source representation of programming languages.
 Representations must be consistent throughout the whole program as code that manipulates such data structures assume their representations to be consistent.
 Consequently, the specialization problem is best suited to compilers with access to whole program information during compilation.
 However, this is not the case for object-oriented languages such as Java and Scala, which statically generate a uniform data representation for their polymorphic definitions to guarantee consistency throughout the whole program. 
 Additionally, static compilers do not have sufficient runtime information, which is critical in making favourable optimization decisions compared to JIT compilers.
-On the other hand, JIT compilers are ill-suited to whole program optimizations as they are best at the dynamic optimization of small regions of a program.
+On the other hand, JIT compilers are ill-suited to whole program optimizations as they are best at the dynamic optimization of small regions of a program\cite{history:jit}.
 Therefore, the problem of specialization falls between static compilation and JIT compilation.
 
 This thesis introduces \textsc{TastyTruffle}, an interpreter and JIT compiler which incorporates rich source-level type information with speculative optimizations to specialize data representations for the Scala programming language.
@@ -34,8 +34,7 @@ The contributions of this thesis are as follows:
 	In contrast, Java bytecode of compiled Scala programs is readily available for execution on any Java virtual machine.
 	\item The extension of interpreter to support specialized data representations of generic types.
 	These specialized data representations are created using concrete type arguments that generic types are instantiated with.
-	with generic data structures.
-	\item The evaluation of the interpreter on simple and realistic programs that present a challenge to existing state-of-the-art techniques.
+	\item The evaluation of the interpreter on simple and realistic programs that present a challenge to existing state-of-the-art techniques that interpreter is able to optimize.
 \end{enumerate}
 
 \newpage

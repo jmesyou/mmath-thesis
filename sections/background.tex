@@ -2,9 +2,9 @@
 
 In this chapter, we will provide an introduction to the Scala programming language. 
 We will showcase a running example that we will use for the remainder of this thesis which exhibits features commonly present in Scala programs. 
-We will describe \acrfull{tasty}, an intermediate storage format used for separate compilation\cite{???} of Scala programs. 
+We will describe \acrfull{tasty}, an intermediate storage format used for separate compilation of Scala programs. 
 We will introduce a critical transformation, type erasure, which alters Scala programs so that they may be executable on their default platform, the \acrfull{jvm}. 
-In this thesis, we will detail GraalVM \acrfull{jit} compiler infrastructure, an alternative JVM implementation that we use to implement a runtime for Scala.
+Lastly, We will detail GraalVM \acrfull{jit} compiler infrastructure, an alternative JVM implementation that we use to implement a runtime for Scala.
 
 \section{Scala}
 
@@ -24,7 +24,7 @@ We first begin with an explanation of the relevant programming paradigms present
 	
 	\item[Generic] 
 	Classes in Scala may contain \textit{type parameters} and such classes can be considered \textit{polymorphic}\cite{strachey:fundamental-concepts}.
-	Polymorphic classes may define behavior independent of their data, allowing them to be extensively reused for multiple data types.
+	Polymorphic classes may define behaviour independent of their data, allowing them to be extensively reused for multiple data types.
 	In this thesis, we will interchangeably use the term \textit{parametric polymorphism} to refer to generics.
 	
 	\item[Statically typed] 
@@ -96,7 +96,7 @@ The \scalainline{contains} method is method-polymorphic and must be specialized 
 Figure \ref{example:cons-impl} contains the implementation of a list node.
 The \scalainline{Cons} implementation contains two polymorphic fields, \scalainline{head} and \scalainline{tail}.
 For specialization, how the \scalainline{head} field fits into the storage layout of a \scalainline{Cons} instance may differ between a \scalainline{Cons[Int]} and a \scalainline{Cons[String]}.
-On the other hand, the storage layout of the \scalainline{tail} field does not have to change between instances of \scalainline{Cons[Int]} and \scalainline{Cons[String]} as they both are reference types.
+On the other hand, the storage layout of the \scalainline{tail} field does not have to change between instances of \scalainline{Cons[Int]} and \scalainline{Cons[String]} as they are both reference types.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -119,13 +119,13 @@ We provide the implementation of this class for completeness.
 
 An \acrfull{ir} is a structural abstraction representing a program during compilation or execution. 
 Intermediate representations are more suitable for reasoning about a program than program source code. 
-\acrshort{ir} can be used for compilation\cite{llvm}, optimization\cite{llvm}\cite{ssa}, or execution\cite{java:vm-spec}\cite{clr:spec}.
+\acrshort{ir} can be used for compilation\cite{llvm}, optimization\cite{llvm,ssa}, or execution\cite{java:vm-spec,clr:spec}.
 
 \acrfull{tasty} is a high-level \acrfull{ir} which is produced and emitted after the type checking phase (also called the typer) of the Scala compiler (see appendix \ref{appendix:dotty-phases}).
 Figure \ref{system:tasty} gives an overview of TASTy generation in the context of the Scala compilation pipeline; note that TASTy is only generated for Scala program sources.
 TASTy is a well-typed variation of an \acrfull{ast}.
 Abstract syntax trees are a commonly used intermediate representation that resembles the program source representation.
-TASty can be considered a \textit{complete} IR of a Scala program before compilation, unlike the other intermediate representations we will examine throughout this thesis.
+TASTy can be considered a \textit{complete} IR of a Scala program before compilation, unlike the other intermediate representations we will examine throughout this thesis.
 A complete IR is able to capture all information of the original Scala source program.
 We will expand on why complete intermediate representations are significant in section \ref{background:type-erasure}.
 
@@ -137,7 +137,7 @@ We will expand on why complete intermediate representations are significant in s
 \end{figure}
 
 The full TASTy IR can represent all Scala programs.
-The Truffle interpreter in this thesis supports a subset sufficient to express the programs given in figures \ref{example:list-def} and \ref{example:list-impl}.
+The Truffle interpreter in this thesis supports the execution of a subset of TASTy trees sufficient to express the programs given in figures \ref{example:list-def} and \ref{example:cons-impl}.
 The TASTy trees used in this thesis are divided into the following categories: definitions, terms, and types. 
 We give the pseudo implementations of these tree nodes in figures: \ref{tasty:defs}, \ref{tasty:terms}, and \ref{tasty:types}.
 
@@ -172,7 +172,7 @@ We give the pseudo implementations of these tree nodes in figures: \ref{tasty:de
 	// Tree representing a type (parameter or member) definition in the source code
 	case class TypeDef(name: String, rhs: Tree) extends Definition
 	\end{minted} 
-	\caption{Pseudocode class definitions for a subset of TASTy trees.}
+	\caption{Pseudocode class definitions for a subset of TASTy.}
 	\label{tasty:defs}
 \end{figure}
 
@@ -194,9 +194,9 @@ A \scalainline{DefDef} tree is the definition of a method inside a class definit
 \end{figure}
 
 A \scalainline{ValDef} tree is a context-dependent definition representing different value definition semantics depending on its defined tree.
-A top level \scalainline{ValDef}, that is a \scalainline{ValDef} with no parent represents the \scalainline{object} abstraction in Scala.
+A top level \scalainline{ValDef}, that is a \scalainline{ValDef} with no parent, represents the \scalainline{object} abstraction in Scala.
 The \scalainline{object} abstraction is commonly used to represent the \textit{Singleton} pattern\cite{go4:design-patterns} or as a class-like interface to define static methods.
-Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a simplified TASTy-like equivalent is given in figure \ref{example:decomp-object}
+Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a simplified TASTy equivalent is given in figure \ref{example:decomp-object}
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -215,7 +215,7 @@ Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a s
 					...,
 					TermParams(ValDef("elem", ...)) // method parameter of Cons.contains
 				),
-				TypeIdent("Boolean"),
+				...,
 				Block(
 					List(
 						ValDef("these", ...), // local variable declaration		
@@ -226,7 +226,7 @@ Consider the \scalainline{Nil} class given in figure \ref{example:nil-impl}, a s
 		)
 	)
 	\end{minted} 
-	\caption{Example multiple possible placements of \scalainline{ValDef} nodes in a \scalainline{ClassDef}}
+	\caption{Class definition of \scalainline{Cons} containing multiple \scalainline{ValDef} nodes in a \scalainline{ClassDef}}
 	\label{example:many-valdefs}
 \end{figure}
 
@@ -242,7 +242,7 @@ The trees defined here can be used to represent more complex object-oriented and
 
 Figure \ref{tasty:list} is the TASTy structure of the \scalainline{List} class given in figure \ref{example:list-def}. 
 Recall that \scalainline{ClassDef} trees have four structural components, the constructor, the list of parent class definitions, the self type, and the body of the definition.
-In this thesis, we will not discuss the self type as it is an abstraction for composition\cite{gilad:mixins}\cite{scala:calculus} and is not relevant for execution.
+In this thesis, we will not discuss the self type as it is an abstraction for composition\cite{gilad:mixins,scala:calculus} and is not relevant for execution.
 The list of parents in a class definition in our subset of TASTy is always a singleton.
 Note that while the abstract \scalainline{List} class did not explicitly declare a constructor, the compiler autogenerates and inserts the appropriate constructor implementation before emitting TASTy.
 Since \scalainline{List} is polymorphic, it contains an inner type definition of its sole type parameter.
@@ -347,7 +347,7 @@ We will describe types in detail in the following section.
 
 \subsection{Types and Type Trees}
 
-TASTy encodes Scala programs with two kinds of type information, type trees, and types.
+TASTy encodes Scala programs with two kinds of type information, type trees and types.
 Type trees are a subset of trees which represent types as they are declared in Scala source code.
 On the other hand, types are the canonical representation of type trees after type checking in the Scala compiler.
 Multiple type trees may denote the same underlying type.
@@ -400,7 +400,7 @@ However, the \scalainline{NamedType} does not appear in type trees as they are p
 The \scalainline{TypeRef} type is a reference to a \scalainline{ClassDef} tree or a type parameter \scalainline{TypeDef}.
 
 In the Scala compilation pipeline, TASTy is eventually simplified and transformed by the Scala compiler to produce Java bytecode. 
-In chapter \ref{chapter:implementation}, We will review each tree before such transformations and their relevance for execution in our interpreter.
+In Chapter \ref{chapter:implementation}, We will review each tree before such transformations and their relevance for execution in our interpreter.
 
 \section{Java Bytecode}
 
@@ -439,7 +439,7 @@ This deficiency is a drawback for executing Scala programs on the JVM because sp
 	\label{example:contains-bytecode}
 \end{figure}
 
-Figure \ref{example:contains-bytecode} is the Java bytecode of the \scalainline{contains} defined at line 4 in figure \ref{example:cons-impl}.
+Figure \ref{example:contains-bytecode} contains the Java bytecode of the \scalainline{contains} defined at line 4 in figure \ref{example:cons-impl}.
 Typical control flow elements of Scala programs, such as if terms and while terms have been converted into branch or jump instructions.
 Notice that there are no polymorphic type parameters in the description of classes nor the invocation of polymorphic methods present in the bytecode.
 In particular, notice the equality comparison in line 7 of figure \ref{example:cons-impl} is actually a method invocation (instruction 14 in figure \ref{example:contains-bytecode}).
@@ -453,7 +453,7 @@ In the next section, we describe the process that transforms Scala programs to a
 Type erasure\cite{java:generics} is a transformation that converts polymorphic classes and methods in Scala to monomorphic classes and methods. 
 This conversion is necessary because the JVM does not support polymorphic classes during runtime.
 Erasure ensures that any given polymorphic class and method has a single representation in practice.
-Type erasure is a crucial part of Scala compilation that renders TASTy incomplete.
+Type erasure is a crucial part of Scala compilation that renders the JVM bytecode generated from TASTy incomplete.
 Figure \ref{example:erase-cons} shows the \scalainline{Cons} class after type erasure.
 
 \begin{figure}[!htb]
@@ -509,7 +509,7 @@ Figure \ref{example:autoboxing} shows a simple example of inserted autoboxing op
 	val lst: List = Cons(box(1), Nil)
 	val head: Int = unbox(lst.head) 
 	\end{minted}
-	\caption{Example of autoboxing introduced for a list}
+	\caption{Example of autoboxing introduced for a \scalainline{List}}
 	\label{example:autoboxing}
 \end{figure}
 
@@ -519,7 +519,7 @@ Similarly, when the \scalainline{head0} field of the instance is read and stored
 In the Scala collections library, a set of commonly used polymorphic data structures, autoboxing operations are frequent and necessary.
 The computational overheads of autoboxing operations on programs that make substantial use of polymorphic collections, especially the Scala standard library, are significant\cite{scala:collections-optimization}.
 Eliminating this overhead through optimizing autoboxing operations is one of the central goals of this thesis.
-In addition to this direct overhead, autoboxing is a significant indirect source of overhead which makes the analysis of programs using primitive values in a polymorphic context and thus inhibits many significant compiler optimizations.
+In addition to this direct overhead, autoboxing is a significant indirect overhead that makes analyzing programs using primitive values difficult. As a result, autoboxing inhibits many significant compiler optimizations.
 
 \section{GraalVM}
 
@@ -527,7 +527,7 @@ GraalVM\cite{java:graalvm} is an implementation of a JVM.
 Traditionally, the JVM is responsible for most of the performance optimizations in Java programs\cite{java:hotspot} through \acrfull{jit} compilation.
 JIT compilation is an adaptive optimization that occurs during program execution.
 JIT compilation is concerned with optimizing and eliminating \textit{hotspots} or portions of the program executed most frequently.
-JIT compilers\cite{java:sablevm}\cite{java:jikesrvm} employ a range of \textit{speculative} techniques to transform the program under optimization.
+JIT compilers\cite{java:sablevm,java:jikesrvm} employ a range of \textit{speculative} techniques to transform the program under optimization.
 Speculative optimizations use information collected during program execution, otherwise known as \textit{profiling}. 
 Assumptions are made from collected profiling data in order to generate high-performance native machine code.
 A key aspect of speculative optimizations using assumptions is that optimizations may be undone when their underlying assumptions are violated; This enables the JIT compiler to optimize programs without the need to prove assumptions hold in every execution path from a static perspective.
@@ -554,7 +554,7 @@ Graal is general-purpose in that it conducts analysis and optimization on the sa
 Notably, most implementations of a source language utilizing GraalVM have an implementation in Truffle; Java is an exceptional case.
 In addition to a Truffle interpreter for Java bytecode\cite{graalvm:espresso}, there is a direct translator for Java programs in GraalVM that parses Java bytecode into Graal IR.
 
-Graal IR\cite{graalvm:ir}\footnote{Given the number of intermediate representations introduced thus far, we promise this is the last one} is an IR suitable for speculative optimizations while still retaining information from the Truffle guest language AST.
+Graal IR\cite{graalvm:ir} is an IR suitable for speculative optimizations while still retaining information from the Truffle guest language AST.
 Graal IR is based on the \textit{sea of nodes} concept\cite{click:sea-of-nodes} and satisfies the \textit{static single-assignment}\cite{ssa} property.
 A sea of nodes is an abstraction based on a directed graph structure that relates the control flow graph\cite{allen:ctrl-flow-analysis} of a program to its data flow graph\cite{allen:data-flow-analysis}.
 An intermediate representation is in single-static assignment form when each variable is declared once, and every use of a variable occurs immediately after its declaration\cite{johnson:use-def-chains}.
@@ -715,7 +715,7 @@ We can say that the partial evaluation of an AST  will produce an AST which is \
 For example, consider the partial evaluation of a \scalainline{EqualsNodeGen} node in the \scalainline{equalsInt} state.
 The \javainline{current_state} field of the node is annotated with the \javainline{CompilationFinal} directive.
 Truffle provides the \javainline{CompilationFinal} directive to indicate that a value that may not be a constant in the guest language implementation \textit{will} be a constant when being partially evaluated.
-Because the state is a compilation constant, the condition on line $17$ of \ref{impl:node-rewriting-gen} evaluates to \javainline{true} when the state is $1$ (\scalainline{equalsInt}).
+Because the state is a compilation constant, the condition on line $17$ of figure \ref{impl:node-rewriting-gen} evaluates to \javainline{true} when the state is $1$ (\scalainline{equalsInt}).
 As a result, only the code for \javainline{execute_int_int0} (provided in \ref{impl:node-rewriting-state2}) will be compiled.
 The generated implementation of \javainline{execute_int0_int0} contains checks for the specialization invariant.
 These checks act as points in the control flow of the compiled code to deoptimize if these invariants are violated.

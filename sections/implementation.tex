@@ -192,7 +192,7 @@ Escape analysis\cite{escape-analysis} reasons about the dynamic scope of object 
 Truffle and Graal both exploit the observations of \textit{Partial Escape Analysis}\cite{java:partial-escape-analysis}, a path-sensitive variant of escape analysis, to enable the following optimizations for guest languages:
 
 \begin{description}
-	\item[Region Allocation\cite{java:escape-analysis}\cite{tofte:region-memory}] The substitution of heap allocations with stack allocations to eliminate unnecessary garbage collection.
+	\item[Region Allocation\cite{java:escape-analysis,tofte:region-memory}] The substitution of heap allocations with stack allocations to eliminate unnecessary garbage collection.
 	\item[Scalar Replacement\cite{java:escape-analysis-optimizations}] The complete elimination of an object allocation, where the fields of the replaced object are substituted by local variables.
 \end{description}
 
@@ -244,7 +244,7 @@ In the next section, we detail how to organize call targets in Truffle by using 
 
 \scalainline{ClassDef} tree defines the layout of an object in TASTy.
 The layout of an object dictates the values that an object instance stores and the methods that can be invoked on an object instance.
-The data layout of an object in a Truffle interpreter is described by a \textit{shape}\cite{self:prototypes}\cite{truffle:object-model}.
+The data layout of an object in a Truffle interpreter is described by a \textit{shape}\cite{self:prototypes,truffle:object-model}.
 Shapes are a language-agnostic model for defining the properties of an object instance in Truffle.
 A property in a shape describes one member of an object instance; it has an identifier and a value.
 A Truffle object instance consists of \textit{object storage}, which contains instance-specific data and its shape.

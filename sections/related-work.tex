@@ -23,7 +23,7 @@ Implementations of parametric polymorphism can be divided into two broad categor
 This section will cover various approaches to implementing parametric polymorphism in the context of these two forms.
 As polymorphism in Java and Scala are more relevant to the central themes of this thesis, we will first focus on implementations of parametric polymorphism for other languages.
 
-Parametric polymorphism was first studied in functional programming languages\cite{ml:parametric-polymorphism}\cite{ml:type-inference}.
+Parametric polymorphism was first studied in functional programming languages\cite{ml:parametric-polymorphism,ml:type-inference}.
 Leroy proposed an approach in which type coercion operations are inserted between polymorphic operations and monomorphic data. 
 The coercion operations in this approach are quite similar to the notion of boxing and unboxing, which Leroy describes as \textit{wrapping} and \textit{unwrapping}.
 
@@ -31,7 +31,7 @@ The heterogeneous translation is the more prevalent implementation of parametric
 The \mintinline{cpp}|template| concept in the \CC\ programming language popularized parametric polymorphism in objected-oriented programming languages.
 Templates define a generic definition of some kind in \CC.
 The \CC\ compiler will generate heterogeneous translations based on every set of concrete type arguments supplied during compilation.
-The implementation of polymorphism in the Common Language Runtime\cite{clr:overview}\cite{clr:spec} by Kennedy and Syme makes use of reified types in a polymorphic bytecode IR during execution.
+The implementation of polymorphism in the Common Language Runtime\cite{clr:overview,clr:spec} by Kennedy and Syme makes use of reified types in a polymorphic bytecode IR during execution.
 Polymorphic class definitions are loaded as templates; Templates generate specialized class layouts on an ad-hoc basis based on the reified type arguments seen during bytecode execution.
 Their approach relies on CLR extensions to support types not present in existing JVM implementations.
 Our approach shares many similarities with the approach described by Kennedy and Syme.
@@ -73,7 +73,7 @@ Our generates a heterogeneous translation of a generic class definition on an ad
 
 There are many Truffle interpreters in active development at the time of writing.
 This section will attempt to provide a brief survey of Truffle interpreters.
-TruffleRuby\cite{trufflyruby:specialization}\cite{truffleruby:object-model},FastR, Graal.js, Graal.Python,\cite{truffle:thesis} are some of the industrial implementations of dynamically typed languages implemented with Truffle.
+TruffleRuby\cite{trufflyruby:specialization,truffleruby:object-model},FastR, Graal.js, Graal.Python,\cite{truffle:thesis} are some of the industrial implementations of dynamically typed languages implemented with Truffle.
 They all make substantial use of Truffle facilities, some discussed earlier in this thesis, to speculative optimize program execution. 
 Espresso\cite{graalvm:espresso} is an implementation of a Java bytecode interpreter in Truffle. 
 Espresso is a metacircular implementation of a Java Virtual Machine.
