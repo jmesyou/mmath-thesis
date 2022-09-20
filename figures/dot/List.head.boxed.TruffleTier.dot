@@ -2,7 +2,7 @@ digraph G {
   graph [bgcolor="white"];
   node193 [style="invis",label=""];
   node188 [style="invis",label=""];
-  node254 [label="254 LoadField Cons.head0",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
+  node254 [label="254 LoadField Cons.head",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
   node277 [label="277 Guard not, else TransferToInterpreter",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#ffa500",fontcolor="#1a1919"];
   node278 [label="278 IsNull",shape="diamond",fontname="Arial",style="filled",color="black",fillcolor="#3cb4a4",fontcolor="#1a1919"];
   node282 [label="282 Guard, else TransferToInterpreter",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#ffa500",fontcolor="#1a1919"];

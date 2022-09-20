@@ -582,7 +582,7 @@ Trees are executed in post-order; children nodes are executed before their paren
 Abstract syntax tree interpretation has the added benefit of executing an intermediate representation close to the program source representation and is, therefore, more amenable to program optimization.
 In contrast, bytecode interpreters, such as the JVM, execute a vastly simplified representation of programs.
 While interpreters of bytecode programs tend to be faster than their tree counterparts, the absence of detailed source information, such as types, often makes program optimization difficult.
-The challenge of efficiently executing bytecode while retaining the ability to optimize them effectively using source program information is difficult for Scala on the JVM. 
+The problem of efficiently executing bytecode while retaining the ability to optimize them effectively using source program information is difficult for Scala on the JVM. 
 
 Truffle is an atypical tree interpreter in that it combines the definition, execution, and optimization of an abstract syntax tree structure into a single abstraction.
 While the structure of input programs in other interpreters is independent of the implementation of the interpreter, a Truffle interpreter is integrated into the structure of its input.

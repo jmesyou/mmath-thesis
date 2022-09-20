@@ -939,11 +939,12 @@ Then we introduce subclasses of the \scalainline{TypeNode} and show how reified 
 \end{figure}
 
 Polymorphic methods in Scala can be polymorphic under class type parameters, method type parameters, or both. 
-In this section, we will focus only on the specialization of methods which are polymorphic under their own type parameters.
+This section will focus only on the specialization of polymorphic methods under their type parameters.
 We defer the discussion of the specialization of class-polymorphic methods until the next section.
 We will introduce the concept of a \textit{template}; Templates retain sufficient information about the data layout of a definition in TASTy to generate their runtime representations dynamically.
 Instead of a \scalainline{DefDefNode}, a \scalainline{DefDefTemplate} (given in figure \ref{impl:defdeftemplate}) is a root node that represents a polymorphic method. 
 When a \scalainline{DefDefTemplate} is specialized, the result is a monomorphic \scalainline{DefDefNode} specialization.
+As Truffle does not have mechanisms that support root node rewriting at the current time, we describe how to use Truffle DSL constructs to make method specialization performant.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -975,10 +976,10 @@ When a \scalainline{DefDefTemplate} is specialized, the result is a monomorphic 
 
 The specialization of a \scalainline{DefDefTemplate} begins at invocation.
 Because type arguments are introduced at specific polymorphic call sites, method specializations must be created at or after invocation.
-When a method template is invoked with both type and value arguments, it forwards the value arguments to appropriate specialization based on the type arguments.
+When a method template is invoked with both type and value arguments, it forwards the value arguments to the appropriate specialization based on the type arguments.
 
 The specialization of a method template is the ad-hoc creation of a root node with a specialized frame descriptor.
-A \scalainline{DefDefTemplate} retains number of type parameters it owns; this is sufficient to resolve type arguments for creation and dispatching to specializations and type parameters never collide by name.
+A \scalainline{DefDefTemplate} retains the number of type parameters it owns; this is sufficient to resolve type arguments for creation and dispatching to specializations, and type parameters never collide by name.
 Source information about value parameters is stored on a template instead of abstracted local frame values.
 The type of value parameter can potentially be resolved from a method type parameter.
 Since the frame descriptor is unpopulated because value parameters are possibly polymorphic, it is not yet appropriate to create executable term nodes which may read from or write to the frame slots of polymorphic value parameters.
@@ -1001,18 +1002,28 @@ Figure \ref{impl:parse-poly-defdef} extends the transformation of a \scalainline
 	\label{impl:parse-typeapply}
 \end{figure}
 
-In this section we demonstrate when and where polymorphic methods are invoked.
+In this section, we demonstrate when and where polymorphic methods are invoked.
 For this demonstration, we will show one of the natural benefits of executing TASTy.
 A polymorphic method invocation in TASTy is always an \scalainline{Apply} tree node where the qualifier is a \scalainline{TypeApply}.
 The \scalainline{TypeApply} tree node represents a \textit{type application}.
 Without delving into great detail, a type application is the process of producing a monomorphic method from a polymorphic method by matching type parameters to type arguments.
-Analogous to normal applications which accept values as arguments and produces values as results, type applications accept types as arguments and produce types as a result.
+Analogous to normal applications, which accept values as arguments and produce values as results, type applications accept types as arguments and produce types as a result.
 With this in mind, \scalainline{TypeApply} nodes are a naturally suitable site to invoke and create specializations for methods.
+
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	def apply(T: Type, array: Array[T]): List[T] = T match {
+		case Int => apply$Int(array.asInstanceOf[Array[Int]])
+		...
+		case _ =>   apply$Any(array.asInstanceOf[Array[Any]])
+	}
+	\end{minted}
+\end{figure}
 
 Figure \ref{impl:parse-typeapply} extends the transformation of \scalainline{Apply} tree nodes to include polymorphic applications.
 The application of a polymorphic method follows the same semantics as the application of a monomorphic method.
 The actual specialization of the frame layout occurs inside the template that a polymorphic \scalainline{ApplyNode} invokes.
-This allows the invocation of polymorphic methods even in the presence of dynamic dispatch.
+This design decision allows the invocation of polymorphic methods even in the presence of dynamic dispatch.
 In the next section, we will describe the additional machinery that is added \textit{after} a polymorphic inline cache has resolved virtual dispatch to handle type application and how to make such mechanisms amenable for partial evaluation.
 
 \subsubsection*{Typed Dispatch Chains}
@@ -1057,19 +1068,19 @@ We introduce the notion of \textit{typed dispatch chains}.
 Typed dispatch chains integrate the semantics of type applications via a second inline cache after virtual call resolution.
 Figure \ref{impl:defdeftemplate-execute} contains the simplified implementation of the execution semantics in a \scalainline{DefDefTemplate}.
 
-Specializations of polymorphic methods are created on demand then cached based on their reified type signatures.
-One particular challenge of making caching mechanism fold away in partial evaluation is that the cache must be a \textit{compilation constant}.
-Type arguments at type application sites are always stable, i.e. their respective type nodes evaluate to the same type, the look up of the specialized call node should have no overhead when JIT compiled with aid of partial evaluation. 
-To make this possible, we exploit a simple array of type signature and specialized call node pairs.
+Specializations of polymorphic methods are created on demand and then cached based on their reified type signatures.
+One challenge of making caching mechanism fold away in partial evaluation is that the cache must be a \textit{compilation constant}.
+Type arguments at type application sites are always stable, i.e., their respective type nodes evaluate to the same type; the look-up of the specialized call node should have no overhead when JIT compiled with the aid of partial evaluation. 
+We exploit a simple array of type signatures and specialized call node pairs to make this possible.
 When the loop for looking up a cache entry in the array is unrolled during partial evaluation (directed by \javainline{ExplodeLoop}), the loop is transformed into a block of conditional expressions for each cache entry.
 This unrolled loop combined with the injected knowledge that type argument values are compilation constants results in the conditional elimination\cite{conditional-elim} of checks for non-matching cache entries.
-Once the appropriate specialization is found, the call is forwarded to the root node which contains the specialized term nodes.
+Once the appropriate specialization is found, the call is forwarded to the root node, which contains the specialized term nodes.
 
-When a combination of type arguments have not yet been encountered and their corresponding specialization is unavailable, the specialization must be generated and then invoked.
+When a combination of type arguments has not yet been encountered and their corresponding specialization is unavailable, the specialization must be generated and invoked.
 To prevent this \textit{slow} path of execution from being JIT compiled, we direct the compiler to \textit{bail out} of JIT compilation with the \scalainline{transferToInterpreterAndInvalidate} directive.
-The directive allows guest languages to insert their own deoptimization points into the control flow of a program.
+The directive allows guest languages to insert their own deoptimization points into the control flow of a program;
 This ensures code of the slow branch when creating the specialization is never compiled.
-Note that in the first case where a type argument lookup succeeds (the fast path), the directive is unreachable because the control flow of the code returns and therefore will not be part of compiled code.
+Note that in the first case where a type argument lookup succeeds (the fast path), the directive is unreachable because the control flow of the code returns and, therefore, will not be part of compiled code.
 
 \begin{figure}[!htb]
 	\centering
@@ -1081,10 +1092,10 @@ Note that in the first case where a type argument lookup succeeds (the fast path
 Figure \ref{example:typed-dispatch} is an extension of the example given in figure \ref{example:poly-cache-call-node} with typed dispatch.
 The example assumes the type arguments for \scalainline{Int} and \scalainline{Double} for \scalainline{Cons.contains[T]} and \scalainline{Nil.contains[T]} has previously been specialized and cached.
 After the polymorphic inline cache resolves the receiver to an exact type, the corresponding specialization is looked up.
-While this example may seem deceptively large, only the path taken in control flow is compiled after partial evaluation.
+While this example may seem deceptively large, only the path taken in the control flow is compiled after partial evaluation.
 For example, consider the invocation \scalainline{List.contains[Int]} when the receiver is an instance of \scalainline{Cons}, the corresponding compiled code will not contain the check that type parameter is an \scalainline{Int}.
 Because all other program logic is eliminated during partial evaluation, the inlining of calls is also straightforward.
-After the partial evaluation, the typed dispatch mechanism is eliminated and the specialized method is the only code remaining.
+After the partial evaluation, the typed dispatch mechanism is also eliminated, and the specialized method is the only code remaining.
 
 \subsubsection*{Specializing Polymorphic Parameters}
 \begin{figure}[!htb]
@@ -1119,8 +1130,8 @@ After the partial evaluation, the typed dispatch mechanism is eliminated and the
 The data layout of a method is given by the frame descriptor of its root node.
 A specialized method will have a specialized frame descriptor.
 Specialized frame descriptors will have the appropriate primitive frame slot kinds assigned to value definitions that have their polymorphic resolve to a primitive type.
-Therefore, the core principle behind method specialization is generation of a \scalainline{TermNode} tree from a \scalainline{Term} tree using a specialized frame descriptor.
-Apart from extensions given earlier in this section, the parsing of \scalainline{Term} nodes do not differ from their monomorphic counterparts.
+Therefore, the core principle behind method specialization is generating a \scalainline{TermNode} tree from a \scalainline{Term} tree using a specialized frame descriptor.
+Apart from extensions given earlier in this section, the parsing of \scalainline{Term} nodes does not differ from their monomorphic counterparts.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -1143,7 +1154,7 @@ Apart from extensions given earlier in this section, the parsing of \scalainline
 \end{figure}
 
 Figure \ref{impl:gen-poly-locals} gives an extension to generate frame slots from type parameters and polymorphic value definitions atop the method to generate frame slots from monomorphic value definitions.
-Like its counterpart in the monomorphic interpreter, the abstraction for a local value in a frame in the polymorphic interpreter both have a slot.
+Like its counterpart in the monomorphic interpreter, the abstraction for a local frame value in the polymorphic interpreter has a slot.
 However, a local frame value in the polymorphic interpreter retains a type instead of a frame slot kind.
 If the type of a value parameter can be resolved with the type arguments supplied during specialization, the specialized frame slot is created and added to the descriptor.
 
@@ -1154,83 +1165,43 @@ index(\tau) =
 	-1 & \text{otherwise}
 \end{cases}
 $$
-
 A mapping of types (via their symbols) to their respective index in the type argument array is sufficient to handle this resolution.
-Because we are only discussing methods polymorphic under their own type parameters, there are no polymorphic value parameters which are not resolvable in this context.
-The derivation of local frames values from monomorphic value definitions remain unchanged. 
+Because we are only discussing methods polymorphic under their own type parameters, there are no polymorphic value parameters that are not resolvable in this context.
+The derivation of local frame values from monomorphic value definitions remains unchanged. 
 
-A type definition is treated in the same manner as a value definition, it is assigned a frame slot with a \javainline{Object} frame slot kind.
-This allows for the storage of types in the frame of a method, allowing for the resolution of types after the invocation of a method template.
-So far we have only discussed the resolution of type arguments in a intraprocedural context.
-Storing reified types in the frame during execution allows from the resolution in a interprocedural context.
+A type definition is treated in the same manner as a value definition; it is assigned a frame slot with a \javainline{Object} frame slot kind.
+This allows storing types in the method frame, allowing for the resolution of types after invoking a method template.
+So far, we have only discussed the resolution of type arguments in an intraprocedural context.
+Storing reified types in the frame during execution allows for the resolution in an interprocedural context.
 We will detail why this is important in the following subsection.
 
-\subsubsection*{Propagating Type Arguments}
+Truffle conveniently profiles the types of frame arguments to speculatively eliminate the unboxing of boxed values when reading frame values (including arguments). 
+For example, the following invocation \scalainline{list.contains((elem: Int))} will be profiled by Truffle even if we store \scalainline{elem} in an \scalainline{Object} frame slot.
+Truffle will then speculatively unbox \scalainline{elem} in the body of \scalainline{contains} if appropriate.
+We will discuss these optimizations and their limits in detail in Chapter \ref{chapter:evaluation}.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-	def subset[T](a: List[T], b: List[T]): Boolean = {
+	def maximum[T <: Numeric](list: List[T]): Boolean =  {
+		var max: T  = zero
 		var curr: List[T] = a
-		while (!curr.isEmpty) {
-			if (!b.contains[T](curr.head)) return false
-			curr = curr.tail
-		}
-		true 
+		while (!curr.isEmpty) 
+			if (curr.head > max)
+				max = curr.head 
+		max
 	}
 	\end{minted}
-	\caption{An example where type arguments are derived from type parameters.}
-	\label{impl:list-subset}
+	\caption{}
+	\label{impl:list-max}
 \end{figure}
-
-Polymorphic code has a habit of using other polymorphic code.
-As a result, polymorphic invocations often occur inside the definition of a polymorphic class or a polymorphic method.
-That is to say that the type argument at a type application site could be a type parameter.
-Figure \ref{impl:list-subset} is an example where a type application occurs inside the definition of a polymorphic method and derives its type argument from a type parameter.
-
-\begin{figure}[!htb]
-	\begin{minted}{scala}
-	class MethodParamTypeNode(@Child readLocal: ReadLocalNode) extends TypeNode {
-		override def resolveType(frame: VirtualFrame): Type = 
-			readLocal.execute(frame).asInstanceOf[Type]
-	}
-	\end{minted}
-	\caption{The type node for dynamically resolving method type parameters.}
-	\label{impl:method-param-typenode}
-\end{figure}
-
-We introduce a subclass of a type node that retrieves method type arguments which are stored on the frame.
-Because type parameters are treated in the same manner as value parameters, they are stored in the frame of the method.
-The resolution of type arguments which are parameters from a method follows the same mechanism as the resolution of local variables.
-This mechanism enjoys the same Truffle virtualization optimizations of value reads when propagating type arguments interprocedurally.
-In the next section, we will describe where and why this particular mechanism is able to specialize programs well and cases where Truffle is able to achieve similar optimizations.
-
-\subsubsection*{Case Study: A List Constructor}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[width=0.4\textwidth]{figures/dot/List.contains.boxed-param-read.TruffleTier.png}
-	\caption{Graal IR with speculative unboxing of \scalainline{elem} based on a type profile of its frame slot in \scalainline{List.contains}}
-	\label{graalir:cons-contains-param-read}
-\end{figure}
-
-Truffle conveniently profiles the types of frame arguments to speculatively eliminate the unboxing of boxed values when reading frame values (including arguments).
-Figure \ref{graalir:cons-contains-param-read} is an example of such a speculative optimization.
-This speculative optimization relies on a \javainline{TrustedBoxedValue} to unbox the primitive.
-A \javainline{TrustedBoxedValue} represents injected information from an external source.
-In this particular case, it is known by the compiler that boxed instance comes from a cache; Unique \javainline{int} values may be mapped to a unique \javainline{Integer} instance in the Java runtime, which eliminates unnecessary boxed object creation.
-The unbox operation in node $848$ will be `floated' up the graph such that all subsequent nodes dominated by the read of a boxed frame value has no autoboxing.
 
 In contrast, write operations of polymorphic frame values cannot be speculatively eliminated. 
-Because Truffle does not specialize data layouts, i.e. frames are determined by their descriptors, which in turn are determined by the guest language implementation, frame writes of polymorphic values will always have to be boxed.
+Because Truffle does not specialize data layouts, i.e., frames are determined by their descriptors, which in turn are determined by the guest language implementation, frame writes of polymorphic values will always have to be boxed.
 The elimination of unnecessary boxed polymorphic writes from frame descriptor specialization is one of the major benefits when compared to the monomorphic interpreter.
 Code that has polymorphic code which reads and writes to a frame frequently will no longer have to unbox, compute primitive operations on unboxed values, then box those values back into their respective slots.
-As our running example does not make use of this particular pattern of autoboxing, we will take this opportunity to showcase an instance of a polymorphic value read operation that Truffle is unable to speculatively optimize without specialization.
+Figure \ref{impl:list-max} contains an example program with polymorphic code that frequently writes to a polymorphic local variable after some computation.
 
-In both Scala and the JVM, arrays of primitive types are invariant with respect to the $\top$ (the universal supertype) type, \scalainline{Any} and \javainline{Object} in Scala and Java respectively.
-That is to say, the type \scalainline{Array[Int]} is neither a subtype or supertype of the type \scalainline{Array[Any]}.
-On the other hand, the type \scalainline{AnyRef} is covariant to the \scalainline{Array[Any]} type.
-This contradiction in the presence of code which creates or operates on polymorphic arrays requires runtime bridge methods in order to appear seamless to a programmer.
-These bridge methods combined with the nature of Scala's type system obscures opportunities for speculative optimizations.
+\subsubsection*{Case Study: A List Constructor}
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -1250,12 +1221,12 @@ These bridge methods combined with the nature of Scala's type system obscures op
 	\label{impl:list-alt-constructor}
 \end{figure}
 
-To showcase an instance of when polymorphic array code must be bridged, we define an alternate constructor for a \scalainline{List[T]} to use an as example.
-Figure \ref{impl:list-alt-constructor} gives a constructor that creates a polymorphic list from a polymorphic array.
-We focus on the term \scalainline{array.length} which computes the length for a polymorphic array on line $3$.
-When the Typer detects an array operation on a polymorphic array value, it automatically inserts the array runtime bridge method that is responsible for handling the operation.
+In this subsection, we examine an example containing code Truffle cannot optimize well.
+Figure \ref{impl:list-alt-constructor} gives an additional constructor that creates a polymorphic list from a polymorphic array.
+We focus on the term \scalainline{array.length}, which computes the length for a polymorphic array on line $3$.
+When the Typer detects an array operation on a polymorphic array value, it automatically inserts the array runtime bridge method responsible for handling the operation.
 For example, line $3$ after the Typer would be transformed into \scalainline{var i = array_length(array) - 1}.
-We give the implementation of \scalainline{array_apply} in figure \ref{impl:array-length}.
+We give the implementation of \scalainline{array_length} in figure \ref{impl:array-length}.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -1276,22 +1247,15 @@ We give the implementation of \scalainline{array_apply} in figure \ref{impl:arra
 	\label{impl:array-length}
 \end{figure}
 
-Notice the type of the argument in \scalainline{array_length} is \scalainline{AnyRef}; Because the types of primitive arrays and reference arrays are invariant, the direct supertype is \scalainline{AnyRef}.
-To compute the length for a polymorphic, \scalainline{array_length} switches over every similar but unrelated array type.
-In the body of every type check condition, the argument must be be cast to the appropriate array type after the type check succeeds before the length is finally computed.
-We will examine how this code looks in the context of our alternate constructor after JIT compilation in Graal IR.
+In both Scala and the JVM, arrays of primitive types are invariant.
+That is to say, the type \scalainline{Array[Int]} is neither a subtype or supertype of the type \scalainline{Array[Any]}.
+On the other hand, the type \scalainline{Array[T <: AnyRef]} is covariant.
+This contradiction in the presence of code that creates or operates on polymorphic arrays requires runtime bridge methods to appear seamless to a programmer.
+When combined with the nature of Scala's type system, the Scala runtime obscure opportunities for speculative optimizations.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{figures/dot/List.apply.boxed.array_length.png}
-	\caption{Graal IR of \scalainline{array_length} in the context of \scalainline{List.apply[T](array: Array[T])}}
-	\label{graalir:list-apply-boxed-array-length}
-\end{figure}
-
-Figure \ref{graalir:list-apply-boxed-array-length} contains the Graal IR of \scalainline{array_length} inlined into \scalainline{List.apply[T]}. 
-Notice that the \scalainline{instanceof} type checks nodes (white) that are succeeded by an \javainline{ArrayLength} node (red) for each of the branches in \scalainline{array_length}.
-The numerous consecutive conditional expressions complicate the control flow analysis in JIT compilation.
-These conditional checks add unnecessary branching and burdens JIT compilation when the type of a specialized array could be known from specialization.
+Notice the type of the argument in \scalainline{array_length} is \scalainline{AnyRef}; Because the types of arrays are invariant, the direct supertype is \scalainline{AnyRef}, the type for any reference type.
+To compute the length for a polymorphic array, \scalainline{array_length} switches over every similar but unrelated array type.
+In the body of every type check condition, the argument must be cast to the appropriate array type after the type check succeeds before the length is finally computed.
 We introduce a method to vastly simplify the Graal IR of such instances of array bridge methods when specialized methods would have type-specific information to augment JIT compilation.
 
 \begin{figure}[!htb]
@@ -1315,61 +1279,86 @@ We introduce a method to vastly simplify the Graal IR of such instances of array
 	\label{impl:specialized-copy-arguments}
 \end{figure}
 
-In order to accomplish this, we extend the way that frame arguments are copied into the frame from figure \ref{impl:defdefnode}.
+As arrays are references, they are stored on frames via an \scalainline{Object} slot.
+This alone is insufficient to optimize polymorphic frame slots for array types.
+Instead, we extend the way that frame arguments are copied into the frame from figure \ref{impl:defdefnode} in figure \ref{impl:specialized-copy-arguments}.
 Because a parameter now retains its type instead of a frame slot kind, we introduce a special operation when copying arguments that are arrays. 
 The \javainline{castExact} directive is a type narrowing operation that hints to Graal that a value is an instance of a type.
-We will examine how the insertion of this directive for array types simplify the layout of Graal IR graphs.
+By injecting type information from TASTy into our executable IR, all subsequent checks that switch over the type of an array are simplified during partial evaluation.
+
+\subsubsection*{Propagating Type Arguments}
 
 \begin{figure}[!htb]
-	\centering
-	\includegraphics[width=0.3\textwidth]{figures/dot/List.apply.specialized.array_length.png}
-	\caption{Graal IR of \scalainline{array_length} in the context of \scalainline{List.apply[T](array: Array[T])} augmented with a $\pi$ node}
-	\label{graalir:list-apply-specialized-array-length}
+	\begin{minted}{scala}
+	def subset[T](a: List[T], b: List[T]): Boolean = {
+		var curr: List[T] = a
+		while (!curr.isEmpty) {
+			if (!b.contains[T](curr.head)) return false
+			curr = curr.tail
+		}
+		true 
+	}
+	\end{minted}
+	\caption{An example where type arguments are derived from type parameters.}
+	\label{impl:list-subset}
 \end{figure}
 
-Figure \ref{graalir:list-apply-specialized-array-length} contains the simplified Graal IR of \scalainline{array_length} inlined into \scalainline{List.apply[T]}.
-Notice that there is a single \javainline{ArrayLength} node that is dominated by a $\pi$ node.
-A $\pi$ node\cite{abdc:pi-nodes} enforces a bound on a value.
-In the case of Graal, a $\pi$ node enforces bound on the type of a value.
-More specifically in our example, the $\pi$ node narrows the type of the 2nd parameter of \scalainline{List.apply[T]} to a monomorphic array type.
-When the type of the parameter is narrowed, the type checks that enforce array types from figure \ref{graalir:list-apply-boxed-array-length} are eliminated because the type is now known.
+Polymorphic code has a habit of using other polymorphic codes.
+As a result, polymorphic invocations often occur inside the definition of a polymorphic class or a polymorphic method.
+That is to say that the type argument at a type application site could be a type parameter.
+Figure \ref{impl:list-subset} is an example where a type application occurs inside the definition of a polymorphic method and derives its type argument from a type parameter.
 
-This method does not consider polymorphic scenarios where an array of boxed primitives are used interchangeably with an array of primitives.
-Such scenarios would require the insertion of additional autoboxing nodes or an intraprocedural transformation where boxed arrays are converted to primitive arrays.
-While these solutions are possible in the context of Truffle, we consider these kinds of scenarios out of the scope of this thesis.
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	class MethodParamTypeNode(@Child readLocal: ReadLocalNode) extends TypeNode {
+		override def resolveType(frame: VirtualFrame): Type = 
+			readLocal.execute(frame).asInstanceOf[Type]
+	}
+	\end{minted}
+	\caption{The type node for dynamically resolving method type parameters.}
+	\label{impl:method-param-typenode}
+\end{figure}
+
+We introduce a subclass of a type node that retrieves method type arguments stored on the frame.
+Because type parameters are treated the same manner as value parameters, they are stored in the method's frame.
+The resolution of type arguments which are parameters from a method, follows the same mechanism as the resolution of local variables.
+This mechanism enjoys the same Truffle virtualization optimizations of value reads when propagating type arguments interprocedurally.
+In turn, subsequent invocations of polymorphic methods that have type parameters stored on the frame will partial evaluate their specializations.
 
 \subsection{Specializing Classes}
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
-		def parseClassDef(cdef: ClassDef, types: Array[Type]]): ClassShape = {
-			val parents = cdef.parents.map(_.symbol)
+	def parseClassDef(cdef: ClassDef, types: Array[Type]]): ClassShape = {
+		val parents = cdef.parents.map(_.symbol)
 			
-			val fields = cdef.body map {
-				case vdef: ValDef => generateField(vdef, types)	
-			}
-			
-			val methods = (cdef.constructor :: cdef.body) map {
-				case ddef: DefDef => ddef.symbol.signature -> parseDefDef(ddef)
-			}
-			
-			val vtable = cdef.symbol.methodMembers map {
-				symbol => symbol.signature -> symbol
-			}
-			
-			new ClassShape(cdef.symbol, parents, fields, init ++ methods, vtable)
+		val fields = cdef.body map {
+			case vdef: ValDef => generateField(vdef, types)	
 		}
+		
+		val methods = (cdef.constructor :: cdef.body) map {
+			case ddef: DefDef => ddef.symbol.signature -> parseDefDef(ddef)
+		}
+			
+		val vtable = cdef.symbol.methodMembers map {
+			symbol => symbol.signature -> symbol
+		}
+			
+		new ClassShape(cdef.symbol, parents, fields, init ++ methods, vtable)
+	}
 	\end{minted}
 	\caption{Extensions to specialize a \scalainline{ClassDef}.}
 	\label{impl:specialize-class}
 \end{figure}
 
-In this section, we detail the specialization of classes and class members that have polymorphic semantics based on class type parameters.
-Previously we discussed the specialization of methods that are solely polymorphic under their own parameters without the mention of methods which are class-polymorphic.
-The reasoning behind this decision can be explained as thus: The invocation of a class-polymorphic method requires a look up into that class's shape, by extension that class must be specialized before such a polymorphic invocation may occur.
-As class specialization does not share the demands when it comes to runtime mechanisms as method specialization, we will adopt a rewrite driven approach to specializing class definitions on demand.
-That is, we will use techniques to monomorphize, at least partially, polymorphic TASTy trees instead of altering the transformation of a \scalainline{ClassDef} to a \scalainline{ClassShape}.
-With this rationale, we are able to adapt many elements of the monomorphic interpreter for polymorphism.
+This section details the specialization of classes and class members with polymorphic semantics based on class type parameters.
+Previously we discussed the specialization of methods that are solely polymorphic under their parameters without the mention of methods that are class-polymorphic.
+The reasoning behind this decision can be explained thus: The invocation of a class-polymorphic method requires a look up into that class's shape; by extension, that class must be specialized before such a polymorphic invocation may occur.
+For example, the method \scalainline{List.contains} in figure \ref{example:list-def} contains method-polymorphic semantics that are resolved \textit{after} a polymorphic class instance is created.
+
+As class specialization does not share the same demands regarding runtime mechanisms as method specialization, we will adopt a rewrite-driven approach to specializing class definitions at object creation sites.
+We will use techniques to monomorphize, at least partially, polymorphic TASTy trees instead of altering the transformation of a \scalainline{ClassDef} to a \scalainline{ClassShape}.
+With this rationale, we can adapt many elements of the monomorphic interpreter for polymorphism.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -1382,11 +1371,11 @@ With this rationale, we are able to adapt many elements of the monomorphic inter
 	\label{impl:class-param-typenode}
 \end{figure}
 
-Figure \ref{impl:specialize-class} provides an overview on the steps that are required to create a specialized monomorphic \scalainline{ClassDef} from a polymorphic origin.
+Figure \ref{impl:specialize-class} provides an overview of the steps that are required to create a specialized monomorphic \scalainline{ClassDef} from a polymorphic origin.
 Similar to how type definitions become parameters when reified in the context of a \scalainline{DefDef}, type definitions in the context of \scalainline{ClassDef} become fields when reified.
-The rationale is that instances of specialized polymorphic classes store their specialized type fields in order propagate types.
-Figure \ref{impl:class-param-typenode} gives the pseudocode for a type node which resolves a type parameter from an instance of a specialized class.
-We rewrite both value definitions as well method definitions to transform polymorphic class definitions into monomorphic class definitions.
+The rationale is that instances of specialized polymorphic classes store their specialized type fields to propagate types.
+Figure \ref{impl:class-param-typenode} gives the pseudocode for a type node that resolves a type parameter from an instance of a specialized class.
+We rewrite both value and method definitions to transform polymorphic class definitions into monomorphic class definitions.
 
 \subsubsection*{Creating Specialized Instances}
 
@@ -1420,7 +1409,7 @@ We rewrite both value definitions as well method definitions to transform polymo
 \end{figure}
 
 The \scalainline{AppliedType} is the analogue of \scalainline{TypeApply} for type applications when creating object instances.
-We are able to derive a specialization site for class definition by the reification of an applied type into an \scalainline{AppliedTypeNode}.
+We can derive a specialization site for class definition by the reification of an applied type into an \scalainline{AppliedTypeNode}.
 Figure \ref{impl:applied-type-node} is an overview of the \scalainline{AppliedTypeNode} and its derivation from its TASTY type counterpart.
 In our subset of TASTy, an applied type represents an instantiation of a polymorphic type.
 
@@ -1432,10 +1421,10 @@ In our subset of TASTy, an applied type represents an instantiation of a polymor
 	\label{example:applied-type}
 \end{figure}
 
-For example, consider the term, given in figure \ref{example:applied-type}, that returns an instance of a polymorphic type
+For example, consider the term, given in figure \ref{example:applied-type}, that returns an instance of a polymorphic type.
 The type \scalainline{List[Int]} is the result of the type application of \scalainline{List[T]} to \scalainline{Int}.
 We will refer to polymorphic applied types, such as \scalainline{List[T]}, as \textit{polymorphic} applied types. 
-The data representation of a polymorphic applied type is undetermined; Depending the types argument supplied during type application, the data representation will vary.
+The data representation of a polymorphic applied type is undetermined; Depending on the type arguments supplied during type application, the data representation will vary.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
@@ -1446,19 +1435,80 @@ The data representation of a polymorphic applied type is undetermined; Depending
 \end{figure}
 
 When executable nodes are derived from polymorphic applied types, given in figure \ref{example:applied-type-node}, type arguments are resolved during runtime before application to their type constructor.
-We refer to the instantiations resulting from the application of type arguments to polymorphic applied types as \textit{monomorphic} applied types (e.g. List[Int]).
+We refer to the instantiations resulting from the application of type arguments to polymorphic applied types as \textit{monomorphic} applied types (e.g., List[Int]).
 Having a monomorphic applied type provides the opportunity to generate a specialized shape.
-Therefore, each group of monomorphic applied types have a unique data representation.
-For example, a \scalainline{List[Int]} and \scalainline{List[Double]} will each have a unique data representation and the underlying layout of their instances will be different.
+Therefore, each group of monomorphic applied types has a unique data representation.
+For example, a \scalainline{List[Int]} and \scalainline{List[Double]} will each have a unique data representation, and the underlying layout of their instances will be different.
 However, a \scalainline{List[String]} and \scalainline{List[List[Int]]} will share the same data representation as their type arguments are reference types and will not see any benefit from independent specialization.
-Therefore, the creation of an object instance with a polymorphic class definition will have its shape determined when its created.
+Therefore, creating an object instance with a polymorphic class definition will have its shape determined when its created.
 
 This approach avoids the issue of \textit{name mangling}.
-Name mangling is a technique to disambiguate distinct entities in a program that share the same name but do not inhabit the same namespace (e.g. a \javainline{package}).
-In the context of parametric polymorphism and specialization, many approaches to specialization require require the specialized classes and methods to have mangled names.
-Creation of polymorphic classes and and call sites of polymorphic methods must be rewritten to refer to the correct specialization.
+Name mangling is a technique to disambiguate distinct entities in a program that share the same name but do not inhabit the same namespace (e.g., a \javainline{package}).
+In the context of parametric polymorphism and specialization, many approaches to specialization require specialized classes and methods to have mangled names.
+The creation of polymorphic classes and call sites of polymorphic methods must be rewritten to refer to the correct specialization.
 In our approach, operations on object instances with a polymorphic type are unaffected by its underlying shape.
-In the next section, we give extensions on how to generate a static shape from a monomorphic applied type after type application.
+In the next section, we give extensions on generating a static shape from a monomorphic applied type after type application.
+
+\subsubsection*{Case Study: \texttt{Cons.head}}
+
+\begin{figure}[!htb]
+	\begin{minted}{scala}
+	val list: List[Int] = ???
+	list.contains(0)
+	\end{minted}
+	\caption{Example invocation of \scalainline{Cons.contains[Int]}}
+	\label{example:list-contains-example}
+\end{figure}
+
+In this subsection, we introduce an example, given in figure \ref{example:list-contains-example}, that motivates the specialization of shapes.
+The example is a source-like representation of \scalainline{List.contains[Int]}, the specialized variant of the \scalainline{List.contains} method.
+We compare the body of \scalainline{List.contains} with and without a specialized storage layout for the implementation of \scalainline{contains} in the \scalainline{Cons} class.
+
+\begin{figure}[!htb]
+	\centering
+	\begin{subfigure}[b]{0.48\textwidth}
+	\begin{minted}{scala}
+	def contains$Int(elem: Int): Boolean = {
+		var these: List = this
+		while (!these.isEmpty) {
+			val head = these.head.asInstanceOf[Int]
+			if (unbox(head) == elem)
+				return true
+			else 
+				these = these.tail
+		}
+		false
+	}	
+	\end{minted}
+	\caption{Implementation of \scalainline{contains} in a erased \scalainline{Cons} class.}
+	\label{impl:cons-contains-erased}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
+	\begin{minted}{scala}
+	def contains$Int(elem: Int): Boolean = {
+		var these: List = this
+		while (!these.isEmpty) {
+			// val head = ...
+			if (these.head == elem) 
+				return true
+			else 
+				these = these.tail
+		}
+		false
+	}	
+	\end{minted}
+	\caption{Implementation of \scalainline{contains} in a specialized \scalainline{Cons} class.}
+	\label{impl:cons-contains-specialized}
+	\end{subfigure}
+\end{figure}
+
+Figure \ref{impl:cons-contains-erased} contains a source-like representation of \scalainline{contains} if the data layout of \scalainline{Cons} follows the standard translation of type erasure but the method is still specialized.
+We draw attention to the example's equality operation defined on line $4$.
+Without the specialization of either classes or methods, both the left-hand-side and right-hand-side operands would be boxed integers, and the \scalainline{==} operation dispatches to \scalainline{these.head.equals(elem)}.
+However, because methods are specialized and classes are not specialized in our case, the \scalainline{head} field must be unboxed before equality can be checked.
+Figure \ref{impl:cons-contains-specialized} contains the specialized equivalent code of \ref{impl:cons-contains-erased}.
+Once the class layout is specialized, no unboxing is present in the program.
 
 \subsubsection*{Specializing Class Members}
 
@@ -1475,13 +1525,13 @@ In the next section, we give extensions on how to generate a static shape from a
 	\label{impl:generate-poly-field}
 \end{figure}
 
-In this section, we extend the translation scheme for generating shapes from class definitions to include polymorphic class definitions.
+This section extends the translation scheme for generating shapes from class definitions to include polymorphic class definitions.
 There are two elements of data layout that must be determined when generating the shape of a polymorphic class definition.
 Fields constitute the portion of data layout on an object instance that must be resolved with monomorphic types for value definitions.
-Local frame values whose frame slot kinds must be derived from polymorphic type parameters constitute the other portion of data layout in a class definition that must be specialized.
+Local frame values whose frame slot kinds must be derived from polymorphic type parameters constitute the other portion of the data layout in a class definition that must be specialized.
 
 The underlying type of a polymorphic field, and therefore its data representation as part of its static shape, cannot be determined statically.
-When the field translation scheme is supplied with type arguments, we are able to generate the specialized monomorphic field.
+When the field translation scheme is supplied with type arguments, we can generate the specialized monomorphic field.
 Figure \ref{impl:generate-poly-field} extends the pseudocode that generates fields for shapes to include polymorphic value definitions.
 If it is beneficial to specialize a field, e.g. \scalainline{val x: T} or \scalainline{val x: Array[T]}, we resolve the type parameter from the type arguments to generate a specialized field property.
 Otherwise, we default to the monomorphic implementation for generating a field.
@@ -1509,11 +1559,11 @@ Otherwise, we default to the monomorphic implementation for generating a field.
 	\label{impl:parse-poly-defdef-cls}
 \end{figure}
 
-Polymorphic methods present a challenge to specialization because they can be polymorphic under two different sets of type parameters.
-As a result, dynamically resolved types are not available for specialization at the \textit{same} time; Class type arguments are available at object creation and method type arguments are available at invocation.
+Polymorphic methods challenge specialization because they can be polymorphic under two sets of type parameters.
+As a result, dynamically resolved types are not available for specialization at the \textit{same} time; Class type arguments are available at object creation, and method type arguments are available at invocation.
 To address this, we need to be able to \scalainline{partially specialize} methods from the class perspective.
 Figure \ref{impl:parse-poly-defdef-cls} extends the translation of \scalainline{DefDef} nodes with class type arguments.
-If the method is polymorphic under class type parameters, the layout of a frame for the root node of a \scalainline{DefDef} must partially determined.
+If the method is polymorphic under class type parameters, the layout of a frame for the root node of a \scalainline{DefDef} must be partially determined.
 
 $$
 index(\tau) = 
@@ -1524,28 +1574,24 @@ index(\tau) =
 \end{cases}
 $$
 
-We extend the definition of \scalainline{index} to be capable of resolving the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e. whether type arguments originate from a type application of a class or a method).
+We extend the definition of \scalainline{index} to resolve the index of a type parameter to a corresponding type argument array in a context-sensitive manner (i.e., whether type arguments originate from a type application of a class or a method).
 
 After the class specialization of a \scalainline{DefDef}, it is still possible that a \scalainline{DefDef} contains polymorphic semantics.
-However, all polymorphism which is derived from a class type parameter has been specialized and such terms and parameters are now monomorphic.
+However, all polymorphism that is derived from a class type parameter has been specialized, and such terms and parameters are now monomorphic.
 Therefore, a \scalainline{DefDef} that is still polymorphic is only polymorphic under its own type parameters.
 The remaining polymorphic data layout will be specialized when the method template is invoked.
-
-\subsubsection*{Example: \texttt{Cons[Int]}}
-
-In this section, we give an example on the layout of a specialized class based on a specialization site.
 
 \begin{figure}[!htb]
 	\begin{minted}{scala}
 	ClassShape(
-		"Con$Int",
+		"Cons$Int",
 		Array(
 			Field("T", Object),
 			Field("head", Int),
 			Field("tail", Object)
 		),
 		Map(
-			"length()"               -> DefDefNode("length)
+			"length()"               -> DefDefNode("length")
 			"contains[1](scala.Any)" -> DefDefTemplate("contains")
 			"hashCode()"             -> DefDefNode("hashCode")
 		
@@ -1553,92 +1599,21 @@ In this section, we give an example on the layout of a specialized class based o
 		...
 	)
 	\end{minted}
+	\caption{Shape of \scalainline{Cons[Int]}}
+	\label{shape:cons-int}
 \end{figure}
 
-\subsubsection*{Case Study: \texttt{Cons.head}}
+As an example, we give figure \ref{shape:cons-int} to show the data layout of the specialized class \scalainline{Cons[Int]}.
+We omit the runtime elements of a shape in our example as we only want to show how the data of a specialized shape is organized.
+The only object storage property that differs between class specializations is the \scalainline{head} field.
+For the specialization \scalainline{Cons[Int]}, the \scalainline{head} field is stored with the \scalainline{Int} type.
+The storage types of fields may differ between specializations; they are all referenced by the same symbol.
+This allows the access of fields between specializations to remain opaque from the perspective of client code.
 
-\begin{figure}[!htb]
-	\begin{minted}{scala}
-	val list: List[Int] = ???
-	list.contains(0)
-	\end{minted}
-	\caption{Example invocation of \scalainline{Cons.contains[Int]}}
-	\label{example:list-contains-example}
-\end{figure}
+The layout of the shape with respect call targets remains unchanged.
+Call targets are duplicated across each shape of a specialized class definition.
+Because method definitions potentially contain polymorphic code that relies on class type parameters, this duplication is necessary.
 
-We introduce an example, given in figure \ref{example:list-contains-example}, which motivates the specialization of storage layouts in shapes.
-The example exercises polymorphic method invocations where the polymorphism is with class and method type parameters.
-
-\begin{figure}[!htb]
-	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figures/dot/List.head.boxed.TruffleTier.png}
-		\caption{Graal IR of \scalainline{Cons.head} focused on field access of \scalainline{head0}}
-		\label{graalir:cons-head-boxed}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.45\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figures/dot/List.contains.boxed.TruffleTier.png}
-		\caption{Graal IR of \scalainline{Cons.head} after being inlined into \scalainline{Cons.contains}}
-		\label{graalir:cons-contains-head-focus-boxed}
-	\end{subfigure}
-	\hfill
-\end{figure}
-
-We examine in detail the Graal IR focusing on the \scalainline{List.head} accessor method in our \scalainline{List} running example.
-For this particular example, we focus on unboxing that occurs when the \scalainline{head0} is accessed by the \scalainline{List.head}.
-This unboxing can be seen in \ref{graalir:cons-head-boxed}.
-
-We can see that \textit{guard} nodes are inserted by Graal into the compiled graph during JIT compilation.
-A guard node ensures a speculative assumption still holds during execution.
-Because the default storage type of a polymorphic field without specialization is an \javainline{Object}, Graal makes two runtime assumptions about the field in the JIT compiled \scalainline{contains} method to ensure the compiled method does not throw a runtime exception if the return value needs to be unboxed.
-The first guard, identifiable by node $278$, checks that the value is not the \javainline{null} reference.
-As the \javainline{null} value is only compatible with reference types, attempting to unbox a \javainline{null} value produces a runtime exception.
-The second guard, with the identifier $282$, is a type check that the value is an \javainline{Integer} object.
-Notice that the predecessor node is the type check \javainline{instanceof a!{\#} java.lang.Integer} and not \javainline{instanceof java.lang.Integer}.
-\javainline{instanceof} nodes in Graal IR checks against \textit{stamps} instead of normal JVM types identifiers.
-A stamp is much like a type identifier but has additional descriptors attached.
-For example, the stamp \javainline{a!{\#} java.lang.Integer} has the following descriptors:
-
-\begin{description}
-	\item[\texttt{(a)}] Asserts that the stamp marks a reference type identifier. In the case of this stamp, the stamp marks the boxed reference type \javainline{java.lang.Integer}.
-	\item[\texttt{(!)}] Asserts that value is not the \javainline{null} reference value. The stamp contains this descriptor because it is preceded by a non-null guard.
-	\item[\texttt{(\#)}] Asserts that value marked by the stamp is \textit{exactly} an instance of the type identifier described by the stamp and not an instance of a subclass of the type identifier
-\end{description}
-
-In more succinct terms, the \javainline{instanceof} node $285$ checks that value is precisely the instance of a \javainline{java.lang.Integer} and is not the \javainline{null} value. 
-If the assumptions are not violated in compiled code, the boxed integer value is then returned from the compiled code.
-Note that no unboxing happens because the value of \scalainline{head0} has not yet been used in a polymorphic context.
-
-
-\begin{figure}[!htb]
-	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figures/dot/List.head.specialized.TruffleTier.png}
-		\caption{Graal IR of \scalainline{List.head} after field read of \scalainline{head0} is specialized.}
-		\label{graalir:cons-head-specialized}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figures/dot/List.contains.specialized.TruffleTier.png}
-		\caption{Graal IR of \scalainline{Cons.head} after being inlined into \scalainline{Cons.contains}}
-		\label{graalir:cons-contains-head-focus-specialized}
-	\end{subfigure}
-	\hfill
-\end{figure}
-
-When the access or method \scalainline{List.head} is inlined into its callsite in \scalainline{Cons.contains} (see figure \ref{graalir:cons-contains-head-focus-boxed}), an unbox operation is introduced because the equality operation in node $1744$ compares primitives and not references.
-Notice that the two guards node previously seen in figure \ref{graalir:cons-head-boxed} are folded into one node because the \javainline{instanceof} node is an extension of the null check node.
-Because polymorphic field values are stored as an reference on the object instance, these speculative assumptions are necessary in order to generate compiled code.
-To eliminate the overhead of the unbox operation and the accompanying guard nodes, The polymorphic fields of a class must be specialized.
-
-Figure \ref{graalir:cons-head-specialized} contains the field access of \scalainline{head0} after the field has been specialized and has the appropriate storage type in the storage layout of \scalainline{Cons[Int]}.
-Notice that a box node has been introduced prior to the value of \scalainline{head0} prior to the return node of \scalainline{Cons.head}.
-Because the \scalainline{execute} method of a \scalainline{DefDefNode} returns an \javainline{Object}, the return value is preemptively boxed when inspecting the IR of the method.
-However, after inlining into the body of \scalainline{Cons.contains}, the box operation is no longer necessary as the boxed value will be immediately unboxed.
-Graal will automatically eliminate this type of autoboxing.
-When a specialized class instance is used in place of a generic class instance, the field access sub graph of \scalainline{head0} is completely simplified.
+Each specialized shape contains fields that store the type argument of their specialization.
+While these remain constant throughout all instances of the same specialized shape, allowing us to store the type arguments on shapes directly.
+Having type parameters as fields allow the reuse of the field access interface for class type definitions.

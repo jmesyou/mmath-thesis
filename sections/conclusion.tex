@@ -1,26 +1,31 @@
 \chapter{Conclusions}
 
 This thesis introduced \textsc{TastyTruffle}, a Truffle interpreter that is a platform for experimenting with ad-hoc data representations.
-The thesis described methods to translate TASTy, a tree serialization format for Scala 3, into an executable IR that is suitable for execution in an optimizing interpreter.
-We show in this thesis how to exploit the type information present in a input source language such as TASTy in order to generate specialized data representations for polymorphic data structures.
-We demonstrate that these techniques can substantially improve the performance of simple Scala programs in an experimental when compared to a state-of-the-art Java virtual machine.
+The thesis described methods to translate TASTy, a tree serialization format for Scala 3, into an executable IR suitable for execution in an optimizing interpreter.
+We show in this thesis how to exploit the type information present in an input source language such as TASTy to generate specialized data representations for polymorphic data structures.
+We demonstrate that these techniques can substantially improve the performance of simple Scala programs in an experimental interpreter when compared to a state-of-the-art Java virtual machine.
 
 A particular challenge in the implementation of \textsc{TastyTruffle} was the translation of TASTy into \textsc{TastyTruffle} IR.
 Because TASTy is emitted after parsing and type checking, no other compiler transformations typical in other intermediate representations are present.
-Many features of the Scala programming language are built as abstractions of simpler constructs that must be further simplified by the compiler.
-Without the existing compiler transformations to simplify these abstractions, TASTy can be at times \textit{extraneously} high-level for the purposes of execution.
+Many features of the Scala programming language are built as abstractions of simpler constructs that the compiler must further simplify.
+Without the existing compiler transformations to simplify these abstractions, TASTy can be at times \textit{extraneously} high-level for execution.
 While this did not significantly impact the evaluation of simple Scala programs for our experiments, it limits the \textit{breadth} of programs that are executable by our interpreter.
 A possible solution to this hurdle is to read TASTy, perform a subset of Scala compiler transforms, then execute the program using our translation.
-While we will have to avoid the type erasure transformation and all subsequent transformations which depend on the results of type erasure, a much larger portion of Scala programs become available for execution on our interpreter.
+While we will have to avoid the type erasure transformation and all subsequent transformations that depend on the type erasure results, a much more significant portion of existing Scala programs can be executed on our interpreter. 
+This is particularly important in the context of the Scala collections library. 
+As many Scala applications rely extensively on the Scala collections library, it would open the possibility for evaluating \textsc{TastyTruffle} on larger real-world workloads.
 
 The specialization of classes with both class-polymorphic and method-polymorphic semantics proved to be a complex implementation detail.
 The gap between the specialization of classes (at object creation) and the specialization of methods (at method invocation) required the selection of appropriate intermediate representation to encapsulate the \textit{partial} specialization.
-Partial specializations have been specialized but also still contain polymorphic semantics which must resolved at a future specialization site.
-In this thesis, we chose to use a high-level approach to aid the translation of TASTy definition with TASTy type arguments.
-However, many approaches and mechanisms are possible to solve address this complexity.
-TODO(accepting ideas)
+Partial specializations have been specialized but also still contain polymorphic semantics, which must be resolved at a future specialization site.
+In this thesis, we chose to use a high-level approach to aid the translation of TASTy definitions with TASTy type arguments.
+However, many prior approaches provide inspiration to tackle this problem.
+A possible solution might avoid multiple mechanisms for specialization, there avoiding partial specializations entirely.
+Alternatively, specialized call targets could be added onto a shape in an ad-hoc, profile-driven manner without the need to dispatch and select a specialization inside a call target.
+Truffle already has the tooling for dynamic object layouts in the form of the \scalainline{DynamicShape}.
+As class specialization is a relatively experimental feature in the lifespan of \textsc{TastyTruffle}, we consider this a possibility for future optimization.
 
-In this thesis we have evaluated \textsc{TastyTruffle} on simple but nonetheless difficult to specialize data structures exhibiting bulk memory access as well random heap access.
+In this thesis, we have evaluated \textsc{TastyTruffle} on simple but challenging to specialize data structures exhibiting bulk memory access and random heap access.
 The elimination of autoboxing in the list data structure resulted in incremental performance improvements where autoboxing proved to be a performance bottleneck.
-The elimination of autoboxing in the context of data structures back by polymorphic arrays resulted in performance improvements by an order of magnitude.
-\textsc{TastyTruffle} validates that there are many opportunities for data representation optimizations that bridge static compilation and just-in-time compilation.
+The elimination of autoboxing in data structures backed by polymorphic arrays resulted in performance improvements by an order of magnitude.
+\textsc{TastyTruffle} validates that there are opportunities for data representation optimizations that bridge static compilation and just-in-time compilation.

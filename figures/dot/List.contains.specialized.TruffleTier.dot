@@ -8,7 +8,7 @@ digraph G {
   node1195 [style="invis",label=""];
   node1208 [style="invis",label=""];
   node1206 [label="1206 Guard, else ClassCastException",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
-  node1209 [label="1209 LoadField Cons.head0",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
+  node1209 [label="1209 LoadField Cons.head",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
   node1211 [style="invis",label=""];
   node231 -> node837 [label="x",fontname="arial",color="#b3bbc3",fontcolor="#b3bbc3",fillcolor="#f9f9f9"];
   node1209 -> node837 [label="y",fontname="arial",color="#3cb4a4",fontcolor="#3cb4a4"];

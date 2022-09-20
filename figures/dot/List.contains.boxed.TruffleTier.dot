@@ -11,7 +11,7 @@ digraph G {
   node1783 [style="invis",label=""];
   node1822 [label="1822 Guard, else ClassCastException",shape="rectangle",fontname="Arial",style="filled",color="#b3bbc3",fillcolor="#f9f9f9",fontcolor="#b3bbc3"];
   node1824 [style="invis",label=""];
-  node1825 [label="1825 LoadField Cons.head0",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
+  node1825 [label="1825 LoadField Cons.head",shape="rectangle",fontname="Arial",style="filled",color="black",fillcolor="#da2d4f",fontcolor="#ffffff"];
   node1827 [style="invis",label=""];
   node1836 [style="invis",label=""];
   node1739 -> node1738 [label="?",fontname="arial",color="#3cb4a4",fontcolor="#3cb4a4"];
