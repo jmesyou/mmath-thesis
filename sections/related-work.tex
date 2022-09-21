@@ -51,7 +51,8 @@ Specific instantiations of generic data structures are then created based on rei
 Hack\cite{hack:inline-reified-types} and Kotlin\cite{kotlin:inline-reified-types} both have the notion of \textit{inline reified types}
 More specifically, reified types in Hack and Zig allow type parameters of user-annotated inline-able methods to be available during run-time. 
 Combined with inlining, this allows concrete type arguments from invocation sites to be used in the method body.
-For example, run-time type switches over types without needing reflection are possible inline reified types.
+For example, run-time control flow based on concrete types are possible using inline reified types.
+When combined with other higher-order abstractions, such as anonymous classes, inline reified types allow for data layout optimizations.
 
 \section{Generics and Java}
 
