@@ -8,9 +8,9 @@ The first is the cost of increased memory usage.
 Having many specialized data representations incurs extra storage unless these data representations are regenerated every time a specialization is needed.
 The second is the hidden computational overhead of specialization. 
 Like other computational overheads of managed runtimes such as garbage collection, time spent generating specialized variants of polymorphic classes or methods means time not spent executing the program.
-We propose several methods to augment \textit{when} a specialization is created.
+We propose several heuristics to influence \textit{when} a specialization is created.
 
-Many prior approaches to specialization have already attempted to minimize the number of specializations to mitigate performance degradation for complex polymorphic definitions, where there is often a \(O(t^n)\) space complexity worse case\footnote{$t$ is the number of values types combined with the reference type, $n$ is the number of type parameters in a generic definition.}, and very large programs.
+Many prior approaches to specialization have already attempted to minimize the number of specializations to mitigate performance degradation for complex polymorphic definitions, where there is often a \(O(t^n)\) space complexity worse case\footnote{$t$ is the number of values types combined with the reference type, $n$ is the number of type parameters in a generic definition.}.
 These approaches balance the tradeoff between performance and code size to optimistically generate \textit{only} the specializations required to eliminate performance bottlenecks.
 Because of the work done in \cite{scala:specialization}, many existing Scala programs are already user-annotated with a specialization directive.
 Similarly, our approach could be extended to include the semantics of this annotation, generating specializations with user-guide information only where needed.
@@ -18,9 +18,8 @@ The translation of non-annotated definitions will use a shared type-erased data 
 However, mixing annotated and non-annotated programs will present missed optimization opportunities in the non-annotated portions of the program.
 
 Truffle offers many existing mechanisms for profiling values and types.
-Some of this profiling instrumentation is automatically done by Truffle, such as the profiling of argument types for node rewrites.
-While other instrumentation,  such as condition profiles, are added by the guest language implementer.
-These profiles augment partial evaluation and enable speculative assumptions to augment optimizations such as conditional elimination.
+Some of this profiling instrumentation is automatically done by Truffle, such as the profiling of argument types for node rewrites. In contrast, the guest language implementer adds other instrumentation,  such as condition profiles.
+These profiles augment partial evaluation and enable speculative assumptions for optimizations such as conditional elimination.
 We propose instrumenting specialization sites to profile type arguments.
 Type argument profiles could then be used to decide the specific instantiation to specialize.
 A \textit{profile-guided} approach to specialization could limit specializations to only the most frequently used instantiations.

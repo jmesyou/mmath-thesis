@@ -1527,8 +1527,9 @@ Once the class layout is specialized, no unboxing is present in the program.
 
 This section extends the translation scheme for generating shapes from class definitions to include polymorphic class definitions.
 There are two elements of data layout that must be determined when generating the shape of a polymorphic class definition.
-Fields constitute the portion of data layout on an object instance that must be resolved with monomorphic types for value definitions.
-Local frame values whose frame slot kinds must be derived from polymorphic type parameters constitute the other portion of the data layout in a class definition that must be specialized.
+Fields, the data on object instances, must be resolved with monomorphic types for value definitions.
+Frame slots, data stored on the frame of methods that are class-polymorphic, must also be resolved.
+Frame slots and descriptors present a unique challenge as complete specialization of descriptors may require type parameters from both methods and classes.
 
 The underlying type of a polymorphic field, and therefore its data representation as part of its static shape, cannot be determined statically.
 When the field translation scheme is supplied with type arguments, we can generate the specialized monomorphic field.
@@ -1610,9 +1611,9 @@ For the specialization \scalainline{Cons[Int]}, the \scalainline{head} field is 
 The storage types of fields may differ between specializations; they are all referenced by the same symbol.
 This allows the access of fields between specializations to remain opaque from the perspective of client code.
 
-The layout of the shape with respect call targets remains unchanged.
+The layout of the shape with respect to call targets remains unchanged.
 Call targets are duplicated across each shape of a specialized class definition.
-Because method definitions potentially contain polymorphic code that relies on class type parameters, this duplication is necessary.
+Because method definitions potentially contain polymorphic code that relies on class type parameters, this duplication is necessary for each class-specialized call target to have the correct frame descriptor.
 
 Each specialized shape contains fields that store the type argument of their specialization.
 While these remain constant throughout all instances of the same specialized shape, allowing us to store the type arguments on shapes directly.
