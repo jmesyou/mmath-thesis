@@ -1007,7 +1007,7 @@ For this demonstration, we will show one of the natural benefits of executing TA
 A polymorphic method invocation in TASTy is always an \scalainline{Apply} tree node where the qualifier is a \scalainline{TypeApply}.
 The \scalainline{TypeApply} tree node represents a \textit{type application}.
 Without delving into great detail, a type application is the process of producing a monomorphic method from a polymorphic method by matching type parameters to type arguments.
-Analogous to normal applications, which accept values as arguments and produce values as results, type applications accept types as arguments and produce types as a result.
+Analogous to normal applications, which accept values as arguments and produce values as results, type applications accept types as arguments and produce values as a result.
 With this in mind, \scalainline{TypeApply} nodes are a naturally suitable site to invoke and create specializations for methods.
 
 \begin{figure}[!htb]
@@ -1129,7 +1129,7 @@ After the partial evaluation, the typed dispatch mechanism is also eliminated, a
 
 The data layout of a method is given by the frame descriptor of its root node.
 A specialized method will have a specialized frame descriptor.
-Specialized frame descriptors will have the appropriate primitive frame slot kinds assigned to value definitions that have their polymorphic resolve to a primitive type.
+Specialized frame descriptors will have the appropriate primitive frame slot kinds assigned to value definitions that have their polymorphic types resolved to a primitive type.
 Therefore, the core principle behind method specialization is generating a \scalainline{TermNode} tree from a \scalainline{Term} tree using a specialized frame descriptor.
 Apart from extensions given earlier in this section, the parsing of \scalainline{Term} nodes does not differ from their monomorphic counterparts.
 
@@ -1320,7 +1320,7 @@ Figure \ref{impl:list-subset} is an example where a type application occurs insi
 \end{figure}
 
 We introduce a subclass of a type node that retrieves method type arguments stored on the frame.
-Because type parameters are treated the same manner as value parameters, they are stored in the method's frame.
+Because type parameters are treated in the same manner as value parameters, they are stored in the method's frame.
 The resolution of type arguments which are parameters from a method, follows the same mechanism as the resolution of local variables.
 This mechanism enjoys the same Truffle virtualization optimizations of value reads when propagating type arguments interprocedurally.
 In turn, subsequent invocations of polymorphic methods that have type parameters stored on the frame will partial evaluate their specializations.
