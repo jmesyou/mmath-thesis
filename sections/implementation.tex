@@ -223,7 +223,6 @@ In the next section, we detail how to organize call targets in Truffle by using 
 		body:        List[Statement]
 	) extends Definition
 		\end{minted}
-	\caption{Pseudocode of a \scalainline{ClassDef}.}
 	\label{recall:classdef}
 	\end{subfigure}
 	\hfill
@@ -237,15 +236,15 @@ In the next section, we detail how to organize call targets in Truffle by using 
 		vtable:  Map[MethodSignature, Symbol]
 	)
 	\end{minted}
-	\caption{Pseudocode of a shape for a \scalainline{ClassDef}.}
 	\label{impl:classshape}
 	\end{subfigure}
+	\caption{Pseudocode of \scalainline{ClassDef} and a shape for a \scalainline{ClassDef}.}
 \end{figure}
 
 \scalainline{ClassDef} tree defines the layout of an object in TASTy.
 The layout of an object dictates the values that an object instance stores and the methods that can be invoked on an object instance.
 The data layout of an object in a Truffle interpreter is described by a \textit{shape}\cite{self:prototypes,truffle:object-model}.
-Shapes are a language-agnostic model for defining the properties of an object instance in Truffle.
+A Shape is a language-agnostic model for defining the properties of an object instance in Truffle.
 A property in a shape describes one member of an object instance; it has an identifier and a value.
 A Truffle object instance consists of \textit{object storage}, which contains instance-specific data and its shape.
 Shapes map property identifiers to object storage locations; guest languages interface with object storage indirectly through properties.
@@ -492,7 +491,7 @@ When the type of receiver has not been seen in the inline cache, an additional c
 Because a polymorphic inline cache dispatches direct calls based on the type of the receiver value seen, Graal can speculatively optimize the call site with the assumption that the receiver is always the same type and, therefore, the call target does change between invocations.
 Furthermore, this allows the calls site to be inlined, allowing a feedback loop of intraprocedural optimizations\cite{conditional-constant-prop}\cite{variable-congruence} to propagate through the inlined tree.
 One important aspect to note is that the size of a polymorphic inline cache must be kept reasonable such that the cost of searching the cache should not defeat the speedup afforded by using the cache.
-If the size of the cache exceeds the limit set, the caller node is rewritten to use an indirect call, as the cost of inline cache lookup will outweigh the penalty of an indirect call. 
+If the size of the cache exceeds the limit set, the caller node is rewritten to use an indirect call, as the cost of inline cache lookup will be greater than the penalty of an indirect call. 
 
 \begin{figure}[!htb]
 	\centering

@@ -129,14 +129,16 @@ The benchmark for \scalainline{ArrayBuffer.append} inserts a sequence of element
 This benchmark stresses array memory movement.
 Each time the backing array is too small for an additional element, the backing array is resized by creating a new larger array and copying over existing elements.
 This resizing operation (\scalainline{ensureSize} in \ref{example:arraybuffer-benchmark}) dominates the time spent in execution.
-The performance of array creation.
-Because of this bottleneck, executing compiled Scala bytecode on GraalVM is up to 4 times faster than the monomorphic and polymorphic interpreter.
+Appending to an array buffer is on average $1.5$ times faster on the polymorphic interpreter than the monomorphic interpreter.
+Executing compiled Scala bytecode on GraalVM can be up to $4$ times faster than the monomorphic and polymorphic interpreter for smaller input sizes.
+As input size grows, the gap in throughput between GraalVM and polymorphic TastyTruffle narrows.
 
 The \scalainline{ArrayBuffer.contains} benchmark tests array operations in isolation. 
 The benchmark checks an array buffer for the existence of an element.
 It exercises a polymorphic array access followed by a polymorphic equality operation (e.g. \scalainline{(x: T) == (y: T)}).
 A polymorphic equality operator has dispatched the \javainline{equals} method of its left-hand side argument.
 This results in boxing one or both arguments in equality checks between polymorphic values.
+The specialization of the \scalainline{List.head} field and the subsequent specialization of \scalainline{Any.==} into the appropriate value equivalent resulted in an average $4$ times greater throughput for long values, $3.6$ times greater throughput  speedup for double values, and $3x$ times greater throughput for int values.
 
 \scalainline{ArrayBuffer.reverse} reverses the order of the elements in the array buffer.
 Reversing an array is performance-bound by the loop of swap operations.
@@ -158,11 +160,12 @@ A swap operation (given in \ref{impl:swap}) consists of two polymorphic value de
 The performance of the \scalainline{reverse} microbenchmark proved to be the most challenging benchmark in terms of matching handwritten monomorphic code in \cite{scala:miniboxing}.
 The performance of each type variant of \scalainline{reverse} is roughly equal in the monomorphic interpreter and Scala and GraalVM; 
 Neither implementation can specialize the polymorphic reads and array accesses.
-The polymorphic interpreter has up to $25$ times more throughput than the monomorphic interpreter and GraalVM.
+The polymorphic interpreter has up to $28$ times more throughput than the monomorphic interpreter and GraalVM.
 
 The \scalainline{List.append} benchmark constructs a list from an array.
 As the creation of polymorphic instances is predominantly memory-bound and not compute-bound, there is no significant improvement in throughput from specialization.
 In fact, executing Scala via Java bytecode on the JVM results in substantially greater throughput.
+Appending to a list on Graal is up to $8$ faster than the monomorphic and polymorphic interpreter.
 
 \scalainline{List.contains} exercises the same performance-bottlenecks as \scalainline{ArrayBuffer.contains}, except under the context of random heap access for a list.
 The execution of \scalainline{List.contains} on the polymorphic interpreter is roughly $50\%$ faster than on the monomorphic interpreter.
@@ -195,8 +198,9 @@ The semantics of computing hash codes between the same values with different typ
 
 
 Figure \ref{impl:anyHash} gives the implementation of the \scalainline{anyHash} function.
-In the \scalainline{Int} and \scalainline{Long} invocations of \scalainline{List.hashCode}, the polymorphic interpreter keeps parity with the implementation of Scala on GraalVM.
-In the \scalainline{Double} invocation of \scalainline{List.hashCode}, the throughput on the polymorphic interpreter is $2.5$ times greater than that of the implementation of the monomorphic interpreter.
+
+In every polymorphic invocation of \scalainline{List.hashCode}, the improvement throughput on the polymorphic interpreter peaks at $2.5$ times that of the monomorphic interpreter.
+With the exception of \scalainline{List.hashCode[Double]}, the throughput on the polymorphic interpreter matches the implementation of Scala on GraalVM.
 
 \section{Discussion}
 
