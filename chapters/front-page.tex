@@ -1,0 +1,135 @@
+% T I T L E   P A G E
+% -------------------
+% Last updated June 14, 2017, by Stephen Carr, IST-Client Services
+% The title page is counted as page `i' but we need to suppress the
+% page number. Also, we don't want any headers or footers.
+\pagestyle{empty}
+\pagenumbering{roman}
+
+% Source-guided Ad-hoc Data Representations in a Managed Runtime
+% The contents of the title page are specified in the "titlepage"
+% environment.
+\begin{titlepage}
+        \begin{center}
+        \vspace*{1.0cm}
+
+        \Huge
+        {\bf Specializing Scala with Truffle}
+
+        \vspace*{1.0cm}
+
+        \normalsize
+        by \\
+
+        \vspace*{1.0cm}
+
+        \Large
+        James You \\
+
+        \vspace*{3.0cm}
+
+        \normalsize
+        A thesis \\
+        presented to the University of Waterloo \\ 
+        in fulfillment of the \\
+        thesis requirement for the degree of \\
+        Master of Mathematics \\
+        in \\
+        Computer Science \\
+
+        \vspace*{2.0cm}
+
+        Waterloo, Ontario, Canada, 2022 \\
+
+        \vspace*{1.0cm}
+
+        \copyright\ James You 2022 \\
+        \end{center}
+\end{titlepage}
+
+% The rest of the front pages should contain no headers and be numbered using Roman numerals starting with `ii'
+\pagestyle{plain}
+\setcounter{page}{2}
+
+\cleardoublepage % Ends the current page and causes all figures and tables that have so far appeared in the input to be printed.
+% In a two-sided printing style, it also makes the next page a right-hand (odd-numbered) page, producing a blank page if necessary.
+
+% D E C L A R A T I O N   P A G E
+% -------------------------------
+  % The following is a sample Delaration Page as provided by the GSO
+  % December 13th, 2006.  It is designed for an electronic thesis.
+  \noindent
+I hereby declare that I am the sole author of this thesis. This is a true copy of the thesis, including any required final revisions, as accepted by my examiners.
+
+  \bigskip
+  
+  \noindent
+I understand that my thesis may be made electronically available to the public.
+
+\cleardoublepage
+
+% A B S T R A C T
+% ---------------
+
+\begin{center}\textbf{Abstract}\end{center}
+
+Scala is a generic object-oriented programming language with higher-order abstractions. 
+Programming abstractions in Scala exemplify reusability and extensibility in the context of type safety.
+In particular, generic programming allows user-defined data structures to behave identically irrespective of the types of their values while remaining free of type errors.
+
+The implementation of reusability in Scala comes at a cost; The standard implementation of Scala compiles to Java bytecode, where type erasure significantly reduces Scala program type information to create compatible Java bytecode.
+Consequently, autoboxing, operations needed when using primitive values in a generic context, are unnecessarily introduced into the final program. 
+The current state-of-the-art techniques for eliminating boxing and achieving optimal data representations at runtime, known as specialization, rely on static program analysis.
+Such techniques must mitigate the problem of code duplication as static optimizations cannot use runtime information to best select which data structures to specialize.
+
+We propose a new approach to the specialization of Scala programs.
+Our approach integrates type information from a high-level source-like input language with the mechanisms of just-in-time compilation.
+We propose an ad-hoc specialization mechanism using a whole program approach; Specializations of data structures are created based on concrete type arguments.
+In our approach, specialized objects are compatible with non-specialized code.
+We use Truffle, a framework that simplifies the implementation of interpreters and just-in-time compilers, to implement an experimental research prototype.
+
+We demonstrate that our approach is viable and produces improvements in throughput for simplified implementations of real-world Scala programs.
+While these programs are simple, it is still challenging for state-of-the-art approaches to specialize optimally.
+We show that our approach can improve performance by an order of magnitude in the context of polymorphic data structures and methods that use bulk storage.
+We compare the results of our approach to our interpreter without specialization and compiled Scala on GraalVM, a state-of-art Java Virtual Machine.
+
+\cleardoublepage
+
+% A C K N O W L E D G E M E N T S
+% -------------------------------
+
+\begin{center}\textbf{Acknowledgements}\end{center}
+
+REDACTED
+\cleardoublepage
+
+% T A B L E   O F   C O N T E N T S
+% ---------------------------------
+\renewcommand\contentsname{Table of Contents}
+\tableofcontents
+\cleardoublepage
+\phantomsection    % allows hyperref to link to the correct page
+
+% L I S T   O F   T A B L E S
+% ---------------------------
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+\cleardoublepage
+\phantomsection		% allows hyperref to link to the correct page
+
+% L I S T   O F   F I G U R E S
+% -----------------------------
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+\cleardoublepage
+\phantomsection		% allows hyperref to link to the correct page
+
+% GLOSSARIES (Lists of definitions, abbreviations, symbols, etc. provided by the glossaries-extra package)
+% -----------------------------
+\printglossaries
+\cleardoublepage
+\phantomsection		% allows hyperref to link to the correct page
+
+% Change page numbering back to Arabic numerals
+\pagenumbering{arabic}
+

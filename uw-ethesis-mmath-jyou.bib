@@ -1,0 +1,1060 @@
+@book{java:vm-spec,
+	title={The Java Virtual Machine Specification, Java SE 7 Edition: Java Virt Mach Spec Java\_3},
+	author={Lindholm, Tim and Yellin, Frank and Bracha, Gilad and Buckley, Alex},
+	year={2013},
+	publisher={Addison-Wesley}
+}
+
+
+@inproceedings{truffle:partial-eval,
+	author = {W\"{u}rthinger, Thomas and Wimmer, Christian and Humer, Christian and W\"{o}\ss{}, Andreas and Stadler, Lukas and Seaton, Chris and Duboscq, Gilles and Simon, Doug and Grimmer, Matthias},
+	title = {Practical Partial Evaluation for High-Performance Dynamic Language Runtimes},
+	year = {2017},
+	isbn = {9781450349888},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3062341.3062381},
+	doi = {10.1145/3062341.3062381},
+	abstract = {Most high-performance dynamic language virtual machines duplicate language semantics in the interpreter, compiler, and runtime system. This violates the principle to not repeat yourself. In contrast, we define languages solely by writing an interpreter. The interpreter performs specializations, e.g., augments the interpreted program with type information and profiling information. Compiled code is derived automatically using partial evaluation while incorporating these specializations. This makes partial evaluation practical in the context of dynamic languages: It reduces the size of the compiled code while still compiling all parts of an operation that are relevant for a particular program. When a speculation fails, execution transfers back to the interpreter, the program re-specializes in the interpreter, and later partial evaluation again transforms the new state of the interpreter to compiled code. We evaluate our approach by comparing our implementations of JavaScript, Ruby, and R with best-in-class specialized production implementations. Our general-purpose compilation system is competitive with production systems even when they have been heavily optimized for the one language they support. For our set of benchmarks, our speedup relative to the V8 JavaScript VM is 0.83x, relative to JRuby is 3.8x, and relative to GNU R is 5x.},
+	booktitle = {Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+	pages = {662–676},
+	numpages = {15},
+	keywords = {language implementation, optimization, partial evaluation, virtual machine, dynamic languages},
+	location = {Barcelona, Spain},
+	series = {PLDI 2017}
+}
+
+@inproceedings{truffle:object-model,
+	address = {Cracow, Poland},
+	title = {An {Object} {Storage} {Model} for the {Truffle} {Language} {Implementation} {Framework}},
+	isbn = {978-1-4503-2926-2},
+	url = {http://dl.acm.org/citation.cfm?doid=2647508.2647517},
+	doi = {10.1145/2647508.2647517},
+	abstract = {Trufﬂe is a Java-based framework for developing high-performance language runtimes. Language implementers aiming at developing new runtimes have to design all the runtime mechanisms for managing dynamically typed objects from scratch. This not only leads to potential code duplication, but also impacts the actual time needed to develop a fully-ﬂedged runtime.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 2014 {International} {Conference} on {Principles} and {Practices} of {Programming} on the {Java} {Platform} {Virtual} machines, {Languages}, and {Tools} - {PPPJ} '14},
+	publisher = {ACM Press},
+	author = {Wöß, Andreas and Wirth, Christian and Bonetta, Daniele and Seaton, Chris and Humer, Christian and Mössenböck, Hanspeter},
+	year = {2014},
+	pages = {133--144},
+	file = {Wöß et al. - 2014 - An Object Storage Model for the Truffle Language.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/5PGR6CQK/Wöß et al. - 2014 - An Object Storage Model for the Truffle Language I.pdf:application/pdf},
+}
+
+
+@phdthesis{truffle:thesis,
+	address = {Linz, Austria},
+	title = {Truffle {DSL}: {A} {DSL} for {Building} {Self}-{Optimizing} {AST} {Interpreters}},
+	shorttitle = {Truffle {DSL}},
+	abstract = {Self-optimizing AST interpreters dynamically adapt to the provided input for faster execution. This adaptation includes initial tests of the input, changes to AST nodes, and insertion of guards which ensure that assumptions still hold. Such specialization and speculation are essential for the performance of dynamic programming languages such as JavaScript, Ruby, and R. This thesis describes a declarative domain-speciﬁc language (DSL) that greatly simpliﬁes writing self-optimizing AST interpreters. The DSL supports specialization of operations based on types of the input arguments and other properties. The declared specializations are ﬂexible enough to express inline caches, a cornerstone of modern compiler optimizations.},
+	language = {en},
+	school = {Johannes Kepler University Linz},
+	author = {Humer, Christian},
+	year = {2016},
+	note = {Publisher: Unpublished},
+	file = {Humer - 2016 - Truffle DSL.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/RI3VMB8S/Humer - 2016 - Truffle DSL A DSL for Building Self-Optimizing AS.pdf:application/pdf},
+}
+
+@phdthesis{trufflyruby:specialization,
+	title = {Specialising {Dynamic} {Techniques} for {Implementing} the {Ruby} {Programming} {Language} {\textbar} {Research} {Explorer} {\textbar} {The} {University} of {Manchester}},
+	url = {https://www.research.manchester.ac.uk/portal/en/theses/specialising-dynamic-techniques-for-implementing-the-ruby-programming-language(0899248b-bbec-4d4c-9507-f775f023407c).html},
+	language = {en},
+	urldate = {2022-07-20},
+	author = {Seaton, Chris},
+	file = {Snapshot:/home/jyou/snap/zotero-snap/common/Zotero/storage/3F9DSHU4/specialising-dynamic-techniques-for-implementing-the-ruby-programming-language(0899248b-bbec-4d.html:text/html},
+}
+
+@inproceedings{truffleruby:object-model,
+	author = {Daloze, Benoit and Marr, Stefan and Bonetta, Daniele and Mössenböck, Hanspeter},
+	year = {2016},
+	month = {11},
+	pages = {},
+	title = {Efficient and Thread-Safe Objects for Dynamically-Typed Languages},
+	doi = {10.1145/2983990.2984001}
+}
+
+
+@article{mechanical-eval-of-exprs,
+	title={The Mechanical Evaluation of Expressions},
+	author={Peter J. Landin},
+	journal={Comput. J.},
+	year={1964},
+	volume={6},
+	pages={308-320}
+}
+
+@inproceedings{escape-analysis,
+	author = {Kotzmann, Thomas and M\"{o}ssenb\"{o}ck, Hanspeter},
+	title = {Escape Analysis in the Context of Dynamic Compilation and Deoptimization},
+	year = {2005},
+	isbn = {1595930477},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/1064979.1064996},
+	doi = {10.1145/1064979.1064996},
+	abstract = {In object-oriented programming languages, an object is said to escape the method or thread in which it was created if it can also be accessed by other methods or threads. Knowing which objects do not escape allows a compiler to perform aggressive optimizations.This paper presents a new intraprocedural and interprocedural algorithm for escape analysis in the context of dynamic compilation where the compiler has to cope with dynamic class loading and deoptimization. It was implemented for Sun Microsystems' Java HotSpot™ client compiler and operates on an intermediate representation in SSA form. We introduce equi-escape sets for the efficient propagation of escape information between related objects. The analysis is used for scalar replacement of fields and synchronization removal, as well as for stack allocation of objects and fixed-sized arrays. The results of the interprocedural analysis support the compiler in inlining decisions and allow actual parameters to be allocated on the caller stack.Under certain circumstances, the Java HotSpot™ VM is forced to stop executing a method's machine code and transfer control to the interpreter. This is called deoptimization. Since the interpreter does not know about the scalar replacement and synchronization removal performed by the compiler, the deoptimization framework was extended to reallocate and relock objects on demand.},
+	booktitle = {Proceedings of the 1st ACM/USENIX International Conference on Virtual Execution Environments},
+	pages = {111–120},
+	numpages = {10},
+	keywords = {optimization, just-in-time compilation, stack allocation, deoptimization, escape analysis, synchronization removal, Java, scalar replacement},
+	location = {Chicago, IL, USA},
+	series = {VEE '05}
+}
+
+@inproceedings{scala:origins,
+	title={Scalable component abstractions},
+	author={Odersky, Martin and Zenger, Matthias},
+	booktitle={Proceedings of the 20th annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications},
+	pages={41--57},
+	year={2005}
+}
+
+
+@misc{scala:lang-spec,
+	title={The Scala language specification},
+	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Micheloud, Stphane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
+	year={2004},
+	publisher={Citeseer}
+}
+
+@article{scala:overview,
+	title={An overview of the Scala programming language},
+	author={Odersky, Martin and Altherr, Philippe and Cremet, Vincent and Emir, Burak and Maneth, Sebastian and Micheloud, St{\'e}phane and Mihaylov, Nikolay and Schinz, Michel and Stenman, Erik and Zenger, Matthias},
+	year={2004}
+}
+
+@inproceedings{scala:collections-optimization,
+	author = {Prokopec, Aleksandar and Leopoldseder, David and Duboscq, Gilles and W\"{u}rthinger, Thomas},
+	title = {Making Collection Operations Optimal with Aggressive JIT Compilation},
+	year = {2017},
+	isbn = {9781450355292},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/3136000.3136002},
+	doi = {10.1145/3136000.3136002},
+	abstract = {Functional collection combinators are a neat and widely accepted data processing abstraction. However, their generic nature results in high abstraction overheads -- Scala collections are known to be notoriously slow for typical tasks. We show that proper optimizations in a JIT compiler can widely eliminate overheads imposed by these abstractions. Using the open-source Graal JIT compiler, we achieve speedups of up to 20x on collection workloads compared to the standard HotSpot C2 compiler. Consequently, a sufficiently aggressive JIT compiler allows the language compiler, such as Scalac, to focus on other concerns. In this paper, we show how optimizations, such as inlining, polymorphic inlining, and partial escape analysis, are combined in Graal to produce collections code that is optimal with respect to manually written code, or close to optimal. We argue why some of these optimizations are more effectively done by a JIT compiler. We then identify specific use-cases that most current JIT compilers do not optimize well, warranting special treatment from the language compiler.},
+	booktitle = {Proceedings of the 8th ACM SIGPLAN International Symposium on Scala},
+	pages = {29–40},
+	numpages = {12},
+	keywords = {collections, JIT compilation, inlining, partial escape analysis, functional combinators, data-parallelism, scalar replacement, iterators, program optimization},
+	location = {Vancouver, BC, Canada},
+	series = {SCALA 2017}
+}
+
+@inproceedings{scala:calculus,
+	title={A core calculus for Scala type checking},
+	author={Cremet, Vincent and Garillot, Fran{\c{c}}ois and Lenglet, Sergue{\"\i} and Odersky, Martin},
+	booktitle={International Symposium on Mathematical Foundations of Computer Science},
+	pages={1--23},
+	year={2006},
+	organization={Springer}
+}
+
+
+@book{scala:specialization,
+	address = {Lausanne},
+	title = {Compiling {Scala} for {Performance}},
+	abstract = {Scala is a new programming language bringing together object-oriented and functional programming. Its defining features are uniformity and extensibility. Scala offers great flexibility for programmers, allowing them to grow the language through libraries. Oftentimes what seems like a language feature is in fact implemented in a library, effectively giving programmers the power of language designers. The downside of this flexibility is that familiar looking code may hide unexpected performance costs. It is important for Scala compilers to bring down this cost as much as possible. We identify several areas of impact for Scala performance: higher-order functions and closures, and generic containers used with primitive types. We present two complementary approaches for improving performance in these areas: optimizations and specialization. Compiler optimization can bring down the cost through a combination of aggressive inlining of higher-order functions, an extended version of copy-propagation and dead-code elimination. Both anonymous functions and boxing can be eliminated by this approach. We show on a number of benchmarks that these language features can be up to 5 times faster when properly optimized, on current day JVMs. We propose a new approach to compiling parametric polymorphism for performance at primitive types. We mix a homogeneous translation scheme with user-directed specialization for primitive types. Type parameters may be annotated to require specialization of code depending on them. We propose definition-site specialization for primitive types, achieving separate compilation and no boxing when both the definition and call site are specialized. Specialized classes are compatible with unspecialized code, and specialization agnostic code can work with specialized instances, meaning that specialization is opportunistic. We present a formalism of a small subset of Scala with specialization and prove that specialization preserves types. We implemented this translation in the Scala compiler and report on improvements on a set of benchmarks, showing that specialization can make programs more than two times faster},
+	language = {eng},
+	publisher = {EPFL},
+	editor = {Dragos, Iulian},
+	year = {2010},
+	doi = {10.5075/epfl-thesis-4820},
+	keywords = {boxing, compiler, generics, optimization, parametric polymorphism, Scala, specialization},
+	file = {Full Text:/home/jyou/snap/zotero-snap/common/Zotero/storage/8C3WJ4FA/Dragos - 2010 - Compiling Scala for Performance.pdf:application/pdf},
+}
+
+@inproceedings{scala:miniboxing,
+	address = {Indianapolis, Indiana, USA},
+	title = {Miniboxing: {Improving} the {Speed} to {Code} {Size} {Tradeoff} in {Parametric} {Polymorphism} {Translations}},
+	isbn = {978-1-4503-2374-1},
+	shorttitle = {Miniboxing},
+	url = {http://dl.acm.org/citation.cfm?doid=2509136.2509537},
+	doi = {10.1145/2509136.2509537},
+	abstract = {Parametric polymorphism enables code reuse and type safety. Underneath the uniform interface exposed to programmers, however, its low level implementation has to cope with inherently non-uniform data: value types of different sizes and semantics (bytes, integers, ﬂoating point numbers) and reference types (pointers to heap objects). On the Java Virtual Machine, parametric polymorphism is currently translated to bytecode using two competing approaches: homogeneous and heterogeneous. Homogeneous translation requires boxing, and thus introduces indirect access delays. Heterogeneous translation duplicates and adapts code for each value type individually, producing more bytecode. Therefore bytecode speed and size are at odds with each other. This paper proposes a novel translation that signiﬁcantly reduces the bytecode size without affecting the execution speed. The key insight is that larger value types (such as integers) can hold smaller ones (such as bytes) thus reducing the duplication necessary in heterogeneous translations. In our implementation, on the Scala compiler, we encode all primitive value types in long integers. The resulting bytecode approaches the performance of monomorphic code, matches the performance of the heterogeneous translation and obtains speedups of up to 22x over the homogeneous translation, all with modest increases in size.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 2013 {ACM} {SIGPLAN} {International} {Conference} on {Object} {Oriented} {Programming} {Systems} {Languages} \& {Applications} - {OOPSLA} '13},
+	publisher = {ACM Press},
+	author = {Ureche, Vlad and Talau, Cristian and Odersky, Martin},
+	year = {2013},
+	pages = {73--92},
+	file = {Ureche et al. - 2013 - Miniboxing Improving the Speed to Code Size Trade.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/IKYA8MWX/Ureche et al. - 2013 - Miniboxing Improving the Speed to Code Size Trade.pdf:application/pdf},
+}
+
+@article{scala:dacapo,
+	title = {Da capo con scala: design and analysis of a scala benchmark suite for the java virtual machine},
+	volume = {46},
+	issn = {0362-1340},
+	shorttitle = {Da capo con scala},
+	url = {https://doi.org/10.1145/2076021.2048118},
+	doi = {10.1145/2076021.2048118},
+	abstract = {Originally conceived as the target platform for Java alone, the Java Virtual Machine (JVM) has since been targeted by other languages, one of which is Scala. This trend, however, is not yet reflected by the benchmark suites commonly used in JVM research. In this paper, we thus present the design and analysis of the first full-fledged benchmark suite for Scala. We furthermore compare the benchmarks contained therein with those from the well-known DaCapo 9.12 benchmark suite and show where the differences are between Scala and Java code---and where not.},
+	number = {10},
+	urldate = {2022-09-10},
+	journal = {ACM SIGPLAN Notices},
+	author = {Sewe, Andreas and Mezini, Mira and Sarimbekov, Aibek and Binder, Walter},
+	month = oct,
+	year = {2011},
+	keywords = {benchmarks, dynamic metrics, java, Scala},
+	pages = {657--676},
+}
+
+@book{java:lang-spec,
+	title={The Java language specification},
+	author={Gosling, James and Joy, Bill and Steele, Guy and Bracha, Gilad},
+	year={2000},
+	publisher={Addison-Wesley Professional}
+}
+
+@article{java:escape-analysis,
+	author = {Blanchet, Bruno},
+	title = {Escape Analysis for JavaTM: Theory and Practice},
+	year = {2003},
+	issue_date = {November 2003},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {25},
+	number = {6},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/945885.945886},
+	doi = {10.1145/945885.945886},
+	abstract = {Escape analysis is a static analysis that determines whether the lifetime of data may exceed its static scope.This paper first presents the design and correctness proof of an escape analysis for JavaTM. This analysis is interprocedural, context sensitive, and as flow-sensitive as the static single assignment form. So, assignments to object fields are analyzed in a flow-insensitive manner. Since Java is an imperative language, the effect of assignments must be precisely determined. This goal is achieved thanks to our technique using two interdependent analyses, one forward, one backward. We introduce a new method to prove the correctness of this analysis, using aliases as an intermediate step. We use integers to represent the escaping parts of values, which leads to a fast and precise analysis.Our implementation [Blanchet 1999], which applies to the whole Java language, is then presented. Escape analysis is applied to stack allocation and synchronization elimination. In our benchmarks, we stack allocate 13% to 95% of data, eliminate more than 20% of synchronizations on most programs (94% and 99% on two examples) and get up to 43% runtime decrease (21% on average). Our detailed experimental study on large programs shows that the improvement comes more from the decrease of the garbage collection and allocation times than from improvements on data locality, contrary to what happened for ML. This comes from the difference in the garbage collectors.},
+	journal = {ACM Trans. Program. Lang. Syst.},
+	month = {nov},
+	pages = {713–775},
+	numpages = {63},
+	keywords = {static analysis, optimization, synchronization elimination, Java, stack allocation}
+}
+
+@inproceedings{java:partial-escape-analysis,
+	author = {Stadler, Lukas and W\"{u}rthinger, Thomas and M\"{o}ssenb\"{o}ck, Hanspeter},
+	title = {Partial Escape Analysis and Scalar Replacement for Java},
+	year = {2014},
+	isbn = {9781450326704},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/2544137.2544157},
+	doi = {10.1145/2544137.2544157},
+	abstract = {Escape Analysis allows a compiler to determine whether an object is accessible outside the allocating method or thread. This information is used to perform optimizations such as Scalar Replacement, Stack Allocation and Lock Elision, allowing modern dynamic compilers to remove some of the abstractions introduced by advanced programming models.The all-or-nothing approach taken by most Escape Analysis algorithms prevents all these optimizations as soon as there is one branch where the object escapes, no matter how unlikely this branch is at runtime.This paper presents a new, practical algorithm that performs control flow sensitive Partial Escape Analysis in a dynamic Java compiler. It allows Escape Analysis, Scalar Replacement and Lock Elision to be performed on individual branches. We implemented the algorithm on top of Graal, an open-source Java just-in-time compiler, and it performs well on a diverse set of benchmarks.In this paper, we evaluate the effect of Partial Escape Analysis on the DaCapo, ScalaDaCapo and SpecJBB2005 benchmarks, in terms of run-time, number and size of allocations and number of monitor operations. It performs particularly well in situations with additional levels of abstraction, such as code generated by the Scala compiler. It reduces the amount of allocated memory by up to 58.5%, and improves performance by up to 33%.},
+	booktitle = {Proceedings of Annual IEEE/ACM International Symposium on Code Generation and Optimization},
+	pages = {165–174},
+	numpages = {10},
+	keywords = {speculative optimization, java, escape analysis, virtual machine, just-in-time compilation, intermediate representation},
+	location = {Orlando, FL, USA},
+	series = {CGO '14}
+}
+
+@inproceedings{java:escape-analysis-optimizations,
+	author = {Kotzmann, Thomas and Mossenbock, Hanspeter},
+	title = {Run-Time Support for Optimizations Based on Escape Analysis},
+	year = {2007},
+	isbn = {0769527647},
+	publisher = {IEEE Computer Society},
+	address = {USA},
+	url = {https://doi.org/10.1109/CGO.2007.34},
+	doi = {10.1109/CGO.2007.34},
+	abstract = {The JavaTM programming language does not allow the programmer to influence memory management. An object is usually allocated on the heap and deallocated by the garbage collector when it is not referenced any longer. Under certain conditions, the virtual machine can allocate objects on the stack or eliminate their allocation via scalar replacement. However, even if the dynamic compiler guarantees that the conditions are fulfilled, the optimizations require support by the run-time environment. We implemented a new escape analysis algorithm for Sun Microsystems' Java HotSpotTM VM. The results are used to replace objects with scalar variables, to allocate objects on the stack, and to remove synchronization. This paper deals with the representation of optimized objects in the debugging information and with reallocation and garbage collection support for a safe execution of optimized methods. Assignments to fields of parameters that can refer to both stack and heap objects are associated with an extended write barrier which skips card marking for stack objects. The traversal of objects during garbage collection uses a wrapper that abstracts from stack objects and presents their pointer fields as root pointers to the garbage collector. When a previously compiled and currently executing method must be continued in the interpreter because dynamic class loading invalidates the machine code, execution is suspended and compiler optimizations are undone. Scalar-replaced objects are reallocated on the heap lazily when control returns to the invalidated method, whereas stack-allocated objects must be reallocated immediately before program execution resumes. After reallocation, objects for which synchronization was removed are relocked.},
+	booktitle = {Proceedings of the International Symposium on Code Generation and Optimization},
+	pages = {49–60},
+	numpages = {12},
+	series = {CGO '07}
+}
+
+@book{java:generics,
+	title={Java Generics and Collections: Speed Up the Java Development Process},
+	author={Naftalin, Maurice and Wadler, Philip},
+	year={2006},
+	publisher={" O'Reilly Media, Inc."}
+}
+
+@article{java:autoboxing,
+	title = {Autoboxing and {Unboxing} ({The} {Java}™ {Tutorials} {\textgreater} {Learning} the {Java} {Language} {\textgreater} {Numbers} and {Strings})},
+	journal = {https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html},
+	publisher={On-line Resources}
+}
+
+@inproceedings{java:hotspot,
+	title={The Java $\{$HotSpot™$\}$ Server Compiler},
+	author={Paleczny, Michael and Vick, Christopher and Click, Cliff},
+	booktitle={Java (TM) Virtual Machine Research and Technology Symposium (JVM 01)},
+	year={2001}
+}
+
+@inproceedings{java:sablevm,
+	title={Sable VM: A research framework for the efficient execution of java bytecode},
+	author={Gagnon, Etienne M and Hendren, Laurie J},
+	booktitle={Java Virtual Machine Research and Technology Symposium},
+	pages={27--40},
+	year={2001}
+}
+
+@article{java:jikesrvm,
+	title = {IBM Research {\textbar} Technical Paper Search {\textbar} The Jikes RVM Project: Building an Open Source Research Community},
+	copyright = {© Copyright IBM Corp. 2016},
+	abstract = {The The Jikes RVM Project: Building an Open Source Research Community report web page.},
+	month = Sep,
+	year = {2016},
+	file = {Snapshot:/home/jyou/snap/zotero-snap/common/Zotero/storage/J9RRFM6J/0df2d86d1d71cd6e85256f790050b4c3.html:text/html},
+}
+
+@inproceedings{java:graalvm,
+address = {Indianapolis, Indiana, USA},
+title = {One {VM} to {Rule} {Them} {All}},
+isbn = {978-1-4503-2472-4},
+url = {http://dl.acm.org/citation.cfm?doid=2509578.2509581},
+doi = {10.1145/2509578.2509581},
+abstract = {Building high-performance virtual machines is a complex and expensive undertaking; many popular languages still have low-performance implementations. We describe a new approach to virtual machine (VM) construction that amortizes much of the effort in initial construction by allowing new languages to be implemented with modest additional effort. The approach relies on abstract syntax tree (AST) interpretation where a node can rewrite itself to a more specialized or more general node, together with an optimizing compiler that exploits the structure of the interpreter. The compiler uses speculative assumptions and deoptimization in order to produce efﬁcient machine code. Our initial experience suggests that high performance is attainable while preserving a modular and layered architecture, and that new highperformance language implementations can be obtained by writing little more than a stylized interpreter.},
+language = {en},
+urldate = {2020-10-20},
+booktitle = {Proceedings of the 2013 {ACM} {International} {Symposium} on {New} ideas, {New} {Paradigms}, and {Reflections} on {Programming} \& {Software} - {Onward}! '13},
+publisher = {ACM Press},
+author = {Würthinger, Thomas and Wimmer, Christian and Wöß, Andreas and Stadler, Lukas and Duboscq, Gilles and Humer, Christian and Richards, Gregor and Simon, Doug and Wolczko, Mario},
+year = {2013},
+pages = {187--204},
+}
+
+@misc{java:reflection,
+	title = {Using {Java} {Reflection}},
+	url = {https://www.oracle.com/technical-resources/articles/java/javareflection.html},
+	urldate = {2022-08-11},
+}
+
+@inproceedings{java:performance-analysis,
+	address = {New York, NY, USA},
+	series = {{VEE} '06},
+	title = {Relative factors in performance analysis of {Java} virtual machines},
+	isbn = {978-1-59593-332-4},
+	url = {https://doi.org/10.1145/1134760.1134776},
+	doi = {10.1145/1134760.1134776},
+	abstract = {Many new Java runtime optimizations report relatively small, single-digit performance improvements. On modern virtual and actual hardware, however, the performance impact of an optimization can be influenced by a variety of factors in the underlying systems. Using a case study of a new garbage collection optimization in two different Java virtual machines, we show the relative effects of issues that must be taken into consideration when claiming an improvement. We examine the specific and overall performance changes due to our optimization and show how unintended side-effects can contribute to, and distort the final assessment. Our experience shows that VM and hardware concerns can generate variances of up to 9.5\% in whole program execution time. Consideration of these confounding effects is critical to a good, objective understanding of Java performance and optimization.},
+	urldate = {2022-09-05},
+	booktitle = {Proceedings of the 2nd international conference on {Virtual} execution environments},
+	publisher = {Association for Computing Machinery},
+	author = {Gu, Dayong and Verbrugge, Clark and Gagnon, Etienne M.},
+	month = jun,
+	year = {2006},
+	keywords = {caches, garbage collection, hardware counters, Java, performance analysis},
+	pages = {111--121}
+}
+
+@article{java:statistically-rigor-performance-analysis,
+	title = {Statistically rigorous java performance evaluation},
+	volume = {42},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/1297105.1297033},
+	doi = {10.1145/1297105.1297033},
+	abstract = {Java performance is far from being trivial to benchmark because it is affected by various factors such as the Java application, its input, the virtual machine, the garbage collector, the heap size, etc. In addition, non-determinism at run-time causes the execution time of a Java program to differ from run to run. There are a number of sources of non-determinism such as Just-In-Time (JIT) compilation and optimization in the virtual machine (VM) driven by timer-based method sampling, thread scheduling, garbage collection, and various. There exist a wide variety of Java performance evaluation methodologies usedby researchers and benchmarkers. These methodologies differ from each other in a number of ways. Some report average performance over a number of runs of the same experiment; others report the best or second best performance observed; yet others report the worst. Some iterate the benchmark multiple times within a single VM invocation; others consider multiple VM invocations and iterate a single benchmark execution; yet others consider multiple VM invocations and iterate the benchmark multiple times. This paper shows that prevalent methodologies can be misleading, and can even lead to incorrect conclusions. The reason is that the data analysis is not statistically rigorous. In this paper, we present a survey of existing Java performance evaluation methodologies and discuss the importance of statistically rigorous data analysis for dealing with non-determinism. We advocate approaches to quantify startup as well as steady-state performance, and, in addition, we provide the JavaStats software to automatically obtain performance numbers in a rigorous manner. Although this paper focuses on Java performance evaluation, many of the issues addressed in this paper also apply to other programming languages and systems that build on a managed runtime system.},
+	number = {10},
+	urldate = {2022-09-06},
+	journal = {ACM SIGPLAN Notices},
+	author = {Georges, Andy and Buytaert, Dries and Eeckhout, Lieven},
+	month = oct,
+	year = {2007},
+	keywords = {benchmarking, data analysis, java, methodology, statistics},
+	pages = {57--76}
+}
+
+@article{java:agesen-type-params,
+	title = {Adding type parameterization to the {Java} language},
+	volume = {32},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/263700.263720},
+	doi = {10.1145/263700.263720},
+	abstract = {Although the Java programming language has achieved widespread acceptance, one feature that seems sorely missed is the ability to use type parameters (as in Ada generics, C++ templates, and ML polymorphic functions or data types) to allow a general concept to be instantiated to one or more specific types. In this paper, we propose parameterized classes and interfaces in which the type parameter may be constrained to either implement a given interface or extend a given class. This design allows the body of a parameterized class to refer to methods on objects of the parameter type, without introducing any new type relations into the language. We show that these Java extensions may be implemented by expanding parameterized classes at class load time, without any extension or modification to existing Java bytecode, verifier or bytecode interpreter.},
+	number = {10},
+	urldate = {2022-09-02},
+	journal = {ACM SIGPLAN Notices},
+	author = {Agesen, Ole and Freund, Stephen N. and Mitchell, John C.},
+	month = oct,
+	year = {1997},
+	pages = {49--65},
+}
+
+@inproceedings{java:pizza,
+	address = {New York, NY, USA},
+	series = {{POPL} '97},
+	title = {Pizza into {Java}: translating theory into practice},
+	isbn = {978-0-89791-853-4},
+	shorttitle = {Pizza into {Java}},
+	url = {https://doi.org/10.1145/263699.263715},
+	doi = {10.1145/263699.263715},
+	abstract = {Pizza is a strict superset of Java that incorporates three ideas from the academic community: parametric polymorphism, higher-order functions, and algebraic data types. Pizza is defined by translation into Java and compiles into the Java Virtual Machine, requirements which strongly constrain the design space. Nonetheless, Pizza fits smoothly to Java, with only a few rough edges.},
+	urldate = {2022-09-05},
+	booktitle = {Proceedings of the 24th {ACM} {SIGPLAN}-{SIGACT} symposium on {Principles} of programming languages},
+	publisher = {Association for Computing Machinery},
+	author = {Odersky, Martin and Wadler, Philip},
+	month = jan,
+	year = {1997},
+	pages = {146--159},
+}
+
+@article{java:odersky-type-params,
+	author = {Bracha, Gilad and Odersky, Martin and Stoutamire, David and Wadler, Philip},
+	title = {Making the Future Safe for the Past: Adding Genericity to the Java Programming Language},
+	year = {1998},
+	issue_date = {Oct. 1998},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {33},
+	number = {10},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286957},
+	doi = {10.1145/286942.286957},
+	abstract = {We present GJ, a design that extends the Java programming language with generic types and methods. These are both explained and implemented by translation into the unextended language. The translation closely mimics the way generics are emulated by programmers: it erases all type parameters, maps type variables to their bounds, and inserts casts where needed. Some subtleties of the translation are caused by the handling of overriding.GJ increases expressiveness and safety: code utilizing generic libraries is no longer buried under a plethora of casts, and the corresponding casts inserted by the translation are guaranteed to not fail.GJ is designed to be fully backwards compatible with the current Java language, which simplifies the transition from non-generic to generic programming. In particular, one can retrofit existing library classes with generic interfaces without changing their code.An implementation of GJ has been written in GJ, and is freely available on the web.},
+	journal = {SIGPLAN Not.},
+	month = {oct},
+	pages = {183–200},
+	numpages = {18}
+}
+
+
+@article{java:nextgen,
+	title = {Compatible genericity with run-time types for the {Java} programming language},
+	volume = {33},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286958},
+	doi = {10.1145/286942.286958},
+	abstract = {The most serious impediment to writing substantial programs in the Java\&trade; programming language is the lack of a gentricity mechanism for abstracting classes and methods with respect to type. During the past two years, several research groups have developed Java extensions that support various forms of genericity, but none has succeeded in accommodating general type parameterization (akin to Java arrays) while retaining compatibility with the existing. Java Virtual Machine. In this paper, we explain how to support general type parameterization---including both non-variant and covariant subtyping---on top of the existing Java Virtual Machine at the cost of a larger code footprint and the forwarding of some method calls involving parameterized classes and methods. Our language extension is forward and backward compatible with the Java 1.2 language and run-time environment: programs in the extended language will run on existing Java 1.2 virtual machines (relying only on the unparameterized Java core libraries) and all existing Java 1.2 programs have the same binary representation and semantics (behavior) in the extended language.},
+	number = {10},
+	urldate = {2022-09-06},
+	journal = {ACM SIGPLAN Notices},
+	author = {Cartwright, Robert and Steele, Guy L.},
+	month = oct,
+	year = {1998},
+	pages = {201--215},
+}
+
+@article{java:gj,
+	author = {Bracha, Gilad and Odersky, Martin and Stoutamire, David and Wadler, Philip},
+	title = {Making the Future Safe for the Past: Adding Genericity to the Java Programming Language},
+	year = {1998},
+	issue_date = {Oct. 1998},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {33},
+	number = {10},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/286942.286957},
+	doi = {10.1145/286942.286957},
+	abstract = {We present GJ, a design that extends the Java programming language with generic types and methods. These are both explained and implemented by translation into the unextended language. The translation closely mimics the way generics are emulated by programmers: it erases all type parameters, maps type variables to their bounds, and inserts casts where needed. Some subtleties of the translation are caused by the handling of overriding.GJ increases expressiveness and safety: code utilizing generic libraries is no longer buried under a plethora of casts, and the corresponding casts inserted by the translation are guaranteed to not fail.GJ is designed to be fully backwards compatible with the current Java language, which simplifies the transition from non-generic to generic programming. In particular, one can retrofit existing library classes with generic interfaces without changing their code.An implementation of GJ has been written in GJ, and is freely available on the web.},
+	journal = {SIGPLAN Not.},
+	month = {oct},
+	pages = {183–200},
+	numpages = {18}
+}
+
+@inproceedings{graalvm:ir,
+	title = {Graal {IR}: {An} {Extensible} {Declarative} {Intermediate} {Representation}},
+	shorttitle = {Graal {IR}},
+	abstract = {We present an intermediate representation (IR) for a Java just in time (JIT) compiler written in Java. It is a graph-based IR that models both control-flow and data-flow dependencies between nodes. We show the framework in which we developed our IR. Much care has been taken to allow the programmer to focus on compiler optimization rather than IR bookkeeping. Edges between nodes are declared concisely using Java annotations, and common properties and functions on nodes are communicated to the framework by implementing interfaces. Building upon these declarations, the graph framework automatically implements a set of useful primitives that the programmer can use to implement optimizations .},
+	author = {Duboscq, Gilles and Stadler, Lukas and Wuerthinger, Thomas and Simon, Doug and Wimmer, Christian and Mössenböck, Hanspeter},
+	month = feb,
+	year = {2013},
+}
+
+@inproceedings{graalvm:speculative-ir,
+	address = {Indianapolis, Indiana, USA},
+	title = {An {Intermediate} {Representation} for {Speculative} {Optimizations} in a {Dynamic} {Compiler}},
+	isbn = {978-1-4503-2601-8},
+	url = {http://dl.acm.org/citation.cfm?doid=2542142.2542143},
+	doi = {10.1145/2542142.2542143},
+	abstract = {We present a compiler intermediate representation (IR) that allows dynamic speculative optimizations for high-level languages. The IR is graph-based and contains nodes ﬁxed to control ﬂow as well as ﬂoating nodes. Side-effecting nodes include a framestate that maps values back to the original program. Guard nodes dynamically check assumptions and, on failure, deoptimize to the interpreter that continues execution. Guards implicitly use the framestate and program position of the last side-effecting node. Therefore, they can be represented as freely ﬂoating nodes in the IR. Exception edges are modeled as explicit control ﬂow and are subject to full optimization. We use proﬁling and deoptimization to speculatively reduce the number of such edges. The IR is the core of a just-in-time compiler that is integrated with the Java HotSpot VM. We evaluate the design decisions of the IR using major Java benchmark suites.},
+	language = {en},
+	urldate = {2020-10-20},
+	booktitle = {Proceedings of the 7th {ACM} workshop on {Virtual} {Machines} and {Intermediate} {Languages} - {VMIL} '13},
+	publisher = {ACM Press},
+	author = {Duboscq, Gilles and Würthinger, Thomas and Stadler, Lukas and Wimmer, Christian and Simon, Doug and Mössenböck, Hanspeter},
+	year = {2013},
+	pages = {1--10},
+}
+
+@inproceedings{graalvm:sulong,
+	address = {New York, NY, USA},
+	series = {Programming'18 {Companion}},
+	title = {Sulong, and thanks for all the fish},
+	isbn = {978-1-4503-5513-1},
+	url = {https://doi.org/10.1145/3191697.3191726},
+	doi = {10.1145/3191697.3191726},
+	abstract = {Dynamic languages rely on native extensions written in languages such as C/C++ or Fortran. To efficiently support the execution of native extensions in the multi-lingual GraalVM, we have implemented Sulong, which executes LLVM IR to support all languages that have an LLVM front end. It supports configurations with respect to memory-allocation and memory-access strategies that have different tradeoffs concerning safety and interoperability with native libraries. Recently, we have been working on balancing the tradeoffs, on supporting inline assembly and GCC compiler builtins, and on executing a complete libc on Sulong.},
+	urldate = {2022-09-02},
+	booktitle = {Conference {Companion} of the 2nd {International} {Conference} on {Art}, {Science}, and {Engineering} of {Programming}},
+	publisher = {Association for Computing Machinery},
+	author = {Rigger, Manuel and Schatz, Roland and Kreindl, Jacob and Häubl, Christian and Mössenböck, Hanspeter},
+	month = apr,
+	year = {2018},
+	keywords = {GraalVM, LLVM, Sulong},
+	pages = {58--60},
+}
+
+@book{graalvm:espresso,
+	title = {Optimizing {Java} on {Truffle}},
+	abstract = {Java on Truffle is an early-stage implementation of a Java Virtual Machine in Java. So far its development has focused on compatibility and functionality, not addressing performance in a systematic way. This thesis presents a series of experiments on Java on Truffle performance, namely adding Class Hierarchy Analysis, improving receiver profiling at callsites of virtual and interface methods, splitting methods per-callsite, delaying the collection of profiling information, and investigating and improving System.arraycopy performance},
+	editor = {Goltsova, Ekaterina},
+	year = {2022},
+	keywords = {Java, Truffle, virtual machine, partial evaluation},
+}
+
+@article{simula:classes,
+	title={SIMULA: an ALGOL-based simulation language},
+	author={Dahl, Ole-Johan and Nygaard, Kristen},
+	journal={Communications of the ACM},
+	volume={9},
+	number={9},
+	pages={671--678},
+	year={1966},
+	publisher={ACM New York, NY, USA}
+}
+
+@book{smalltalk:design,
+	title={Smalltalk-80: the language and its implementation},
+	author={Goldberg, Adele and Robson, David},
+	year={1983},
+	publisher={Addison-Wesley Longman Publishing Co., Inc.}
+}
+
+
+@inproceedings{smalltalk:inline-caches,
+	author = {Deutsch, L. Peter and Schiffman, Allan M.},
+	title = {Efficient Implementation of the Smalltalk-80 System},
+	year = {1984},
+	isbn = {0897911253},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/800017.800542},
+	doi = {10.1145/800017.800542},
+	abstract = {The Smalltalk-80* programming language includes dynamic storage allocation, full upward funargs, and universally polymorphic procedures; the Smalltalk-80 programming system features interactive execution with incremental compilation, and implementation portability. These features of modern programming systems are among the most difficult to implement efficiently, even individually. A new implementation of the Smalltalk-80 system, hosted on a small microprocessor-based computer, achieves high performance while retaining complete (object code) compatibility with existing implementations. This paper discusses the most significant optimization techniques developed over the course of the project, many of which are applicable to other languages. The key idea is to represent certain runtime state (both code and data) in more than one form, and to convert between forms when needed.},
+	booktitle = {Proceedings of the 11th ACM SIGACT-SIGPLAN Symposium on Principles of Programming Languages},
+	pages = {297–302},
+	numpages = {6},
+	location = {Salt Lake City, Utah, USA},
+	series = {POPL '84}
+}
+
+@inproceedings{self:polymorphic-inline-caches,
+	author="H{\"o}lzle, Urs
+	and Chambers, Craig
+	and Ungar, David",
+	editor="America, Pierre",
+	title="Optimizing dynamically-typed object-oriented languages with polymorphic inline caches",
+	booktitle="ECOOP'91 European Conference on Object-Oriented Programming",
+	year="1991",
+	publisher="Springer Berlin Heidelberg",
+	address="Berlin, Heidelberg",
+	pages="21--38",
+	abstract="Polymorphic inline caches (PICs) provide a new way to reduce the overhead of polymorphic message sends by extending inline caches to include more than one cached lookup result per call site. For a set of typical object-oriented SELF programs, PICs achieve a median speedup of 11{\%}.",
+	isbn="978-3-540-47537-8"
+}
+
+@inproceedings{self:deoptimization,
+	author = {H\"{o}lzle, Urs and Chambers, Craig and Ungar, David},
+	title = {Debugging Optimized Code with Dynamic Deoptimization},
+	year = {1992},
+	isbn = {0897914759},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/143095.143114},
+	doi = {10.1145/143095.143114},
+	abstract = {SELF's debugging system provides complete source-level debugging (expected behavior) with globally optimized code. It shields the debugger from optimizations performed by the compiler by dynamically deoptimizing code on demand. Deoptimization only affects the procedure activations that are actively being debugged; all other code runs at full speed. Deoptimization requires the compiler to supply debugging information at discrete interrupt points; the compiler can still perform extensive optimizations between interrupt points without affecting debuggability. At the same time, the inability to interrupt between interrupt points is invisible to the user. Our debugging system also handles programming changes during debugging. Again, the system provides expected behavior: it is possible to change a running program and immediately observe the effects of the change. Dynamic deoptimization transforms old compiled code (which may contain inlined copies of the old version of the changed procedure) into new versions reflecting the current source-level state. To the best of our knowledge, SELF is the first practical system providing full expected behavior with globally optimized code.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1992 Conference on Programming Language Design and Implementation},
+	pages = {32–43},
+	numpages = {12},
+	location = {San Francisco, California, USA},
+	series = {PLDI '92}
+}
+
+@inproceedings{self:prototypes,
+	author = {Chambers, C. and Ungar, D. and Lee, E.},
+	title = {An Efficient Implementation of SELF a Dynamically-Typed Object-Oriented Language Based on Prototypes},
+	year = {1989},
+	isbn = {0897913337},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/74877.74884},
+	doi = {10.1145/74877.74884},
+	abstract = {We have developed and implemented techniques that double the performance of dynamically-typed object-oriented languages. Our SELF implementation runs twice as fast as the fastest Smalltalk implementation, despite SELF's lack of classes and explicit variables.To compensate for the absence of classes, our system uses implementation-level maps to transparently group objects cloned from the same prototype, providing data type information and eliminating the apparent space overhead for prototype-based systems. To compensate for dynamic typing, user-defined control structures, and the lack of explicit variables, our system dynamically compiles multiple versions of a source method, each customized according to its receiver's map. Within each version the type of the receiver is fixed, and thus the compiler can statically bind and inline all messages sent to self. Message splitting and type prediction extract and preserve even more static type information, allowing the compiler to inline many other messages. Inlining dramatically improves performance and eliminates the need to hard-wire low-level methods such as +,==, and ifTrue:.Despite inlining and other optimizations, our system still supports interactive programming environments. The system traverses internal dependency lists to invalidate all compiled methods affected by a programming change. The debugger reconstructs inlined stack frames from compiler-generated debugging information, making inlining invisible to the SELF programmer.},
+	booktitle = {Conference Proceedings on Object-Oriented Programming Systems, Languages and Applications},
+	pages = {49–70},
+	numpages = {22},
+	location = {New Orleans, Louisiana, USA},
+	series = {OOPSLA '89}
+}
+
+
+
+@inproceedings{ml:parametric-polymorphism,
+	title = "A Logic for Computable Functions with Reflexive and Polymorphic Types",
+	keywords = "rcb-bibfile",
+	author = "R. Milner and L. Morris and M. Newey",
+	year = "1975",
+	language = "English",
+	pages = "371--394",
+	booktitle = "Proceedings of the Conference on Proving and Improving Programs",
+	publisher = "IRIA-Laboria",
+}
+
+@inproceedings{ml:type-inference,
+	title={Principal type-schemes for functional programs},
+	author={Damas, Luis and Milner, Robin},
+	booktitle={Proceedings of the 9th ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
+	pages={207--212},
+	year={1982}
+}
+
+
+@article{scheme:closures,
+	title={Scheme: A interpreter for extended lambda calculus},
+	author={Sussman, Gerald Jay and Steele, Guy L},
+	journal={Higher-Order and Symbolic Computation},
+	volume={11},
+	number={4},
+	pages={405--439},
+	year={1998},
+	publisher={Springer}
+}
+
+
+@article{clr:spec,
+	title={Technical overview of the common language runtime},
+	author={Meijer, Erik and Gough, John},
+	journal={language},
+	volume={29},
+	number={7},
+	year={2001},
+	publisher={Citeseer}
+}
+
+@inproceedings{llvm,
+	title={LLVM: A compilation framework for lifelong program analysis \& transformation},
+	author={Lattner, Chris and Adve, Vikram},
+	booktitle={International Symposium on Code Generation and Optimization, 2004. CGO 2004.},
+	pages={75--86},
+	year={2004},
+	organization={IEEE}
+}
+
+
+@article{ssa,
+	author = {Ron Cytron and Jeanne Ferrante and Barry K. Rosen and Mark
+	N. Wegman and F. Kenneth Zadeck},
+	title = {Efficiently Computing Static Single Assignment Form and the
+	Control Dependence Graph},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	volume = {13},
+	number = {4},
+	month = {Oct},
+	publisher = {ACM Press},
+	pages = {451--490},
+	year = {1991},
+	abstract = {The most important paper in the field. Comprehensive yet
+	readable. Note there was an earlier version at POPL 89.},
+	url = {http://doi.acm.org/10.1145/115372.115320}
+}
+
+@inproceedings{hsail,
+	title={HSAIL: Portable compiler IR for HSA.},
+	author={Sander, Ben and FELLOW, AMD SENIOR},
+	booktitle={Hot Chips Symposium},
+	volume={2013},
+	pages={1--32},
+	year={2013}
+}
+
+@article{futamura:partial-eval,
+	title={Partial evaluation of computation process--an approach to a compiler-compiler},
+	author={Futamura, Yoshihiko},
+	journal={Higher-Order and Symbolic Computation},
+	volume={12},
+	number={4},
+	pages={381--391},
+	year={1999},
+	publisher={Springer}
+}
+
+@article{tofte:region-memory,
+	title = {Region-Based Memory Management},
+	journal = {Information and Computation},
+	volume = {132},
+	number = {2},
+	pages = {109-176},
+	year = {1997},
+	issn = {0890-5401},
+	doi = {https://doi.org/10.1006/inco.1996.2613},
+	url = {https://www.sciencedirect.com/science/article/pii/S0890540196926139},
+	author = {Mads Tofte and Jean-Pierre Talpin},
+	abstract = {This paper describes a memory management discipline for programs that perform dynamic memory allocation and de-allocation. At runtime, all values are put intoregions. The store consists of a stack of regions. All points of region allocation and de-allocation are inferred automatically, using a type and effect based program analysis. The scheme does not assume the presence of a garbage collector. The scheme was first presented in 1994 (M. Tofte and J.-P. Talpin,in“Proceedings of the 21st ACM SIGPLAN–SIGACT Symposium on Principles of Programming Languages,” pp. 188–201); subsequently, it has been tested in The ML Kit with Regions, a region-based, garbage-collection free implementation of the Standard ML Core language, which includes recursive datatypes, higher-order functions and updatable references L. Birkedal, M. Tofte, and M. Vejlstrup, (1996),in“Proceedings of the 23 rd ACM SIGPLAN–SIGACT Symposium on Principles of Programming Languages,” pp. 171–183. This paper defines a region-based dynamic semantics for a skeletal programming language extracted from Standard ML. We present the inference system which specifies where regions can be allocated and de-allocated and a detailed proof that the system is sound with respect to a standard semantics. We conclude by giving some advice on how to write programs that run well on a stack of regions, based on practical experience with the ML Kit.}
+}
+
+@inproceedings{aiken:region-memory-analysis,
+	author = {Aiken, Alexander and F\"{a}hndrich, Manuel and Levien, Raph},
+	title = {Better Static Memory Management: Improving Region-Based Analysis of Higher-Order Languages},
+	year = {1995},
+	isbn = {0897916972},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/207110.207137},
+	doi = {10.1145/207110.207137},
+	abstract = {Static memory management replaces runtime garbage collection with compile-time annotations that make all memory allocation and deallocation explicit in a program. We improve upon the Tofte/Talpin region-based scheme for compile-time memory management[TT94]. In the Tofte/Talpin approach, all values, including closures, are stored in regions. Region lifetimes coincide with lexical scope, thus forming a runtime stack of regions and eliminating the need for garbage collection. We relax the requirement that region lifetimes be lexical. Rather, regions are allocated late and deallocated as early as possible by explicit memory operations. The placement of allocation and deallocation annotations is determined by solving a system of constraints that expresses all possible annotations. Experiments show that our approach reduces memory requirements significantly, in some cases asymptotically.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1995 Conference on Programming Language Design and Implementation},
+	pages = {174–185},
+	numpages = {12},
+	location = {La Jolla, California, USA},
+	series = {PLDI '95}
+}
+
+@inproceedings{birkedal:region-memory-inference,
+	author = {Birkedal, Lars and Tofte, Mads and Vejlstrup, Magnus},
+	title = {From Region Inference to von Neumann Machines via Region Representation Inference},
+	year = {1996},
+	isbn = {0897917693},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/237721.237771},
+	doi = {10.1145/237721.237771},
+	abstract = {Region Inference is a technique for implementing programming languages that are based on typed call-by-value lambda calculus, such as Standard ML. The mathematical runtime model of region inference uses a stack of regions, each of which can contain an unbounded number of values. This paper is concerned with mapping the mathematical model onto real machines. This is done by composing region inference with Region Representation Inference, which gradually refines region information till it is directly implementable on conventional von Neumann machines. The performance of a new region-based ML compiler is compared to the performance of Standard ML of New Jersey, a state-of-the-art ML compiler.},
+	booktitle = {Proceedings of the 23rd ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+	pages = {171–183},
+	numpages = {13},
+	location = {St. Petersburg Beach, Florida, USA},
+	series = {POPL '96}
+}
+
+@article{strachey:fundamental-concepts,
+	title={Fundamental concepts in programming languages},
+	author={Strachey, Christopher},
+	journal={Higher-order and symbolic computation},
+	volume={13},
+	number={1},
+	pages={11--49},
+	year={2000},
+	publisher={Springer}
+}
+
+@inproceedings{go4:design-patterns,
+	title={Design patterns: Abstraction and reuse of object-oriented design},
+	author={Gamma, Erich and Helm, Richard and Johnson, Ralph and Vlissides, John},
+	booktitle={European Conference on Object-Oriented Programming},
+	pages={406--431},
+	year={1993},
+	organization={Springer}
+}
+
+
+@article{click:sea-of-nodes,
+	title = {Combining analyses, combining optimizations},
+	volume = {17},
+	issn = {0164-0925, 1558-4593},
+	url = {https://dl.acm.org/doi/10.1145/201059.201061},
+	doi = {10.1145/201059.201061},
+	abstract = {This thesis presents a framework for describing optimizations. It shows how to combine two such frameworks and how to reason about the properties of the resulting framework. The structure of the framework provides insight into when a combination yields better results. Also presented is a simple iterative algorithm for solving these frameworks. A framework is shown that combines Constant Propagation, Unreachable Code Elimination, Global Congruence Finding and Global Value Numbering. For these optimizations, the iterative algorithm runs in O(n2) time.},
+	language = {en},
+	number = {2},
+	urldate = {2022-02-15},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	author = {Click, Cliff and Cooper, Keith D.},
+	month = mar,
+	year = {1995},
+	pages = {181--196},
+	file = {Click and Cooper - 1995 - Combining analyses, combining optimizations.pdf:/home/jyou/snap/zotero-snap/common/Zotero/storage/R7XKVHAK/Click and Cooper - 1995 - Combining analyses, combining optimizations.pdf:application/pdf},
+}
+
+@inproceedings{allen:ctrl-flow-analysis,
+	author = {Allen, Frances E.},
+	title = {Control Flow Analysis},
+	year = {1970},
+	isbn = {9781450373869},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/800028.808479},
+	doi = {10.1145/800028.808479},
+	abstract = {Any static, global analysis of the expression and data relationships in a program requires a knowledge of the control flow of the program. Since one of the primary reasons for doing such a global analysis in a compiler is to produce optimized programs, control flow analysis has been embedded in many compilers and has been described in several papers. An early paper by Prosser [5] described the use of Boolean matrices (or, more particularly, connectivity matrices) in flow analysis. The use of “dominance” relationships in flow analysis was first introduced by Prosser and much expanded by Lowry and Medlock [6]. References [6,8,9] describe compilers which use various forms of control flow analysis for optimization. Some recent developments in the area are reported in [4] and in [7].The underlying motivation in all the different types of control flow analysis is the need to codify the flow relationships in the program. The codification may be in connectivity matrices, in predecessor-successor tables, in dominance lists, etc. Whatever the form, the purpose is to facilitate determining what the flow relationships are; in other words to facilitate answering such questions as: is this an inner loop?, if an expression is removed from the loop where can it be correctly and profitably placed?, which variable definitions can affect this use?In this paper the basic control flow relationships are expressed in a directed graph. Various graph constructs are then found and shown to codify interesting global relationships.},
+	booktitle = {Proceedings of a Symposium on Compiler Optimization},
+	pages = {1–19},
+	numpages = {19},
+	location = {Urbana-Champaign, Illinois}
+}
+
+@article{allen:data-flow-analysis,
+	author = {Allen, F. E. and Cocke, J.},
+	title = {A Program Data Flow Analysis Procedure},
+	year = {1976},
+	issue_date = {March 1976},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {19},
+	number = {3},
+	issn = {0001-0782},
+	url = {https://doi.org/10.1145/360018.360025},
+	doi = {10.1145/360018.360025},
+	abstract = {The global data relationships in a program can be exposed and codified by the static analysis methods described in this paper. A procedure is given which determines all the definitions which can possibly “reach” each node of the control flow graph of the program and all the definitions that are “live” on each edge of the graph. The procedure uses an “interval” ordered edge listing data structure and handles reducible and irreducible graphs indistinguishably.},
+	journal = {Commun. ACM},
+	month = {mar},
+	pages = {137},
+	numpages = {11},
+	keywords = {program optimization, compilers, data flow analysis, flow graphs, algorithms}
+}
+
+@inproceedings{johnson:use-def-chains,
+	title={Dependence-based program analysis},
+	author={Richard Johnson and Keshav Pingali},
+	booktitle={PLDI '93},
+	year={1993}
+}
+
+
+@inproceedings{gilad:mixins,
+	author = {Bracha, Gilad and Cook, William},
+	title = {Mixin-Based Inheritance},
+	year = {1990},
+	isbn = {0897914112},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/97945.97982},
+	doi = {10.1145/97945.97982},
+	abstract = {The diverse inheritance mechanisms provided by Smalltalk, Beta, and CLOS are interpreted as different uses of a single underlying construct. Smalltalk and Beta differ primarily in the direction of class hierarchy growth. These inheritance mechanisms are subsumed in a new inheritance model based on composition of mixins, or abstract subclasses. This form of inheritance can also encode a CLOS multiple-inheritance hierarchy, although changes to the encoded hierarchy that would violate encapsulation are difficult. Practical application of mixin-based inheritance is illustrated in a sketch of an extension to Modula-3.},
+	booktitle = {Proceedings of the European Conference on Object-Oriented Programming on Object-Oriented Programming Systems, Languages, and Applications},
+	pages = {303–311},
+	numpages = {9},
+	location = {Ottawa, Canada},
+	series = {OOPSLA/ECOOP '90}
+}
+
+@inproceedings{profiling:atom,
+	author = {Srivastava, Amitabh and Eustace, Alan},
+	title = {ATOM: A System for Building Customized Program Analysis Tools},
+	year = {1994},
+	isbn = {089791662X},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	url = {https://doi.org/10.1145/178243.178260},
+	doi = {10.1145/178243.178260},
+	abstract = {ATOM (Analysis Tools with OM) is a single framework for building a wide range of customized program analysis tools. It provides the common infrastructure present in all code-instrumenting tools; this is the difficult and time-consuming part. The user simply defines the tool-specific details in instrumentation and analysis routines. Building a basic block counting tool like Pixie with ATOM requires only a page of code.ATOM, using OM link-time technology, organizes the final executable such that the application program and user's analysis routines run in the same address space. Information is directly passed from the application program to the analysis routines through simple procedure calls instead of inter-process communication or files on disk. ATOM takes care that analysis routines do not interfere with the program's execution, and precise information about the program is presented to the analysis routines at all times. ATOM uses no simulation or interpretation.ATOM has been implemented on the Alpha AXP under OSF/1. It is efficient and has been used to build a diverse set of tools for basic block counting, profiling, dynamic memory recording, instruction and data cache simulation, pipeline simulation, evaluating branch prediction, and instruction scheduling.},
+	booktitle = {Proceedings of the ACM SIGPLAN 1994 Conference on Programming Language Design and Implementation},
+	pages = {196–205},
+	numpages = {10},
+	location = {Orlando, Florida, USA},
+	series = {PLDI '94}
+}
+
+@article{types:covariance-contravariance,
+	author = {Castagna, Giuseppe},
+	title = {Covariance and Contravariance: Conflict without a Cause},
+	year = {1995},
+	issue_date = {May 1995},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {17},
+	number = {3},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/203095.203096},
+	doi = {10.1145/203095.203096},
+	abstract = {In type-theoretic research on object-oriented programming, the issue of “covariance versus contravariance” is a topic of continuing debate. In this short note we argue that covariance and contravariance appropriately characterize two distinct and independent mechanisms. The so-called contravariance rule correctly captures the subtyping relation (that relation which establishes which sets of functions can replace another given set in every context). A covariant relation, instead, characterizes the specialization of code (i.e., the definition of new code which replaces old definitions in some particular cases). Therefore, covariance and contravariance are not opposing views, but distinct concepts that each have their place in object-oriented systems. Both can (and should) be integrated in a type-safe manner in object-oriented languages. We also show that the independence of the two mechanisms is not characteristic of a particular model but is valid in general, since covariant specialization is present in record-based models, although it is hidden by a deficiency of all existing calculi that realize this model. As an aside, we show that the λ&amp;-calculus can be taken as the basic calculus for both an overloading-based and a record-based model. Using this approach, one not only obtains a more uniform vision of object-oriented type theories, but in the case of the record-based approach, one also gains multiple dispatching, a feature that existing record-based models do not capture},
+	journal = {ACM Trans. Program. Lang. Syst.},
+	month = {may},
+	pages = {431–447},
+	numpages = {17},
+	keywords = {object-oriented languages, type theory}
+}
+
+@book{book:dragon,
+	title={Principles of compiler design},
+	author={Aho, Alfred V and Ullman, Jeffrey D and others},
+	year={1977},
+	publisher={Addision-Wesley Pub. Co.}
+}
+
+@inproceedings{systemF:subtyping,
+	address = {Berlin, Heidelberg},
+	series = {Lecture {Notes} in {Computer} {Science}},
+	title = {An extension of system {F} with subtyping},
+	isbn = {978-3-540-47617-7},
+	doi = {10.1007/3-540-54415-1_73},
+	abstract = {System F is a well-known typed λ-calculus with polymorphic types, which provides a basis for polymorphic programming languages. We study an extension of F, called F{\textless}:, that combines parametric polymorphism with subtyping.},
+	language = {en},
+	booktitle = {Theoretical {Aspects} of {Computer} {Software}},
+	publisher = {Springer},
+	author = {Cardelli, Luca and Martini, Simone and Mitchell, John C. and Scedrov, Andre},
+	editor = {Ito, Takayasu and Meyer, Albert R.},
+	year = {1991},
+	keywords = {Closed Type, Equality Judgment, Equational Theory, Record Type, Typing Judgment},
+	pages = {750--770},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/LJLGQ3WE/Cardelli et al. - 1991 - An extension of system F with subtyping.pdf:application/pdf},
+}
+
+
+
+@article{conditional-constant-prop,
+	title = {Constant propagation with conditional branches},
+	volume = {13},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/103135.103136},
+	doi = {10.1145/103135.103136},
+	abstract = {Constant propagation is a well-known global flow analysis problem. The goal of constant propagation is to discover values that are constant on all possible executions of a program and to propagate these constant values as far foward through the program as possible. Expressions whose operands are all constants can be evaluated at compile time and the results propagated further. Using the algorithms presented in this paper can produce smaller and faster compiled programs. The same algorithms can be used for other kinds of analyses (e.g., type of determination). We present four algorithms in this paper, all conservitive in the sense that all constants may not be found, but each constant found is constant over all possible executions of the program. These algorithms are among the simplest, fastest, and most powerful global constant propagation algorithms known. We also present a new algorithm that performs a form of interprocedural data flow analysis in which aliasing information is gathered in conjunction with constant progagation. Several variants of this algorithm are considered.},
+	number = {2},
+	urldate = {2022-03-27},
+	journal = {ACM Transactions on Programming Languages and Systems},
+	author = {Wegman, Mark N. and Zadeck, F. Kenneth},
+	month = apr,
+	year = {1991},
+	keywords = {constant propagation, abstract interpretation, code optimization, control flow graph, interprocedural analysis, procedure integration, static single assignment form, type determination},
+	pages = {181--210},
+	file = {Full Text PDF:/home/jyou/snap/zotero-snap/common/Zotero/storage/7FGJYTL3/Wegman and Zadeck - 1991 - Constant propagation with conditional branches.pdf:application/pdf},
+}
+
+
+@inproceedings{variable-congruence,
+	title = {Detecting equality of variables in programs},
+	doi = {10.1145/73560.73561},
+	abstract = {An algorithm for detecting when two computations produce equivalent values by developing a static property called congruence, which is conservative in that any variables detected to be e:quivalent will in fact be equivalent, but not all equivalences are detected. paper presents an algorithm for detecting when two computations produce equivalent values. The equivalence of programs, and hence the equivalence of values, is in general undecidable. Thus, the best one can hope to do is to give an efficient algorithm that detects a large subclass of all the possible equivalences in a program. Two variables are said to be equivalent at a point p if those variables contain the same values whenever control reaches p during any possible execution of the program. We will not examine all possible executions of the program. Instead, we will develop a static property called congruence. Congruence implies, but is not implied by, equivalence. Our approach is conservative in that any variables detected to be e:quivalent will in fact be equivalent, but not all equivalences are detected. Previous work has shown how to apply a technique c.alled value numbering in basic blocks [CS70]. Value numbering is essentially symbolic execution on straight-line programs (basic blocks). Symbolic execution implies that two expressions are assumed to be equal only when they consist of the same functions and the corresponding arguments of these functions are equal. An expression DAG is associated with each assignment statement. A hashing algorithm assigns a unique integer, the value number, to each different expression tree. Two variables that are assigned the same integer are guaranteed to be equivalent. After the code},
+	booktitle = {{POPL} '88},
+	author = {Alpern, B. and Wegman, M. and Zadeck, F. K.},
+	year = {1988},
+}
+
+@inproceedings{osr,
+	title = {Design, implementation and evaluation of adaptive recompilation with on-stack replacement},
+	doi = {10.1109/CGO.2003.1191549},
+	abstract = {Modern virtual machines often maintain multiple compiled versions of a method. An on-stack replacement (OSR) mechanism enables a virtual machine to transfer execution between compiled versions, even while a method runs. Relying on this mechanism, the system can exploit powerful techniques to reduce compile time and code space, dynamically de-optimize code, and invalidate speculative optimizations. The paper presents a new, simple, mostly compiler-independent mechanism to transfer execution into compiled code. Additionally, we present enhancements to an analytic model for recompilation to exploit OSR for more aggressive optimization. We have implemented these techniques in Jikes RVM and present a comprehensive evaluation, including a study of fully automatic, online, profile-driven deferred compilation.},
+	booktitle = {International {Symposium} on {Code} {Generation} and {Optimization}, 2003. {CGO} 2003.},
+	author = {Fink, S.J. and Qian, Feng},
+	month = mar,
+	year = {2003},
+	keywords = {Computer languages, Computer science, Counting circuits, Java, Optimizing compilers, Power system modeling, Runtime, Virtual machining, Virtual manufacturing, Voice mail},
+	pages = {241--252},
+}
+
+
+@article{loop-unrolling,
+	title = {Automatic loop interchange},
+	volume = {19},
+	issn = {0362-1340},
+	url = {https://doi.org/10.1145/502949.502897},
+	doi = {10.1145/502949.502897},
+	abstract = {Parallel and vector machines are becoming increasingly important to many computation intensive applications. Effectively utilizing such architectures, particularly from sequential languages such as Fortran, has demanded increasingly sophisticated compilers. In general, a compiler needs to significantly reorder a program in order to generate code optimal for a specific architecture.Because DO loops typically control the execution of a number of statements, the order in which loops are executed can dramatically affect the performance of a machine on a particular section of code. In particular, loop interchange can often be used to enhance the performance of code on parallel or vector machines.Determining when loops may be safely and profitably interchanged requires a study of the data dependences in the program. This work discusses specific applications of that theory to loop interchange. This theory is described as it has been implemented in PFC (Parallel Fortran Converter) -- a program which attempts to uncover operations in sequential Fortran code that may be safely rewritten as vector operations.},
+	number = {6},
+	urldate = {2022-08-17},
+	journal = {ACM SIGPLAN Notices},
+	author = {Allen, John R. and Kennedy, Ken},
+	month = jun,
+	year = {1984},
+	pages = {233--246},
+}
+
+@article{abdc:pi-nodes,
+	title = {{ABCD}: eliminating array bounds checks on demand},
+	volume = {35},
+	issn = {0362-1340},
+	shorttitle = {{ABCD}},
+	url = {https://doi.org/10.1145/358438.349342},
+	doi = {10.1145/358438.349342},
+	abstract = {To guarantee typesafe execution, Java and other strongly typed languages require bounds checking of array accesses. Because array-bounds checks may raise exceptions, they block code motion of instructions with side effects, thus preventing many useful code optimizations, such as partial redundancy elimination or instruction scheduling of memory operations. Furthermore, because it is not expressible at bytecode level, the elimination of bounds checks can only be performed at run time, after the bytecode program is loaded. Using existing powerful bounds-check optimizers at run time is not feasible, however, because they are too heavyweight for the dynamic compilation setting. ABCD is a light-weight algorithm for elimination of Array Bounds Checks on Demand. Its design emphasizes simplicity and efficiency. In essence, ABCD works by adding a few edges to the SSA value graph and performing a simple traversal of the graph. Despite its simplicity, ABCD is surprisingly powerful. On our benchmarks, ABCD removes on average 45\% of dynamic bound check instructions, sometimes achieving near-ideal optimization. The efficiency of ABCD stems from two factors. First, ABCD works on a sparse representation. As a result, it requires on average fewer than 10 simple analysis steps per bounds check. Second, ABCD is demand-driven. It can be applied to a set of frequently executed (hot) bounds checks, which makes it suitable for the dynamic-compilation setting, in which compile-time cost is constrained but hot statements are known.},
+	number = {5},
+	urldate = {2022-04-13},
+	journal = {ACM SIGPLAN Notices},
+	author = {Bodík, Rastislav and Gupta, Rajiv and Sarkar, Vivek},
+	month = may,
+	year = {2000},
+	pages = {321--333},
+}
+
+
+@inproceedings{conditional-elim,
+	address = {New York, NY, USA},
+	series = {{PLDI} '97},
+	title = {Interprocedural conditional branch elimination},
+	isbn = {978-0-89791-907-4},
+	url = {https://doi.org/10.1145/258915.258929},
+	doi = {10.1145/258915.258929},
+	abstract = {The existence of statically detectable correlation among conditional branches enables their elimination, an optimization that has a number of benefits. This paper presents techniques to determine whether an interprocedural execution path leading to a conditional branch exists along which the branch outcome is known at compile time, and then to eliminate the branch along this path through code restructuring. The technique consists of a demand driven interprocedural analysis that determines whether a specific branch outcome is correlated with prior statements or branch outcomes. The optimization is performed using a code restructuring algorithm that replicates code to separate out the paths with correlation. When the correlated path is affected by a procedure call, the restructuring is based on procedure entry splitting and exit splitting. The entry splitting transformation creates multiple entries to a procedure, and the exit splitting transformation allows a procedure to return control to one of several return points in the caller. Our technique is efficient in that the correlation detection is demand driven, thus avoiding exhaustive analysis of the entire program, and the restructuring never increases the number of operations along a path through an interprocedural control flow graph. We describe the benefits of our interprocedural branch elimination optimization (ICBE). Our experimental results show that, for the same amount of code growth, the estimated reduction in executed conditional branches is about 2.5 times higher with the ICBE optimization than when only intraprocedural conditional branch elimination is applied.},
+	urldate = {2022-08-28},
+	booktitle = {Proceedings of the {ACM} {SIGPLAN} 1997 conference on {Programming} language design and implementation},
+	publisher = {Association for Computing Machinery},
+	author = {Bodík, Rastislav and Gupta, Rajiv and Soffa, Mary Lou},
+	month = may,
+	year = {1997},
+	pages = {146--158},
+}
+
+@article{clr:overview,
+	title={Technical overview of the common language runtime},
+	author={Meijer, Erik and Gough, John},
+	journal={language},
+	volume={29},
+	number={7},
+	year={2001},
+	publisher={Citeseer}
+}
+
+@article{napier88:polymorphism,
+	author = {Morrison, R. and Dearle, A. and Connor, R. C. H. and Brown, A. L.},
+	title = {An Ad Hoc Approach to the Implementation of Polymorphism},
+	year = {1991},
+	issue_date = {July 1991},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {13},
+	number = {3},
+	issn = {0164-0925},
+	url = {https://doi.org/10.1145/117009.117017},
+	doi = {10.1145/117009.117017},
+	journal = {ACM Trans. Program. Lang. Syst.},
+	month = {jul},
+	pages = {342–371},
+	numpages = {30}
+}
+
+@book{c++,
+	title={The C++ programming language},
+	author={Stroustrup, Bjarne},
+	year={2013},
+	publisher={Pearson Education}
+}
+
+@book{tapl,
+title={Types and programming languages},
+author={Pierce, Benjamin C},
+year={2002},
+publisher={MIT press}
+}
+
+@article{history:jit,
+title = {A brief history of just-in-time},
+volume = {35},
+issn = {0360-0300},
+url = {https://doi.org/10.1145/857076.857077},
+doi = {10.1145/857076.857077},
+abstract = {Software systems have been using "just-in-time" compilation (JIT) techniques since the 1960s. Broadly, JIT compilation includes any translation performed dynamically, after a program has started execution. We examine the motivation behind JIT compilation and constraints imposed on JIT compilation systems, and present a classification scheme for such systems. This classification emerges as we survey forty years of JIT work, from 1960--2000.},
+number = {2},
+urldate = {2022-07-27},
+journal = {ACM Computing Surveys},
+author = {Aycock, John},
+month = jun,
+year = {2003},
+keywords = {dynamic compilation, Just-in-time compilation},
+pages = {97--113},
+}
+
+@article{zig,
+title = {Documentation - The Zig Programming Language},
+journal = {https://ziglang.org/documentation/master/},
+publisher={On-line Resources}
+}
+
+
+@article{kotlin:inline-functions,
+title = {Inline functions {\textbar} {Kotlin}},
+journal = {https://kotlinlang.org/docsinline-functions.html},
+publisher={On-line Resources}
+}
+
+
+@article{hack:inline-reified-types,
+title = {Reified {Generics}},
+journal = {http://docs.hhvm.com/hack/reified-generics/reified-generics},
+abstract = {Offical documentation for Hack and HHVM},
+publisher={On-line Resources}
+}
+
+
+
+

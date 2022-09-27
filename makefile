@@ -1,8 +1,8 @@
 all: 
-	pdflatex -shell-escape uw-ethesis
-	bibtex uw-ethesis
-	pdflatex -shell-escape uw-ethesis
-	pdflatex -shell-escape uw-ethesis
+	pdflatex -shell-escape uw-ethesis-mmath-jyou
+	bibtex uw-ethesis-mmath-you
+	pdflatex -shell-escape uw-ethesis-mmath-jyou
+	pdflatex -shell-escape uw-ethesis-mmath-jyou
 
 clean:
 	rm -f *.aux
@@ -16,3 +16,4 @@ clean:
 	rm -f *.ist
 	rm -f *.nomenclature-*
 	rm -f *.toc
+	rm -rf svg-inkscape

@@ -1,0 +1,97 @@
+
+\chapter{Related Work}
+
+This chapter discusses previous academic and industrial work related to this thesis. 
+The first section provides an introduction to the various implementations of parametric polymorphism.
+The second section is a brief overview of programming languages that support a notion of reified types.
+The third section covers related work on the implementation of polymorphism in Java.
+The fourth section of this chapter provides an overview of previous and state-of-the-art efforts to specialize Scala programs.
+The last section presents prior and ongoing efforts in the implementation of other Truffle interpreters.
+
+\section{Implementations of Parametric Polymorphism}
+
+Implementations of parametric polymorphism can be divided into two broad categories\cite{java:odersky-type-params}:
+
+\begin{description}
+	\item[\textit{Homogeneous Translation}] 
+	This approach provides a single data representation for each polymorphic type. 
+	An example of this implementation is the type erasure transformation applied in the Java and Scala compilation pipelines.
+	Morrison et al. also refer to this form of polymorphism as the \scalainline{uniform polymorphism}\cite{types-of-polymorphism}.
+	\item[\textit{Heterogeneous Translation}]
+	In contrast to homogeneous translation, the heterogeneous translation ensures a unique data representation for every polymorphic type instantiation.The heterogeneous translation can also be referred to as \textit{textual polymorphism}.
+\end{description}
+
+This section will cover various approaches to implementing parametric polymorphism in the context of these two forms.
+As polymorphism in Java and Scala are more relevant to the central themes of this thesis, we will first focus on implementations of parametric polymorphism for other languages.
+
+Parametric polymorphism was first studied in functional programming languages\cite{ml:parametric-polymorphism,ml:type-inference}.
+Leroy proposed an approach in which type coercion operations are inserted between polymorphic operations and monomorphic data. 
+The coercion operations in this approach are quite similar to the notion of boxing and unboxing, which Leroy describes as \textit{wrapping} and \textit{unwrapping}.
+
+The heterogeneous translation is the more prevalent implementation of parametric polymorphism in object-oriented programming languages.
+The \mintinline{cpp}|template| concept in the \CC\ programming language popularized parametric polymorphism in objected-oriented programming languages.
+Templates define a generic definition of some kind in \CC.
+The \CC\ compiler will generate heterogeneous translations based on every set of concrete type arguments supplied during compilation.
+The implementation of polymorphism in the Common Language Runtime\cite{clr:overview,clr:spec} by Kennedy and Syme makes use of reified types in a polymorphic bytecode IR during execution.
+Polymorphic class definitions are loaded as templates; Templates generate specialized class layouts on an ad-hoc basis based on the reified type arguments seen during bytecode execution.
+Their approach relies on CLR extensions to support types not present in existing JVM implementations.
+Our approach shares many similarities with the approach described by Kennedy and Syme.
+One drawback of their approach is that the polymorphic bytecode IR does not support the complete set of operations on types.
+For an object instance of type \scalainline{List[T]}, it not possible to determine the concrete type of \scalainline{T}.
+For example, reflection is necessary to differentiate between a \scalainline{List[Int]} and a \scalainline{List[String]}.
+Furthermore, the authors note that their implementation is unable to support type variances, which are mainstays of the Scala type system, in their implementation of generics.
+Our implementation differs as such operations are possible because the IR could potentially incorporate the full type language of TASTy.
+
+\section{Implementations of Reified Types}
+
+Some programming languages have previously introduced similar notions of types-as-values.
+Zig\cite{zig} permits compilation-time types as first-class values. 
+Compile-time evaluation in Zig exposes constant folding as a user abstraction.
+Specific instantiations of generic data structures are then created based on reified type values during compilation-time.
+Hack\cite{hack:inline-reified-types} and Kotlin\cite{kotlin:inline-functions} both have the notion of \textit{inline reified types}
+More specifically, reified types in Hack and Zig allow type parameters of user-annotated inline-able methods to be available during run-time. 
+Combined with inlining, this allows concrete type arguments from invocation sites to be used in the method body.
+For example, run-time control flow based on concrete types are possible using inline reified types.
+When combined with other higher-order abstractions, such as anonymous classes, inline reified types allow for data layout optimizations.
+
+\section{Generics and Java}
+
+Prior efforts to implement generics in Java have been based on static compilation techniques restricted by the \textit{open world assumption}.
+The open world assumption assumes that the program under compilation is \textit{incomplete}; extra parts of the program will be supplied in a future iteration of compilation.
+This form of compilation is commonly known as \textit{separate compilation}.
+As such, the compilation results of the current parts of the program must be interoperable with the compilation results of the remaining yet-to-be-determined parts.
+
+The Java language did not initially support parametric polymorphism in its initial release.
+As a result, many different approaches were proposed before a uniform polymorphism became the accepted implementation for Java.
+Pizza\cite{java:pizza} was a superset of Java that supported heterogeneous and homogeneous translations of polymorphic definitions into Java.
+Agesen, Freund, and Mitchell proposed a heterogeneous translation for parametric polymorphism for Java during load-time instead of compile-time\cite{java:agesen-type-params}.
+NextGen\cite{java:nextgen} separates the translation of polymorphic classes into monomorphic and polymorphic components.
+In NextGen, Only the polymorphic members of a class definition are specialized; These specialized classes inherit the implementation of their monomorphic members from a common parent class.
+Finally, GJ\cite{java:odersky-type-params} proposed the foundations for what is now the accepted implementation of parametric polymorphism in Java.
+Polymorphic class definitions have a single uniform data representation after type erasure.
+These approaches determine the data representation of polymorphic definitions in a static context.
+Our approach is based on the \textit{closed world assumption} as the entire program must be available in order for it to be executed.
+
+\section{Specialization in Scala}
+
+The standard implementation of parametric polymorphism follows that of Java; generic class definitions have their type parameters erased.
+All previous approaches attempt to avoid the problem of bytecode explosion, where the specialization of polymorphic data with every possible type creates an exponential number of unique data representations.
+Dragos describes the earliest efforts to specialize Scala programs with the aid of annotations\cite{scala:specialization}.
+Annotations avoid unnecessarily specializing polymorphic data through knowledge injected by a programmer.
+Ureche, Talau, and Odersky expand upon this approach by reducing unnecessary duplication among specializations through sharing\cite{scala:miniboxing}.
+Sharing exploits the insight that specializations of some value types may be reused for the specializations of other value types.
+For example, the representation of \scalainline{ArrayBuffer[Long]} could be used, with the addition of some glue code, for the specialization of \scalainline{ArrayBuffer[Int]} instead of generating an additional specialized representation. 
+Both approaches mix the implementation of uniform polymorphism with user-guided specialization directives.
+Our approach generates a heterogeneous translation of a generic class definition on an ad-hoc basis.
+
+\section{Truffle Interpreters}
+
+There are many Truffle interpreters in active development at the time of writing.
+This section will attempt to provide a brief survey of Truffle interpreters.
+TruffleRuby\cite{trufflyruby:specialization,truffleruby:object-model},FastR, Graal.js, Graal.Python,\cite{truffle:thesis} are some of the industrial implementations of dynamically typed languages implemented with Truffle.
+They all make substantial use of Truffle facilities, some discussed earlier in this thesis, to speculative optimize program execution. 
+Espresso\cite{graalvm:espresso} is an implementation of a Java bytecode interpreter in Truffle. 
+Espresso is a metacircular implementation of a Java Virtual Machine.
+Because Espresso executes the same Java bytecode format as other JVM implementations, it uses the same approaches to optimizing polymorphic data layout as the conventional implementation of Java on GraalVM.
+
+
