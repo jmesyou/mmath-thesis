@@ -17,14 +17,14 @@ Similarly, our approach could be extended to include the semantics of this annot
 The translation of non-annotated definitions will use a shared type-erased data representation.
 However, mixing annotated and non-annotated programs will present missed optimization opportunities in the non-annotated portions of the program.
 
-Truffle offers many existing mechanisms for profiling values and types.
+Truffle offers many mechanisms for profiling values and types.
 Some of this profiling instrumentation is automatically done by Truffle, such as the profiling of argument types for node rewrites. In contrast, the guest language implementer adds other instrumentation,  such as condition profiles.
 These profiles augment partial evaluation and enable speculative assumptions for optimizations such as conditional elimination.
 We propose instrumenting specialization sites to profile type arguments.
 Type argument profiles could then be used to decide the specific instantiation to specialize.
 A \textit{profile-guided} approach to specialization could limit specializations to only the most frequently used instantiations.
 
-Often a polymorphic instantiation is not sufficiently frequent to warrant specialization; the default homogeneous data representation will be shared among unspecialized instantiation.
+Often a polymorphic instantiation is not sufficiently frequent to warrant specialization; the default homogeneous data representation will be shared among unspecialized instantiations.
 A type-erased homogeneous data representation may still be tagged with the underlying applied type.
 We can further augment type-erased polymorphic fields, and frame slots to profile reads from and writes to their respective storage locations.
 These two pieces of dynamic information can be combined to allow the specialization of specific instantiations that are frequently manipulated but not frequently created.
