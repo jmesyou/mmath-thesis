@@ -1,75 +1,17 @@
 \chapter{Evaluation}
 \label{chapter:evaluation}
-In this chapter, we will evaluate and discuss the performance of our polymorphic interpreter on six microbenchmarks.
-We use an existing set of benchmarks from \cite{scala:miniboxing} as they exercise many features of the Scala runtime that require specialization to perform optimally.
-We will evaluate the performance of these benchmarks on the monomorphic interpreter and Scala bytecode on GraalVM as points of comparison for relative performance.
+In this chapter, The performance of the polymorphic interpreter will be evaluated on six microbenchmarks.
+An existing set of benchmarks from \cite{scala:miniboxing} will be used as they exercise many features of the Scala runtime that require specialization to perform optimally.
+The performance of these benchmarks will also be evaluated on the monomorphic interpreter, the variant of our interpreter that does not specialize data layout, to measure the improvement produced by our techniques. 
+The benchmarks will also be evaluated on native Scala bytecode executing on GraalVM to demonstrate the results produced by \textsc{TastyTruffle} are fair when compared to a real world implementation.
 Finally, we discuss the results of the benchmarks, examine the causes of performance deficiencies, and how our implementation resolves them.
 
 \section{Benchmarks}
-\begin{figure}[!htb]
-	\begin{minted}{scala}
-	class ArrayBuffer[T] {
-		protected def initialSize: Int = 16
-		var size0 = 0
-		var array: Array[T] = newArray[T](Math.max(initialSize, 1))
-		
-		def length: Int = size0
-		
-		private def get(i: Int): T = array(i)
-		private def set(i: Int, elem: T): Unit = array(i) = elem
-		
-		def contains(elem: T): Boolean = {
-			var i = 0
-			while (i < size0) {
-				if (array(i) == elem) return true
-				i += 1
-			}
-			false
-		}
-		
-		def reverse(): Unit = {
-			var pos = 0
-			while (pos * 2 < size0) {
-				swap(pos, size0 - pos - 1) // swaps two elements in the array
-				pos += 1
-			}
-		}
-		
-		def append(elem: T): Unit = {
-			val newSize0 = size0 + 1
-			ensureSize(newSize0)
-			set(size0, elem)
-			size0 = newSize0
-		}
-		
-		// Ensure that the internal array has at least `n` cells. 
-		def ensureSize(n: Int): Unit = {
-			val arrayLength: Long = array.length // Use a Long to prevent overflows
-			if (n > arrayLength) {
-				var newSize: Long = arrayLength * 2
-				while (n > newSize)
-					newSize = newSize * 2
-				// Clamp newSize to Int.MaxValue
-				if (newSize > lang.Int.MaxValue) newSize = lang.Int.MaxValue
-				
-				val resized = newArray[T](newSize.toInt)
-				var i = 0
-				while (i < size0) {
-					resized(i) = get(i)
-					i += 1
-				}
-				array = resized
-			}
-		}
-	\end{minted}
-	\caption{Code of the \scalainline{ArrayBuffer} benchmark.}
-	\label{example:arraybuffer-benchmark}
-\end{figure}
 
 In this section, we will introduce an additional program on top of our running example for benchmarking.
 We will also summarize the motivations for selecting these benchmarks from \cite{scala:miniboxing}.
 
-Each microbenchmark exercises unique polymorphic operations which are typically performance bottlenecks\cite{scala:collections-optimization,scala:dacapo} in Scala programs.
+Each microbenchmark exercises unique polymorphic operations that are typically performance bottlenecks\cite{scala:collections-optimization,scala:dacapo} in Scala programs.
 The \scalainline{ArrayBuffer} class implements a resizable buffer backed by an array.
 It contains three microbenchmarks that stress polymorphic operations in the context of contiguous memory access.
 
@@ -77,6 +19,47 @@ The \scalainline{List} class is the implementation of a linked list that we have
 We use the \scalainline{List} class to evaluate polymorphic operations in the context of random heap access.
 Like the \scalainline{ArrayBuffer} benchmarks, there is an \scalainline{append} and \scalainline{contains} microbenchmark.
 We will use lists to test the performance of polymorphic hash computations using \scalainline{List.hashCode}.
+
+\begin{figure}[!htb]
+\begin{minted}{scala}
+class ArrayBuffer[T] {
+	protected def initialSize: Int = 16
+	var size0 = 0
+	var array: Array[T] = newArray[T](Math.max(initialSize, 1))
+	
+	def length: Int = size0
+	private def get(i: Int): T = array(i)
+	private def set(i: Int, elem: T): Unit = array(i) = elem
+	
+	def contains(elem: T): Boolean = {
+		var i = 0
+		while (i < size0) {
+			if (array(i) == elem) return true
+			i += 1
+		}
+		false
+	}
+	
+	def reverse(): Unit = {
+		var pos = 0
+		while (pos * 2 < size0) {
+			swap(pos, size0 - pos - 1) // swaps two elements in the array
+			pos += 1
+		}
+	}
+	
+	def append(elem: T): Unit = {
+		val newSize0 = size0 + 1
+		ensureSize(newSize0)
+		set(size0, elem)
+		size0 = newSize0
+	}
+	
+
+\end{minted}
+\caption{Code of the \scalainline{ArrayBuffer} benchmark.}
+\label{example:arraybuffer-benchmark}
+\end{figure}
 
 \section{Methodology}
 
@@ -90,7 +73,7 @@ Each benchmark method in this chapter is warmed up with $10$ iterations of warmu
 Results of these are measured in throughput, the number of executions that were successfully completed in a second.
 The results are averaged from $10$ measurement iterations for $10$ seconds each.
 We evaluate our microbenchmarks on input sizes between one hundred thousand and one million elements to account for memory factors in our benchmarks. 
-Each benchmark is run on three different implementations, Scala on GraalVM (Graal), the monomorphic interpreter (Mono), and the polymorphic interpreter (Poly).
+Each benchmark is run on three different implementations, Scala on GraalVM (Graal), the monomorphic interpreter without specialization (Mono), and the polymorphic interpreter (Poly).
 While we provide the evaluation of our benchmarks on Scala and GraalVM, we do so to provide a baseline to show that the performance of our monomorphic interpreter is reasonable and that the performance improvement of our polymorphic extensions is fair.
 
 \section{Experimental Results}
@@ -99,42 +82,82 @@ While we provide the evaluation of our benchmarks on Scala and GraalVM, we do so
 	\centering
 	\includesvg[height=0.9\textheight]{data/ArrayBuffer.Append.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.append}.}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\includesvg[height=0.9\textheight]{data/List.Append.svg}
-	\caption{Benchmark results for \scalainline{List.append}.}
+	\label{results:array-append}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includesvg[height=0.9\textheight]{data/ArrayBuffer.Contains.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.contains}.}
+	\label{results:array-contains}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includesvg[height=0.9\textheight]{data/ArrayBuffer.Reverse.svg}
 	\caption{Benchmark results for \scalainline{ArrayBuffer.reverse}.}
+	\label{results:array-reverse}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[height=0.9\textheight]{data/List.Append.svg}
+	\caption{Benchmark results for \scalainline{List.append}.}
+	\label{results:list-append}
 \end{figure}
 
 \begin{figure}
 	\centering
 	\includesvg[height=0.9\textheight]{data/List.Contains.svg}
 	\caption{Benchmark results for \scalainline{List.contains}.}
+	\label{results:list-contains}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includesvg[height=0.9\textheight]{data/List.Hashcode.svg}
+	\caption{Benchmark results for \scalainline{List.hashCode}.}
+	\label{results:list-hashcode}
+\end{figure}
+
+\begin{figure}[!htb]
+\begin{minted}{scala}
+// Ensure that the internal array has at least `n` cells. 
+def ensureSize(n: Int): Unit = {
+	val arrayLength: Long = array.length // Use a Long to prevent overflows
+	if (n > arrayLength) {
+		var newSize: Long = arrayLength * 2
+		while (n > newSize) newSize = newSize * 2
+		// Clamp newSize to Int.MaxValue
+		if (newSize > lang.Int.MaxValue) newSize = lang.Int.MaxValue
+		
+		val resized = newArray[T](newSize.toInt)
+		var i = 0
+		while (i < size0) {
+			resized(i) = get(i)
+			i += 1
+		}
+		array = resized
+	}
+}	
+\end{minted}
+\caption{Implementation of \scalainline{ensureSize} of the \scalainline{ArrayBuffer} benchmark.}
+\label{example:arraybuffer-resize}
 \end{figure}
 
 The benchmark for \scalainline{ArrayBuffer.append} inserts a sequence of elements into a newly initialized array buffer. 
-This benchmark stresses array memory movement.
+This benchmark stresses array memory movement and the results are given in figure \ref{results:array-append}.
 Each time the backing array is too small for an additional element, the backing array is resized by creating a new larger array and copying over existing elements.
-This resizing operation (\scalainline{ensureSize} in \ref{example:arraybuffer-benchmark}) dominates the time spent in execution.
-Appending to an array buffer is on average $1.5$ times faster on the polymorphic interpreter than the monomorphic interpreter.
-Executing compiled Scala bytecode on GraalVM can be up to $4$ times faster than the monomorphic and polymorphic interpreter for smaller input sizes.
-As input size grows, the gap in throughput between GraalVM and polymorphic TastyTruffle narrows.
+This resizing operation (\scalainline{ensureSize} in \ref{example:arraybuffer-resize}) dominates the time spent in execution.
+There are autoboxing operations that occur during the update of the backing array when appending an element.
+As such, appending to an array buffer is on average $1.5$ times faster on the polymorphic interpreter than the monomorphic interpreter.
+However, the time spent in this benchmark is dominated by the array resizing operation, which largely translates to memory allocation and movement.
+Because of this, executing compiled Scala bytecode on GraalVM can be up to $4$ times faster than the monomorphic and polymorphic interpreter for smaller input sizes.
+These types of operations are faster executing in Java bytecode on Graal when compared to a Truffle interpeter.
+However, as input size grows, the gap in throughput between Scala on GraalVM and polymorphic TastyTruffle narrows.
 
 The \scalainline{ArrayBuffer.contains} benchmark tests array operations in isolation. 
-The benchmark checks an array buffer for the existence of an element.
+The benchmark checks an array buffer for the existence of an element and the results are given in figure \ref{results:array-contains}.
 It exercises a polymorphic array access followed by a polymorphic equality operation (e.g. \scalainline{(x: T) == (y: T)}).
 A polymorphic equality operator has dispatched the \javainline{equals} method of its left-hand side argument.
 This results in boxing one or both arguments in equality checks between polymorphic values.
@@ -146,20 +169,19 @@ A swap operation (given in \ref{impl:swap}) consists of two polymorphic value de
 
 \begin{figure}[!htb]
 \begin{minted}{scala}
-	def swap(i: Int, j: Int): Unit = {
-		val tmp1: T = get(i)
-		val tmp2: T = get(j)
-		set(i, tmp2)
-		set(j, tmp1)
-	}
+def swap(i: Int, j: Int): Unit = {
+	val tmp1: T = get(i)
+	val tmp2: T = get(j)
+	set(i, tmp2)
+	set(j, tmp1)
+}
 \end{minted}
 \caption{Code to swap two elements in an array buffer}
 \label{impl:swap}
 \end{figure}
 
 The performance of the \scalainline{reverse} microbenchmark proved to be the most challenging benchmark in terms of matching handwritten monomorphic code in \cite{scala:miniboxing}.
-The performance of each type variant of \scalainline{reverse} is roughly equal in the monomorphic interpreter and Scala and GraalVM; 
-Neither implementation can specialize the polymorphic reads and array accesses.
+The performance of each type variant of \scalainline{reverse} is roughly equal in the monomorphic interpreter and Scala on GraalVM; neither implementation can specialize the polymorphic reads and array accesses.
 The polymorphic interpreter has up to $28$ times more throughput than the monomorphic interpreter and GraalVM.
 
 The \scalainline{List.append} benchmark constructs a list from an array.
@@ -170,35 +192,27 @@ Appending to a list on Graal is up to $8$ faster than the monomorphic and polymo
 \scalainline{List.contains} exercises the same performance-bottlenecks as \scalainline{ArrayBuffer.contains}, except under the context of random heap access for a list.
 The execution of \scalainline{List.contains} on the polymorphic interpreter is roughly $50\%$ faster than on the monomorphic interpreter.
 
-\begin{figure}[!htb]
-	\centering
-	\includesvg[height=0.9\textheight]{data/List.Hashcode.svg}
-	\caption{Benchmark results for \scalainline{List.hashCode}.}
-\end{figure}
-
 \scalainline{List.hashCode} tests the specialization of the hash code function.
 Every class in Scala inherits the \scalainline{hashCode} function from the \scalainline{Any} type.
 When the \scalainline{hashCode} method is invoked in a polymorphic context, the Scala compiler inserts the \scalainline{anyHash} bridge.
-The semantics of computing hash codes between the same values with different types, such as \scalainline{Int} and \scalainline{Long}, necessitates the insertion of this bridge, which complicates JIT compilation.
+The semantics of computing hash codes among the same values with different types, such as \scalainline{Int} and \scalainline{Long}, necessitates the insertion of this bridge, which complicates JIT compilation.
 
 \begin{figure}[!htb]
 \begin{minted}{java}
-	public static int anyHash(Object x) {
-		if (x == null)           return 0;
-		if (x instanceof Long)   return longHash(((Long) x).longValue());
-		if (x instanceof Double) return doubleHash(((java.lang.Double) x).doubleValue());
-		if (x instanceof Float)  return floatHash(((Float) x).floatValue());
-		
-		return x.hashCode();
-	}
+public static int anyHash(Object x) {
+	if (x == null)           return 0;
+	if (x instanceof Long)   return longHash(((Long) x).longValue());
+	if (x instanceof Double) return doubleHash(((java.lang.Double) x).doubleValue());
+	if (x instanceof Float)  return floatHash(((Float) x).floatValue());
+	
+	return x.hashCode();
+}
 \end{minted}
 \caption{Implementation of the \scalainline{anyHash} function.}
 \label{impl:anyHash}
 \end{figure}
 
-
 Figure \ref{impl:anyHash} gives the implementation of the \scalainline{anyHash} function.
-
 In every polymorphic invocation of \scalainline{List.hashCode}, the improvement throughput on the polymorphic interpreter peaks at roughly $2.5$ times that of the monomorphic interpreter.
 With the exception of \scalainline{List.hashCode[Double]}, the throughput on the polymorphic interpreter matches the implementation of Scala on GraalVM.
 
@@ -213,7 +227,7 @@ The second shows the impact of specializing methods and classes for array types.
 \subsection{Inspecting Graal Graphs}
 
 Many of our microbenchmarks, such as \scalainline{List.contains} and \scalainline{List.hashCode}, rely on optimal frame and field accesses (without boxing) for performance.
-This subsection examines the Graal IR of \scalainline{List.head}.
+This section examines the Graal IR of \scalainline{List.head}.
 We show that the Graal IR of the microbenchmarks on the monomorphic interpreter contains autoboxing nodes that incur performance overheads compared to the Graal IR of the same programs seen in the polymorphic interpreter.
 
 \begin{figure}[!htb]
@@ -244,7 +258,7 @@ In theory, our approach to method specialization would not be hindered by this p
 	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{figures/dot/List.head.boxed.TruffleTier.png}
-		\caption{Graal IR of \scalainline{Cons.head} focused on field access of \scalainline{head0}}
+		\caption{Graal IR of \scalainline{Cons.head} focused on field access of \scalainline{head}}
 		\label{graalir:cons-head-boxed}
 	\end{subfigure}
 	\hfill
@@ -255,6 +269,7 @@ In theory, our approach to method specialization would not be hindered by this p
 		\label{graalir:cons-contains-head-focus-boxed}
 	\end{subfigure}
 	\hfill
+	\caption{Comparison of Graal IR between unspecialized code of \scalainline{Cons.head} and specialized code of \scalainline{Cons.head} in the callee context.}
 \end{figure}
 
 We examine in detail the Graal IR focusing on the \scalainline{List.head} accessor method in our \scalainline{List} running example.
@@ -274,12 +289,12 @@ A stamp is much like a type identifier but has additional descriptors attached.
 For example, the stamp \javainline{a!{\#} java.lang.Integer} has the following descriptors:
 
 \begin{description}
-	\item[\texttt{(a)}] Asserts that the stamp marks a reference type identifier. In the case of this stamp, the stamp marks the boxed reference type \javainline{java.lang.Integer}.
-	\item[\texttt{(!)}] Asserts that value is not the \javainline{null} reference value. The stamp contains this descriptor because it is preceded by a non-null guard.
-	\item[\texttt{(\#)}] Asserts that value marked by the stamp is \textit{exactly} an instance of the type identifier described by the stamp and not an instance of a subclass of the type identifier
+	\item[\texttt{(a)}] Asserts that the stamp marks a reference type identifier. The stamp marks the boxed reference type \javainline{java.lang.Integer}.
+	\item[\texttt{(!)}] Asserts that the value is not the \javainline{null} reference value. The stamp contains this descriptor because it is preceded by a non-null guard.
+	\item[\texttt{(\#)}] Asserts that the value marked by the stamp is \textit{exactly} an instance of the type identifier described by the stamp and not an instance of a subclass of the type identifier
 \end{description}
 
-In more succinct terms, the \javainline{instanceof} node $285$ checks that value is precisely the instance of a \javainline{java.lang.Integer} and is not the \javainline{null} value. 
+In more succinct terms, the \javainline{instanceof} node $285$ checks that the value is precisely the instance of a \javainline{java.lang.Integer} and is not the \javainline{null} value. 
 If the assumptions are not violated in compiled code, the boxed integer value is then returned from the compiled code.
 Note that no unboxing happens because the value of \scalainline{head} has not yet been used in a polymorphic context.
 
@@ -299,10 +314,11 @@ Note that no unboxing happens because the value of \scalainline{head} has not ye
 		\label{graalir:cons-contains-head-focus-specialized}
 	\end{subfigure}
 	\hfill
+	\caption{Comparison of Graal IR between unspecialized code of \scalainline{Cons.head} and specialized code of \scalainline{Cons.head} in the caller context.}
 \end{figure}
 
 When the access or method \scalainline{List.head} is inlined into its callsite in \scalainline{Cons.contains} (see figure \ref{graalir:cons-contains-head-focus-boxed}), an unbox operation is introduced because the equality operation in node $1744$ compares primitives and not references.
-Notice that the two guards nodes previously seen in figure \ref{graalir:cons-head-boxed} are folded into one node because the \javainline{instanceof} node is an extension of the null check node.
+Notice that the two guard nodes previously seen in figure \ref{graalir:cons-head-boxed} are folded into one node because the \javainline{instanceof} node is an extension of the null check node.
 Because polymorphic field values are stored as a reference on the object instance, these speculative assumptions are necessary to generate compiled code.
 To eliminate the overhead of the unbox operation and the accompanying guard nodes, The polymorphic fields of a class must be specialized.
 
@@ -315,8 +331,15 @@ When a specialized class instance is used in place of a generic class instance, 
 
 \subsection{Mixing in Array Type Information}
 
-While eliminating the autoboxing of frame and field accesses provided incremental improvements, incorporating array type information atop produced further throughput improvements for our array-backed microbenchmark.
-In this subsection, we examine the Graal IR that contain type switches for the Scala runtime to handle arrays.
+While eliminating the autoboxing of frame and field accesses provided incremental improvements, incorporating array type information produced further throughput improvements for our array-backed microbenchmark.
+In this section, we examine the Graal IR that contain type switches for the Scala runtime to handle arrays.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{figures/dot/List.apply.boxed.array_length.png}
+	\caption{Graal IR of \scalainline{array_length} in the context of \scalainline{List.apply[T](array: Array[T])}}
+	\label{graalir:list-apply-boxed-array-length}
+\end{figure}
 
 \begin{figure}[!htb]
 	\centering
@@ -330,17 +353,10 @@ Notice that the \scalainline{instanceof} type checks nodes (white) that are succ
 The numerous consecutive conditional expressions complicate the control flow analysis in JIT compilation.
 These conditional checks add unnecessary branching and burdens JIT compilation when the type of a specialized array could be known from specialization.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{figures/dot/List.apply.boxed.array_length.png}
-	\caption{Graal IR of \scalainline{array_length} in the context of \scalainline{List.apply[T](array: Array[T])}}
-	\label{graalir:list-apply-boxed-array-length}
-\end{figure}
-
 Figure \ref{graalir:list-apply-specialized-array-length} contains the simplified Graal IR of \scalainline{array_length} inlined into \scalainline{List.apply[T]}.
 Notice that there is a single \javainline{ArrayLength} node that is dominated by a $\pi$ node.
 A $\pi$ node\cite{abdc:pi-nodes} enforces a bound on a value.
-In the case of Graal, a $\pi$ node enforces bound on the type of a value.
+In the case of Graal, a $\pi$ node enforces a bound on the type of a value.
 More specifically in our example, the $\pi$ node narrows the type of the 2nd parameter of \scalainline{List.apply[T]} to a monomorphic array type.
 When the type of the parameter is narrowed, the type checks that enforce array types from figure \ref{graalir:list-apply-boxed-array-length} are eliminated because the type is now known.
 

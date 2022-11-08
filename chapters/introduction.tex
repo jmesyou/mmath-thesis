@@ -22,26 +22,25 @@ Additionally, static compilers do not have sufficient runtime information, which
 On the other hand, JIT compilers are ill-suited to whole program optimizations as they are best at the dynamic optimization of small regions of a program\cite{history:jit}.
 Therefore, the problem of specialization falls between static compilation and JIT compilation.
 
-This thesis introduces \textsc{TastyTruffle}, an interpreter and JIT compiler which incorporates rich source-level type information with speculative optimizations to specialize data representations for the Scala programming language.
+This thesis introduces \textsc{TastyTruffle}, an interpreter and JIT compiler that incorporates rich source-level type information with speculative optimizations to specialize data representations for the Scala programming language.
 \textsc{TastyTruffle} is implemented in Truffle, a framework that simplifies the implementation of a JIT compiler for a source language by implementing an interpreter for that language. 
 Our source language is the \acrfull{tasty} serialization format emitted by the Scala 3 compiler.
 TASTy is an abstract syntax tree format emitted after parsing and type checking Scala programs.
-By using TASTy, a suitable source language, we can access source-level type information without having to parse and type check a Scala source program.
+By using TASTy, source-level type information can be accessed without the need to parse and type check a Scala source program.
 
 The contributions of this thesis are as follows: 
 \begin{enumerate}
-	\item The implementation of an interpreter for the TASTy format using Truffle and the necessary transformations to make a TASTy program executable. TASTy is high-level uncanonical representation of Scala not suitable for execution; Non-trivial transformations must be applied to a TASTy program before execution.
+	\item The implementation of an interpreter for the TASTy format using Truffle and the necessary transformations to make a TASTy program executable. TASTy is a high-level uncanonical representation of Scala not suitable for execution; Non-trivial transformations must be applied to a TASTy program before execution.
 	In contrast, Java bytecode of compiled Scala programs is readily available for execution on any Java virtual machine.
-	\item The extension of interpreter to support specialized data representations of generic types.
+	\item The extension of a interpreter to support specialized data representations of generic types.
 	These specialized data representations are created using concrete type arguments that generic types are instantiated with.
-	\item The evaluation of the interpreter on simple and realistic programs that present a challenge to existing state-of-the-art techniques that interpreter is able to optimize.
+	\item The evaluation of the interpreter on simple and realistic programs that present a challenge to existing state-of-the-art techniques that an interpreter is able to optimize.
 \end{enumerate}
 
 \newpage
 
 \section{Thesis Organization}
 
-We describe the layout of the remainder of this thesis.
 Chapter 2 provides an overview of the many intermediate representations of Scala from compilation to execution.
 It explores the advantages and drawbacks of each intermediate representation concerning specialization.
 Chapter 3 details the implementation of \textsc{TastyTruffle}.
@@ -51,4 +50,4 @@ Chapter 4 evaluates the interpreter with and without extensions for dynamic spec
 The chapter provides the performance of these evaluated data structures in the context of the standard implementation of Scala with the underlying JIT compiler of our interpreter without any augmentation.
 Chapter 5 explores related work in various implementations of parametric polymorphism and other Truffle interpreters.
 Chapter 6 discusses possible extensions to \textsc{TastyTruffle} to better integrate source-level type semantics with JIT compilation.
-Chapter 7 concludes the thesis.
+Chapter 7 concludes the thesis.5\label{key}

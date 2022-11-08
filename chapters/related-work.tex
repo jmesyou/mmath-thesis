@@ -16,7 +16,7 @@ Implementations of parametric polymorphism can be divided into two broad categor
 	\item[\textit{Homogeneous Translation}] 
 	This approach provides a single data representation for each polymorphic type. 
 	An example of this implementation is the type erasure transformation applied in the Java and Scala compilation pipelines.
-	Morrison et al. also refer to this form of polymorphism as the \scalainline{uniform polymorphism}\cite{types-of-polymorphism}.
+	Morrison et al. also refer to this form of polymorphism as the \textit{uniform polymorphism}\cite{napier88:polymorphism}.
 	\item[\textit{Heterogeneous Translation}]
 	In contrast to homogeneous translation, the heterogeneous translation ensures a unique data representation for every polymorphic type instantiation.The heterogeneous translation can also be referred to as \textit{textual polymorphism}.
 \end{description}
@@ -74,7 +74,7 @@ Our approach is based on the \textit{closed world assumption} as the entire prog
 
 \section{Specialization in Scala}
 
-The standard implementation of parametric polymorphism follows that of Java; generic class definitions have their type parameters erased.
+The standard implementation of parametric polymorphism in Scala follows that of Java; generic class definitions have their type parameters erased.
 All previous approaches attempt to avoid the problem of bytecode explosion, where the specialization of polymorphic data with every possible type creates an exponential number of unique data representations.
 Dragos describes the earliest efforts to specialize Scala programs with the aid of annotations\cite{scala:specialization}.
 Annotations avoid unnecessarily specializing polymorphic data through knowledge injected by a programmer.

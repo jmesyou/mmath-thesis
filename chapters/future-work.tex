@@ -3,7 +3,7 @@
 TastyTruffle is intended to be a framework for dynamic whole-program approaches to optimizing Scala.
 In this section, we discuss some possible extensions to the interpreter that further take advantage of Truffle mechanisms.
 A substantial penalty of heterogeneous translations of polymorphic programs is \textit{code explosion}.
-For large polymorphic programs, the penalty of heterogeneous translation is twofold; 
+For large polymorphic programs, the penalty of heterogeneous translation is twofold.
 The first is the cost of increased memory usage.
 Having many specialized data representations incurs extra storage unless these data representations are regenerated every time a specialization is needed.
 The second is the hidden computational overhead of specialization. 
@@ -30,4 +30,4 @@ We can further augment type-erased polymorphic fields, and frame slots to profil
 These two pieces of dynamic information can be combined to allow the specialization of specific instantiations that are frequently manipulated but not frequently created.
 
 We can apply the same optimization to sharing data layouts between specific specializations with inspiration from the work done by Ureche et al. in \cite{scala:miniboxing}.
-Because the additional operations that adapt shared specializations to their original type contexts are negligible in terms of performance\cite{scala:miniboxing}, these operations make sense to intrinsify as Truffle nodes that will be further optimized by JIT compilation.
+Because the additional operations that adapt shared specializations to their original type contexts are negligible in terms of performance\cite{scala:miniboxing}, these operations make sense to implement directly as Truffle nodes that will be further optimized by JIT compilation.

@@ -132,20 +132,18 @@
 	style=borland,
 	obeytabs=true,
 	tabsize=4,
-	fontsize=\scriptsize,
+	fontsize=\footnotesize,
 	frame=lines,
-	framesep=4mm,
-	numbersep=-10pt
+	framesep=4mm
 }
 \setminted[java]{
 	linenos,
 	style=trac,
 	obeytabs=true,
 	tabsize=4,
-	fontsize=\scriptsize,
+	fontsize=\footnotesize,
 	frame=lines,
-	framesep=4mm,
-	numbersep=-10pt
+	framesep=4mm
 }
 \setmintedinline{
 	fontsize=\normalsize,
@@ -331,185 +329,185 @@ description={Phi node}
 \chapter{Scala 3 Compiler Phases}
 \label{appendix:dotty-phases}
 \begin{minted}{scala}
-	/** Phases dealing with the frontend up to trees ready for TASTY pickling */
-	protected def frontendPhases: List[List[Phase]] =
-		// scanner, parser
-		List(new Parser) ::     
-		// namer, typer                  
-		List(new TyperPhase) ::   
-		// YCheck positions                
-		List(new YCheckPositions) ::         
-		// Sends information on classes' dependencies to sbt via callbacks 
-		List(new sbt.ExtractDependencies) ::   
-		// Extract info into .semanticdb files  
-		List(new semanticdb.ExtractSemanticDB) :: 
-		// Additional checks and cleanups after type checking
-		List(new PostTyper) ::      
-		 // Additional checks and transformations for Scala.js (Scala.js only)              
-		List(new sjs.PrepJSInterop) ::  
-		// Check PCP, heal quoted types and expand macros         
-		List(new Staging) ::      
-		// Sends a representation of the API of classes to sbt via callbacks                
-		List(new sbt.ExtractAPI) ::               
-		// Set the `rootTreeOrProvider` on class symbols
-		List(new SetRootTree) ::                  
-		Nil
+/** Phases dealing with the frontend up to trees ready for TASTY pickling */
+protected def frontendPhases: List[List[Phase]] =
+	// scanner, parser
+	List(new Parser) ::     
+	// namer, typer                  
+	List(new TyperPhase) ::   
+	// YCheck positions                
+	List(new YCheckPositions) ::         
+	// Sends information on classes' dependencies to sbt via callbacks 
+	List(new sbt.ExtractDependencies) ::   
+	// Extract info into .semanticdb files  
+	List(new semanticdb.ExtractSemanticDB) :: 
+	// Additional checks and cleanups after type checking
+	List(new PostTyper) ::      
+ // Additional checks and transformations for Scala.js (Scala.js only)              
+	List(new sjs.PrepJSInterop) ::  
+	// Check PCP, heal quoted types and expand macros         
+	List(new Staging) ::      
+	// Sends a representation of the API of classes to sbt via callbacks                
+	List(new sbt.ExtractAPI) ::               
+	// Set the `rootTreeOrProvider` on class symbols
+	List(new SetRootTree) ::                  
+	Nil
 
-	/** Phases dealing with TASTY tree pickling and unpickling */
-	protected def picklerPhases: List[List[Phase]] =
-		List(new Pickler) ::            // Generate TASTY info
-		List(new PickleQuotes) ::       // Turn quoted trees into explicit run-time data structures
-		Nil
+/** Phases dealing with TASTY tree pickling and unpickling */
+protected def picklerPhases: List[List[Phase]] =
+	List(new Pickler) ::            // Generate TASTY info
+	List(new PickleQuotes) ::       // Turn quoted trees into explicit run-time data structures
+	Nil
 
-	/** Phases dealing with the transformation from pickled trees to backend trees */
-	protected def transformPhases: List[List[Phase]] =
-		List(
-			// Some transformations to put trees into a canonical form
-			new FirstTransform,
-			// Internal use only: Check that compiled program has no data races involving global vars         
-			new CheckReentrant,
-			// Eliminate references to package prefixes in Select nodes         
-			new ElimPackagePrefixes,    
-			// Cook the comments: expand variables, doc, etc.
-			new CookComments,         
-			 // Check restrictions that apply to @static members  
-			new CheckStatic,   
-			// Reduce closure applications        
-			new BetaReduce,      
-			// Check initialization of objects       
-			new init.Checker) ::        
-		List(
-			new ElimRepeated,           // Rewrite vararg parameters and arguments
-			new ExpandSAMs,             // Expand single abstract method closures to anonymous classes
-			new ProtectedAccessors,     // Add accessors for protected members
-			new ExtensionMethods,       // Expand methods of value classes with extension methods
-			new UncacheGivenAliases,    // Avoid caching RHS of simple parameterless given aliases
-			new ByNameClosures,         // Expand arguments to by-name parameters to closures
-			new HoistSuperArgs,         // Hoist complex arguments of supercalls to enclosing scope
-			new SpecializeApplyMethods, // Adds specialized methods to FunctionN
-			new RefChecks) ::           // Various checks mostly related to abstract members and overriding
-		List(
-		 	// Turn opaque into normal aliases
-			new ElimOpaque,            
-			// Compile cases in try/catch
-			new TryCatchPatterns,      
-			// Compile pattern matches
-			new PatternMatcher,         
-			// Make all JS classes explicit (Scala.js only)
-			new sjs.ExplicitJSClasses,  
-			// Add accessors to outer classes from nested ones.
-			new ExplicitOuter,          
-			// Make references to non-trivial self types explicit as casts
-			new ExplicitSelf,           
-			// Expand by-name parameter references
-			new ElimByName,             
-			// Optimizes raw and s string interpolators by rewriting them to string concatentations
-			new StringInterpolatorOpt) :: 
-		List(
-		 	// Drop erased definitions from scopes and simplify erased expressions
-			new PruneErasedDefs,
-			// Remove placeholders of inlined patterns       
-			new InlinePatterns,    
-			// Inlines calls to value class methods     
-			new VCInlineMethods,  
-			// Express vararg arguments as arrays      
-			new SeqLiterals, 
-			// Special handling of `==`, `|=`, `getClass` methods           
-			new InterceptedMethods, 
-			// Replace non-private vals and vars with getter defs (fields are added later)    
-			new Getters,
-			// Specialized Function{0,1,2} by replacing super with specialized super                
-			new SpecializeFunctions,  
-			// Put try expressions that might execute on non-empty stacks into their own methods  
-			new LiftTry, 
-			// Collect fields that can be nulled out after use in lazy initialization               
-			new CollectNullableFields,  
-			// Expand outer selections
-			new ElimOuterSelect,
-			// Implement super accessors        
-			new ResolveSuper,           
-			// Add forwarders for FunctionXXL apply method
-			new FunctionXXLForwarders,  
-			// Add forwarders for aliases of superclass parameters
-			new ParamForwarding,     
-			// Optimize generic operations on tuples   
-			new TupleOptimizations,   
-			// Lift blocks from receivers of applications  
-			new LetOverApply, 
-			// Intercept creation of (non-generic) arrays and intrinsify.          
-			new ArrayConstructors) ::  
-		// Rewrite types to JVM model, erasing all type parameters, abstract types and refinements.	 
-		List(new Erasure) ::            
-		List(
-			// Expand erased value types to their underlying implmementation types
-			new ElimErasedValueType,    
-			// Remove pure stats from blocks
-			new PureStats,        
-			// Peep-hole optimization to eliminate unnecessary value class allocations      
-			new VCElideAllocations,   
-			// Optimize `scala.Array.apply([....])` and `scala.Array.apply(..., [....])` into `[...]`  
-			new ArrayApply,     
-			// Adds fake new invocations to local JS classes in calls to `createLocalJSClass`        
-			new sjs.AddLocalJSFakeNews, 
-			 // Rewrite PolyFunction subclasses to FunctionN subclasses
-			new ElimPolyFunction,     
-			 // Rewrite tail recursion to loops 
-			new TailRec,               
-			// Fill in constructors for Java enums
-			new CompleteJavaEnums,    
-			// Expand trait fields and trait initializers  
-			new Mixin,                  
-			// Expand lazy vals
-			new LazyVals,              
-			// Add private fields to getters and setters
-			new Memoize,                
-			 // Expand non-local returns
-			new NonLocalReturns,       
-			// Represent vars captured by closures as heap objects
-			new CapturedVars) ::        
-		List(
-			// Collect initialization code in primary constructors
-			// Note: constructors changes decls in transformTemplate, 
-			// no InfoTransformers should be added after it
-			new Constructors,           
-			// Count calls and allocations under -Yinstrument
-			new Instrumentation) ::     
-		List(
-			// Lifts out nested functions to class scope, storing free variables in environments
-			new LambdaLift,             
-			// Note: in this mini-phase block scopes are incorrect. No phases that rely on scopes should be here
-			// Replace `this` references to static objects by global identifiers
-			new ElimStaticThis,         
-			// Identify outer accessors that can be dropped
-			new CountOuterAccesses) :: 
-		List(
-			// Drop unused outer accessors
-			new DropOuterAccessors,     
-			// Lift all inner classes to package scope
-			new Flatten,                
-			// Renames lifted classes to local numbering scheme
-			new RenameLifted,           
-			// Replace wildcards with default values
-			new TransformWildcards,     
-			 // Move static methods from companion to the class itself
-			new MoveStatics,           
-			// Widen private definitions accessed from nested classes
-			new ExpandPrivate,          
-			 // Repair scopes rendered invalid by moving definitions in prior phases of the group
-			new RestoreScopes,         
-			// get rid of selects that would be compiled into GetStatic
-			new SelectStatic,           
-			// Generate JUnit-specific bootstrapper classes for Scala.js (not enabled by default)
-			new sjs.JUnitBootstrappers, 
-			// Find classes that are called with super
-			new CollectSuperCalls) ::   
-		Nil
-		
-	/** Generate the output of the compilation */
-	protected def backendPhases: List[List[Phase]] =
-		List(new backend.sjs.GenSJSIR) :: // Generate .sjsir files for Scala.js (not enabled by default)
-		List(new GenBCode) ::             // Generate JVM bytecode
-		Nil
+/** Phases dealing with the transformation from pickled trees to backend trees */
+protected def transformPhases: List[List[Phase]] =
+	List(
+		// Some transformations to put trees into a canonical form
+		new FirstTransform,
+		// Internal use only: Check that compiled program has no data races involving global vars         
+		new CheckReentrant,
+		// Eliminate references to package prefixes in Select nodes         
+		new ElimPackagePrefixes,    
+		// Cook the comments: expand variables, doc, etc.
+		new CookComments,         
+	 // Check restrictions that apply to @static members  
+		new CheckStatic,   
+		// Reduce closure applications        
+		new BetaReduce,      
+		// Check initialization of objects       
+		new init.Checker) ::        
+	List(
+		new ElimRepeated,           // Rewrite vararg parameters and arguments
+		new ExpandSAMs,             // Expand single abstract method closures to anonymous classes
+		new ProtectedAccessors,     // Add accessors for protected members
+		new ExtensionMethods,       // Expand methods of value classes with extension methods
+		new UncacheGivenAliases,    // Avoid caching RHS of simple parameterless given aliases
+		new ByNameClosures,         // Expand arguments to by-name parameters to closures
+		new HoistSuperArgs,         // Hoist complex arguments of supercalls to enclosing scope
+		new SpecializeApplyMethods, // Adds specialized methods to FunctionN
+		new RefChecks) ::           // Various checks mostly related to abstract members and overriding
+	List(
+	 	// Turn opaque into normal aliases
+		new ElimOpaque,            
+		// Compile cases in try/catch
+		new TryCatchPatterns,      
+		// Compile pattern matches
+		new PatternMatcher,         
+		// Make all JS classes explicit (Scala.js only)
+		new sjs.ExplicitJSClasses,  
+		// Add accessors to outer classes from nested ones.
+		new ExplicitOuter,          
+		// Make references to non-trivial self types explicit as casts
+		new ExplicitSelf,           
+		// Expand by-name parameter references
+		new ElimByName,             
+		// Optimizes raw and s string interpolators by rewriting them to string concatentations
+		new StringInterpolatorOpt) :: 
+	List(
+	 	// Drop erased definitions from scopes and simplify erased expressions
+		new PruneErasedDefs,
+		// Remove placeholders of inlined patterns       
+		new InlinePatterns,    
+		// Inlines calls to value class methods     
+		new VCInlineMethods,  
+		// Express vararg arguments as arrays      
+		new SeqLiterals, 
+		// Special handling of `==`, `|=`, `getClass` methods           
+		new InterceptedMethods, 
+		// Replace non-private vals and vars with getter defs (fields are added later)    
+		new Getters,
+		// Specialized Function{0,1,2} by replacing super with specialized super                
+		new SpecializeFunctions,  
+		// Put try expressions that might execute on non-empty stacks into their own methods  
+		new LiftTry, 
+		// Collect fields that can be nulled out after use in lazy initialization               
+		new CollectNullableFields,  
+		// Expand outer selections
+		new ElimOuterSelect,
+		// Implement super accessors        
+		new ResolveSuper,           
+		// Add forwarders for FunctionXXL apply method
+		new FunctionXXLForwarders,  
+		// Add forwarders for aliases of superclass parameters
+		new ParamForwarding,     
+		// Optimize generic operations on tuples   
+		new TupleOptimizations,   
+		// Lift blocks from receivers of applications  
+		new LetOverApply, 
+		// Intercept creation of (non-generic) arrays and intrinsify.          
+		new ArrayConstructors) ::  
+	// Rewrite types to JVM model, erasing all type parameters, abstract types and refinements.	 
+	List(new Erasure) ::            
+	List(
+		// Expand erased value types to their underlying implmementation types
+		new ElimErasedValueType,    
+		// Remove pure stats from blocks
+		new PureStats,        
+		// Peep-hole optimization to eliminate unnecessary value class allocations      
+		new VCElideAllocations,   
+		// Optimize `scala.Array.apply([....])` and `scala.Array.apply(..., [....])` into `[...]`  
+		new ArrayApply,     
+		// Adds fake new invocations to local JS classes in calls to `createLocalJSClass`        
+		new sjs.AddLocalJSFakeNews, 
+	 // Rewrite PolyFunction subclasses to FunctionN subclasses
+		new ElimPolyFunction,     
+	 // Rewrite tail recursion to loops 
+		new TailRec,               
+		// Fill in constructors for Java enums
+		new CompleteJavaEnums,    
+		// Expand trait fields and trait initializers  
+		new Mixin,                  
+		// Expand lazy vals
+		new LazyVals,              
+		// Add private fields to getters and setters
+		new Memoize,                
+	 // Expand non-local returns
+		new NonLocalReturns,       
+		// Represent vars captured by closures as heap objects
+		new CapturedVars) ::        
+	List(
+		// Collect initialization code in primary constructors
+		// Note: constructors changes decls in transformTemplate, 
+		// no InfoTransformers should be added after it
+		new Constructors,           
+		// Count calls and allocations under -Yinstrument
+		new Instrumentation) ::     
+	List(
+		// Lifts out nested functions to class scope, storing free variables in environments
+		new LambdaLift,             
+		// Note: in this mini-phase block scopes are incorrect. No phases that rely on scopes should be here
+		// Replace `this` references to static objects by global identifiers
+		new ElimStaticThis,         
+		// Identify outer accessors that can be dropped
+		new CountOuterAccesses) :: 
+	List(
+		// Drop unused outer accessors
+		new DropOuterAccessors,     
+		// Lift all inner classes to package scope
+		new Flatten,                
+		// Renames lifted classes to local numbering scheme
+		new RenameLifted,           
+		// Replace wildcards with default values
+		new TransformWildcards,     
+	 // Move static methods from companion to the class itself
+		new MoveStatics,           
+		// Widen private definitions accessed from nested classes
+		new ExpandPrivate,          
+	 // Repair scopes rendered invalid by moving definitions in prior phases of the group
+		new RestoreScopes,         
+		// get rid of selects that would be compiled into GetStatic
+		new SelectStatic,           
+		// Generate JUnit-specific bootstrapper classes for Scala.js (not enabled by default)
+		new sjs.JUnitBootstrappers, 
+		// Find classes that are called with super
+		new CollectSuperCalls) ::   
+	Nil
+	
+/** Generate the output of the compilation */
+protected def backendPhases: List[List[Phase]] =
+	List(new backend.sjs.GenSJSIR) :: // Generate .sjsir files for Scala.js (not enabled by default)
+	List(new GenBCode) ::             // Generate JVM bytecode
+	Nil
 \end{minted}
 %======================================================================
 

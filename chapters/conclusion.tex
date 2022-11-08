@@ -9,10 +9,10 @@ A particular challenge in the implementation of \textsc{TastyTruffle} was the tr
 Because TASTy is emitted after parsing and type checking, no other compiler transformations typical in other intermediate representations are present.
 Many features of the Scala programming language are built as abstractions of simpler constructs that the compiler must further simplify.
 Without the existing compiler transformations to simplify these abstractions, TASTy can be at times \textit{extraneously} high-level for execution.
-While this did not significantly impact the evaluation of simple Scala programs for our experiments, it limits the \textit{breadth} of programs that are executable by our interpreter.
+While this did not significantly affect the evaluation of simple Scala programs for our experiments, it limits the \textit{breadth} of programs that are executable by our interpreter.
 A possible solution to this hurdle is to read TASTy, perform a subset of Scala compiler transforms, then execute the program using our translation.
 While we will have to avoid the type erasure transformation and all subsequent transformations that depend on the type erasure results, a much more significant portion of existing Scala programs can be executed on our interpreter. 
-This is particularly important in the context of the Scala collections library. 
+This capability is particularly important in the context of the Scala collections library. 
 As many Scala applications rely extensively on the Scala collections library, it would open the possibility for evaluating \textsc{TastyTruffle} on larger real-world workloads.
 
 The specialization of classes with both class-polymorphic and method-polymorphic semantics proved to be a complex implementation detail.
