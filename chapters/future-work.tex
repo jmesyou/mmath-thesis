@@ -4,10 +4,11 @@ TastyTruffle is intended to be a framework for dynamic whole-program approaches 
 In this section, we discuss some possible extensions to the interpreter that further take advantage of Truffle mechanisms.
 A substantial penalty of heterogeneous translations of polymorphic programs is \textit{code explosion}.
 For large polymorphic programs, the penalty of heterogeneous translation is twofold.
-The first is the cost of increased memory usage.
+First, the cost of increased memory usage.
 Having many specialized data representations incurs extra storage unless these data representations are regenerated every time a specialization is needed.
 The second is the hidden computational overhead of specialization. 
 Like other computational overheads of managed runtimes such as garbage collection, time spent generating specialized variants of polymorphic classes or methods means time not spent executing the program.
+This overhead may be reduced by distributing such workloads into multiple threads.
 We propose several heuristics to influence \textit{when} a specialization is created.
 
 Many prior approaches to specialization have already attempted to minimize the number of specializations to mitigate performance degradation for complex polymorphic definitions, where there is often a \(O(t^n)\) space complexity worse case\footnote{$t$ is the number of values types combined with the reference type, $n$ is the number of type parameters in a generic definition.}.

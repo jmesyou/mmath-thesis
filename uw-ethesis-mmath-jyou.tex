@@ -256,7 +256,7 @@ description={Phi node}
 % into several files, each one containing one chapter.
 % To illustrate this idea, the "front pages" (i.e., title page,
 % declaration, borrowers' page, abstract, acknowledgements,
-% dedication, table of contents, list of tables, list of figures,
+% dedication, table of contents, list of , list of figures,
 % nomenclature) are contained within the file "uw-ethesis-frontpgs.tex" which is
 % included into the document by the following statement.
 %----------------------------------------------------------------------
@@ -355,8 +355,10 @@ protected def frontendPhases: List[List[Phase]] =
 
 /** Phases dealing with TASTY tree pickling and unpickling */
 protected def picklerPhases: List[List[Phase]] =
-	List(new Pickler) ::            // Generate TASTY info
-	List(new PickleQuotes) ::       // Turn quoted trees into explicit run-time data structures
+	// Generate TASTY info
+	List(new Pickler) ::
+	// Turn quoted trees into explicit run-time data structures            
+	List(new PickleQuotes) ::       
 	Nil
 
 /** Phases dealing with the transformation from pickled trees to backend trees */
@@ -370,7 +372,7 @@ protected def transformPhases: List[List[Phase]] =
 		new ElimPackagePrefixes,    
 		// Cook the comments: expand variables, doc, etc.
 		new CookComments,         
-	 // Check restrictions that apply to @static members  
+		 // Check restrictions that apply to @static members  
 		new CheckStatic,   
 		// Reduce closure applications        
 		new BetaReduce,      
@@ -449,9 +451,9 @@ protected def transformPhases: List[List[Phase]] =
 		new ArrayApply,     
 		// Adds fake new invocations to local JS classes in calls to `createLocalJSClass`        
 		new sjs.AddLocalJSFakeNews, 
-	 // Rewrite PolyFunction subclasses to FunctionN subclasses
+	 	// Rewrite PolyFunction subclasses to FunctionN subclasses
 		new ElimPolyFunction,     
-	 // Rewrite tail recursion to loops 
+	 	// Rewrite tail recursion to loops 
 		new TailRec,               
 		// Fill in constructors for Java enums
 		new CompleteJavaEnums,    
@@ -475,7 +477,8 @@ protected def transformPhases: List[List[Phase]] =
 	List(
 		// Lifts out nested functions to class scope, storing free variables in environments
 		new LambdaLift,             
-		// Note: in this mini-phase block scopes are incorrect. No phases that rely on scopes should be here
+		// Note: in this mini-phase block scopes are incorrect. 
+		// No phases that rely on scopes should be here
 		// Replace `this` references to static objects by global identifiers
 		new ElimStaticThis,         
 		// Identify outer accessors that can be dropped
@@ -505,8 +508,10 @@ protected def transformPhases: List[List[Phase]] =
 	
 /** Generate the output of the compilation */
 protected def backendPhases: List[List[Phase]] =
-	List(new backend.sjs.GenSJSIR) :: // Generate .sjsir files for Scala.js (not enabled by default)
-	List(new GenBCode) ::             // Generate JVM bytecode
+	// Generate .sjsir files for Scala.js (not enabled by default)
+	List(new backend.sjs.GenSJSIR) :: 
+	// Generate JVM bytecode
+	List(new GenBCode) ::             
 	Nil
 \end{minted}
 %======================================================================

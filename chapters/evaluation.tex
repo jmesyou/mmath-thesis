@@ -8,9 +8,6 @@ Finally, we discuss the results of the benchmarks, examine the causes of perform
 
 \section{Benchmarks}
 
-In this section, we will introduce an additional program on top of our running example for benchmarking.
-We will also summarize the motivations for selecting these benchmarks from \cite{scala:miniboxing}.
-
 Each microbenchmark exercises unique polymorphic operations that are typically performance bottlenecks\cite{scala:collections-optimization,scala:dacapo} in Scala programs.
 The \scalainline{ArrayBuffer} class implements a resizable buffer backed by an array.
 It contains three microbenchmarks that stress polymorphic operations in the context of contiguous memory access.
@@ -65,11 +62,11 @@ class ArrayBuffer[T] {
 
 Performance measurement of just-in-time compiled programs is an infamously difficult issue\cite{java:performance-analysis,java:statistically-rigor-performance-analysis}.
 Many non-deterministic effects, such as speculative optimization, garbage collection, and thread scheduling, affect the performance of programs executing on the Java Virtual Machine.
-As a result, the JVM must be \textit{warmed up} before measuring program performance.
+To address some of these effects, the JVM must be \textit{warmed up} before measuring program performance.
 A benchmarking routine is warmed up with several iterations of invocations for profiling data to be collected and JIT compilation to be finished.
 Therefore the measured performance of a microbenchmark will record the program executing the stable JIT compiled code instead of code executing in the interpreter.
 
-Each benchmark method in this chapter is warmed up with $10$ iterations of warmup lasting $10$ seconds each.
+Each benchmark method in this chapter is warmed up with $10$ iterations of warmup to stabilize the throughput of the method under measurement.
 Results of these are measured in throughput, the number of executions that were successfully completed in a second.
 The results are averaged from $10$ measurement iterations for $10$ seconds each.
 We evaluate our microbenchmarks on input sizes between one hundred thousand and one million elements to account for memory factors in our benchmarks. 
@@ -145,6 +142,10 @@ def ensureSize(n: Int): Unit = {
 \label{example:arraybuffer-resize}
 \end{figure}
 
+The benchmarks are evaluated on a system with an AMD Opteron 6274 with $32$ cores at $2.2$ GHz.
+The system has $64$ GB of memory.
+The underlying GraalVM used for executing Scala bytecode and both Truffle interpreters is GraalVM Enterprise Edition 22.3.
+
 The benchmark for \scalainline{ArrayBuffer.append} inserts a sequence of elements into a newly initialized array buffer. 
 This benchmark stresses array memory movement and the results are given in figure \ref{results:array-append}.
 Each time the backing array is too small for an additional element, the backing array is resized by creating a new larger array and copying over existing elements.
@@ -186,8 +187,8 @@ The polymorphic interpreter has up to $28$ times more throughput than the monomo
 
 The \scalainline{List.append} benchmark constructs a list from an array.
 As the creation of polymorphic instances is predominantly memory-bound and not compute-bound, there is no significant improvement in throughput from specialization.
-In fact, executing Scala via Java bytecode on the JVM results in substantially greater throughput.
-Appending to a list on Graal is up to $8$ faster than the monomorphic and polymorphic interpreter.
+In fact, executing Scala via Java bytecode on GraalVM results in substantially greater throughput.
+Appending to a list on Graal is up to $8$ times faster than the monomorphic and polymorphic interpreter.
 
 \scalainline{List.contains} exercises the same performance-bottlenecks as \scalainline{ArrayBuffer.contains}, except under the context of random heap access for a list.
 The execution of \scalainline{List.contains} on the polymorphic interpreter is roughly $50\%$ faster than on the monomorphic interpreter.
@@ -273,7 +274,7 @@ In theory, our approach to method specialization would not be hindered by this p
 \end{figure}
 
 We examine in detail the Graal IR focusing on the \scalainline{List.head} accessor method in our \scalainline{List} running example.
-The accessor is frequently used in our \scalainline{List} microbenchmarks; Performance of \scalainline{List.contains} and \scalainline{List.hashCode} depends on the elimination of the unboxing in this method.
+The accessor is frequently used in our \scalainline{List} microbenchmarks; performance of \scalainline{List.contains} and \scalainline{List.hashCode} depends on the elimination of the unboxing in this method.
 We focus on unboxing when the \scalainline{head} field is accessed by the \scalainline{List.head} accessor.
 This unboxing can be seen in \ref{graalir:cons-head-boxed}.
 

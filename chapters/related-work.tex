@@ -18,7 +18,7 @@ Implementations of parametric polymorphism can be divided into two broad categor
 	An example of this implementation is the type erasure transformation applied in the Java and Scala compilation pipelines.
 	Morrison et al. also refer to this form of polymorphism as the \textit{uniform polymorphism}\cite{napier88:polymorphism}.
 	\item[\textit{Heterogeneous Translation}]
-	In contrast to homogeneous translation, the heterogeneous translation ensures a unique data representation for every polymorphic type instantiation.The heterogeneous translation can also be referred to as \textit{textual polymorphism}.
+	In contrast to homogeneous translation, the heterogeneous translation ensures a unique data representation for every polymorphic type instantiation. The heterogeneous translation can also be referred to as \textit{textual polymorphism}.
 \end{description}
 
 This section will cover various approaches to implementing parametric polymorphism in the context of these two forms.
@@ -28,8 +28,8 @@ Parametric polymorphism was first studied in functional programming languages\ci
 Leroy proposed an approach in which type coercion operations are inserted between polymorphic operations and monomorphic data. 
 The coercion operations in this approach are quite similar to the notion of boxing and unboxing, which Leroy describes as \textit{wrapping} and \textit{unwrapping}.
 
-The heterogeneous translation is the more prevalent implementation of parametric polymorphism in object-oriented programming languages.
-The \mintinline{cpp}|template| concept in the \CC\ programming language popularized parametric polymorphism in objected-oriented programming languages.
+The heterogeneous translation is a common implementation of parametric polymorphism in object-oriented programming languages.
+\mintinline{cpp}|template| semantics in the \CC\ programming language popularized parametric polymorphism in objected-oriented programming languages.
 Templates define a generic definition of some kind in \CC.
 The \CC\ compiler will generate heterogeneous translations based on every set of concrete type arguments supplied during compilation.
 The implementation of polymorphism in the Common Language Runtime\cite{clr:overview,clr:spec} by Kennedy and Syme makes use of reified types in a polymorphic bytecode IR during execution.
@@ -56,21 +56,20 @@ When combined with other higher-order abstractions, such as anonymous classes, i
 
 \section{Generics and Java}
 
-Prior efforts to implement generics in Java have been based on static compilation techniques restricted by the \textit{open world assumption}.
-The open world assumption assumes that the program under compilation is \textit{incomplete}; extra parts of the program will be supplied in a future iteration of compilation.
+Prior efforts to implement generics in Java have been based on static compilation techniques restricted by the \textit{open-world assumption}.
+The open-world assumption is that the program under compilation is \textit{incomplete}; extra parts of the program will be supplied in a future iteration of compilation.
 This form of compilation is commonly known as \textit{separate compilation}.
 As such, the compilation results of the current parts of the program must be interoperable with the compilation results of the remaining yet-to-be-determined parts.
 
-The Java language did not initially support parametric polymorphism in its initial release.
+The Java language did not initially support parametric polymorphism.
 As a result, many different approaches were proposed before a uniform polymorphism became the accepted implementation for Java.
 Pizza\cite{java:pizza} was a superset of Java that supported heterogeneous and homogeneous translations of polymorphic definitions into Java.
 Agesen, Freund, and Mitchell proposed a heterogeneous translation for parametric polymorphism for Java during load-time instead of compile-time\cite{java:agesen-type-params}.
 NextGen\cite{java:nextgen} separates the translation of polymorphic classes into monomorphic and polymorphic components.
-In NextGen, Only the polymorphic members of a class definition are specialized; These specialized classes inherit the implementation of their monomorphic members from a common parent class.
+In NextGen, only the polymorphic members of a class definition are specialized; These specialized classes inherit the implementation of their monomorphic members from a common parent class.
 Finally, GJ\cite{java:odersky-type-params} proposed the foundations for what is now the accepted implementation of parametric polymorphism in Java.
-Polymorphic class definitions have a single uniform data representation after type erasure.
-These approaches determine the data representation of polymorphic definitions in a static context.
-Our approach is based on the \textit{closed world assumption} as the entire program must be available in order for it to be executed.
+Polymorphic class definitions have a single uniform data representation after type erasure. these approaches determine the data representation of polymorphic definitions in a static context.
+Our approach is based on the \textit{closed-world assumption}.
 
 \section{Specialization in Scala}
 
@@ -87,7 +86,6 @@ Our approach generates a heterogeneous translation of a generic class definition
 \section{Truffle Interpreters}
 
 There are many Truffle interpreters in active development at the time of writing.
-This section will attempt to provide a brief survey of Truffle interpreters.
 TruffleRuby\cite{trufflyruby:specialization,truffleruby:object-model},FastR, Graal.js, Graal.Python,\cite{truffle:thesis} are some of the industrial implementations of dynamically typed languages implemented with Truffle.
 They all make substantial use of Truffle facilities, some discussed earlier in this thesis, to speculative optimize program execution. 
 Espresso\cite{graalvm:espresso} is an implementation of a Java bytecode interpreter in Truffle. 
