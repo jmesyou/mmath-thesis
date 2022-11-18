@@ -230,7 +230,6 @@ Normally, shapes are mutable, and their list of properties may change throughout
 However, programs that dynamically change the layout of their objects\cite{java:reflection} are beyond the scope of this thesis.
 
 \begin{figure}[!htb]
-\centering
 \begin{minted}{scala}
 class ClassDef(
 	name:        String,
@@ -248,12 +247,12 @@ class ClassShape(
 	vtable:  Map[MethodSignature, Symbol]
 ) extends Shape
 \end{minted}
-\label{impl:classshape}
 \caption{Pseudocode of \scalainline{ClassDef} and a shape for a \scalainline{ClassDef}.}
+\label{impl:class_shape}
 \end{figure}
 
-Recall the definition of a \scalainline{ClassDef} in figure \ref{impl:classshape}.
-Each \scalainline{ClassDef} tree can be transformed into a corresponding \scalainline{ClassShape}, given in figure \ref{impl:classshape}.
+Recall the definition of a \scalainline{ClassDef} in figure \ref{impl:class_shape}.
+Each \scalainline{ClassDef} tree can be transformed into a corresponding \scalainline{ClassShape}, given in figure \ref{impl:class_shape}.
 Figure \ref{impl:parse-classdef} provides a very simplified implementation of the steps to transform a \scalainline{ClassDef} into a \scalainline{ClassShape}.
 The \scalainline{name} parameter of \scalainline{ClassDef} alone is insufficient to be used as an identifier for a \scalainline{ClassShape}.
 Names do not disambiguate between classes of the same name declared in different packages.
@@ -545,6 +544,8 @@ abstract class ReadFieldNode extends TermNode {
 \label{impl:field-read-node}
 \end{figure}
 
+\newpage 
+
 However, fields may only be directly accessed in the immediate class scope.
 Field access from an outside context is achieved through an \scalainline{accessor}.
 Accessors are special methods generated in the compilation pipeline solely to access a field because the Scala compiler enforces the \textit{uniform access principle}\cite{beyer:oo-construction} for all programs.
@@ -595,7 +596,7 @@ class ReadLocalNode(local: Local) extends TermNode {
 \label{impl:local-global-node}
 \end{figure}
 
-Figure \ref{impl:local-global-node} provides the pseudocode implementations of \scalainline{ReadGlobalNode} and \scalainline{ReadLocalNode}.
+Figure \ref{impl:local-global-node} provides the pseudocode of \scalainline{ReadGlobalNode} and \scalainline{ReadLocalNode}.
 In our interpreter, local variables and method parameters are uniformly represented by the frame slot abstraction.
 During parsing, it is sufficient to maintain a mapping from symbols to a \scalainline{Local} to resolve which local variable is read.
 Truffle does not provide an abstraction for storing global values.
@@ -1113,6 +1114,16 @@ After the partial evaluation, the typed dispatch mechanism is also eliminated, a
 
 \subsection{Case Study: The Subset of a List}
 
+Recall the implementation of \scalainline{contains} given in figure \ref{example:cons-impl}.
+An implementation of a method using \scalainline{contains} to determine if a list is the subset of another is given in \ref{example:list-subset}.
+This case study is implemented for \scalainline{List[Int]} in order to showcase method specialization in the context of control flow without consideration for class specialization.
+More specifically, this case study will examine how repeated invocations of \scalainline{Cons.contains[Int]} will interact with the interpreter.
+
+In the initial execution of the \scalainline{subset} method in the interpreter, profiling information about call receiver types and type arguments are collected.
+The invocation of \scalainline{contains} during the first iteration of the loop given in line $3$, the virtual call is indirect and the specialization for \scalainline{contains[Int]} does not exist.
+First, the call target for the concrete implementation of \scalainline{contains} is resolved and entered into the inline cache.
+Second, the specialization for \scalainline{contains[Int]} is created and entered into the inner typed inline cache.
+
 \begin{figure}[!htb]
 \begin{minted}{scala}
 def subsetInt(fst: List[Int], snd: List[Int]): Boolean = {
@@ -1126,16 +1137,6 @@ def subsetInt(fst: List[Int], snd: List[Int]): Boolean = {
 \caption{Implementation of \scalainline{subset}.}
 \label{example:list-subset}
 \end{figure}
-
-Recall the implementation of \scalainline{contains} given in figure \ref{example:cons-impl}.
-An implementation of a method using \scalainline{contains} to determine if a list is the subset of another is given in \ref{example:list-subset}.
-This case study is implemented for \scalainline{List[Int]} in order to showcase method specialization in the context of control flow without consideration for class specialization.
-More specifically, this case study will examine how repeated invocations of \scalainline{Cons.contains[Int]} will interact with the interpreter.
-
-In the initial execution of the \scalainline{subset} method in the interpreter, profiling information about call receiver types and type arguments are collected.
-The invocation of \scalainline{contains} during the first iteration of the loop given in line $3$, the virtual call is indirect and the specialization for \scalainline{contains[Int]} does not exist.
-First, the call target for the concrete implementation of \scalainline{contains} is resolved and entered into the inline cache.
-Second, the specialization for \scalainline{contains[Int]} is created and entered into the inner typed inline cache.
 
 Invocations of \scalainline{contains} in subsequent iterations of the loop where the receiver type is stable, the virtual call is inline and forwarded to the specialization for \scalainline{Int}.
 Therefore, the invalidation condition in the JIT compiled variant of the code assumes the type of receiver has not changed.
@@ -1205,8 +1206,10 @@ The derivation of local frame values from monomorphic value definitions remains 
 
 \begin{figure}[!htb]
 \begin{minted}{scala}
-def generateLocal(types: Array[Type], defn: ValDef | TypeDef, desc: FrameDescriptor): LocalFrameVal = 
-	defn match {
+def generateLocal(
+	types: Array[Type], 
+	defn: ValDef | TypeDef, 
+	desc: FrameDescriptor): LocalFrameVal = defn match {
 		case tdef: TypeDef => 
 			val kind = FrameSlotKind.Object
 			val slot = desc.addSlot(kind)
@@ -1249,6 +1252,8 @@ def maximum[T <: Numeric](list: List[T]): Boolean =  {
 \label{impl:list-max}
 \end{figure}
 
+\newpage 
+
 In contrast, write operations of polymorphic frame values cannot be speculatively eliminated. 
 Because Truffle does not specialize data layouts, i.e., frames are determined by their descriptors, which in turn are determined by the guest language implementation, frame writes of polymorphic values will always have to be boxed.
 The elimination of boxed polymorphic writes from frame descriptor specialization is one of the major benefits when compared to the monomorphic interpreter.
@@ -1285,16 +1290,17 @@ We give the implementation of \scalainline{array_length} in figure \ref{impl:arr
 \begin{figure}[!htb]
 \begin{minted}{scala}
 def array_length(array: AnyRef): Int = {
-	if (array.isInstanceOf[Array[AnyRef]])       array.asInstanceOf[Array[AnyRef]].length
-	else if (array.isInstanceOf[Array[Int]])     array.asInstanceOf[Array[Int]].length
-	else if (array.isInstanceOf[Array[Double]])  array.asInstanceOf[Array[Double]].length
-	else if (array.isInstanceOf[Array[Long]])    array.asInstanceOf[Array[Long]].length
-	else if (array.isInstanceOf[Array[Float]])   array.asInstanceOf[Array[Float]].length
-	else if (array.isInstanceOf[Array[Char]])    array.asInstanceOf[Array[Char]].length
-	else if (array.isInstanceOf[Array[Byte]])    array.asInstanceOf[Array[Byte]].length
-	else if (array.isInstanceOf[Array[Short]])   array.asInstanceOf[Array[Short]].length
-	else if (array.isInstanceOf[Array[Boolean]]) array.asInstanceOf[Array[Boolean]].length
-	else throw new NullPointerException
+	if (array.isInstanceOf[Array[AnyRef]])       
+		array.asInstanceOf[Array[AnyRef]].length
+	else if (array.isInstanceOf[Array[Int]])     
+		array.asInstanceOf[Array[Int]].length
+	else if (array.isInstanceOf[Array[Double]])  
+		array.asInstanceOf[Array[Double]].length
+ 	...
+	else if (array.isInstanceOf[Array[Boolean]]) 
+		array.asInstanceOf[Array[Boolean]].length
+	else 
+		throw new NullPointerException
 }
 \end{minted}
 \caption{Implementation of \scalainline{array_length}}
@@ -1377,6 +1383,8 @@ Because type parameters are treated in the same manner as value parameters, they
 The resolution of type arguments that are parameters from a method follows the same mechanism as the resolution of local variables.
 This mechanism enjoys the same Truffle virtualization optimizations of value reads when propagating type arguments interprocedurally.
 Subsequent invocations of polymorphic methods that have type parameters stored on the frame will partial evaluate their specializations.
+
+\newpage 
 
 \section{Specializing Classes}
 
@@ -1469,14 +1477,6 @@ We can derive a specialization site for class definition by the reification of a
 Figure \ref{impl:applied-type-node} is an overview of the \scalainline{AppliedTypeNode} and its derivation from its TASTY type counterpart.
 In our subset of TASTy, an applied type represents an instantiation of a polymorphic type.
 
-\begin{figure}[!htb]
-\begin{minted}{scala}
-new List[Int]
-\end{minted}
-\caption{Example of creating instance of an applied type.}
-\label{example:applied-type}
-\end{figure}
-
 For example, consider the term, given in figure \ref{example:applied-type}, that returns an instance of a polymorphic type.
 The type \scalainline{List[Int]} is the result of the type application of \scalainline{List[T]} to \scalainline{Int}.
 We will refer to polymorphic applied types, such as \scalainline{List[T]}, as \textit{polymorphic} applied types. 
@@ -1484,10 +1484,10 @@ The data representation of a polymorphic applied type is undetermined; depending
 
 \begin{figure}[!htb]
 \begin{minted}{scala}
-NewNode(AppliedTypeNode(TypeRefNode("List"), Array(TypeRefNode("Int"))))
+new List[Int]
 \end{minted}
-\caption{TastyTruffle IR of creating an instance of an applied type.}
-\label{example:applied-type-node}
+\caption{Example of creating instance of an applied type.}
+\label{example:applied-type}
 \end{figure}
 
 When executable nodes are derived from polymorphic applied types, given in figure \ref{example:applied-type-node}, type arguments are resolved during runtime before application to their type constructor.
@@ -1497,6 +1497,14 @@ Therefore, each group of monomorphic applied types has a unique data representat
 For example, a \scalainline{List[Int]} and \scalainline{List[Double]} will each have a unique data representation, and the underlying layout of their instances will be different.
 However, a \scalainline{List[String]} and \scalainline{List[List[Int]]} will share the same data representation as their type arguments are reference types and will not see any benefit from independent specialization.
 Therefore, creating an object instance with a polymorphic class definition will have its shape determined when its created.
+
+\begin{figure}[!htb]
+\begin{minted}{scala}
+NewNode(AppliedTypeNode(TypeRefNode("List"), Array(TypeRefNode("Int"))))
+\end{minted}
+\caption{TastyTruffle IR of creating an instance of an applied type.}
+\label{example:applied-type-node}
+\end{figure}
 
 This approach also avoids the issue of \textit{name mangling}.
 Name mangling disambiguates distinct entities in a program that share the same name but do not inhabit the same namespace (e.g., a \javainline{package}).
@@ -1573,6 +1581,8 @@ def generateField(vdef: ValDef, types: Array[Type]): Field = vdef match {
 \caption{Extensions to generate a field from a polymorphic value definition.}
 \label{impl:generate-poly-field}
 \end{figure}
+
+\newpage 
 
 This section extends the translation scheme for generating shapes from class definitions to include polymorphic class definitions.
 There are two elements of data layout that must be determined when generating the shape of a polymorphic class definition.

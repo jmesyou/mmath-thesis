@@ -352,7 +352,7 @@ Terms can be considered analogous to expressions from the abstract syntax trees 
 Our term tree subset of TASTy represents a basic language with support for simple imperative programming with control flow constructs such as branching and loops.
 A basic set of object-oriented features is also encapsulated in the tree definitions above.
 The set of object-oriented features includes object creation, instance method invocation, and instance field access.
-This subset of TASTY is sufficient to represent the creation of polymorphic classes as well as the invocation of polymorphic methods to showcase the examples described in this thesis.
+This subset of TASTY is sufficient to represent the creation of polymorphic classes as well as the invocation of polymorphic methods to showcase the examples in this thesis.
 
 Terms in TASTy also retain their types after type checking by the Scala compiler.
 A type for a term describes the type of value produced by the term.
@@ -751,7 +751,7 @@ The resulting code supplied to the JIT compilation is the specialization of the 
 \begin{minted}{java}
 private Object execute_int_int0(int state, VirtualFrame frame) {
 	int lhs_int;
-%	try {
+	try {
 		lhs_int = this.lhs_.executeInt(frame);
 	} catch (UnexpectedResultException ex) {
 		Object rhs = this.rhs_.execute(frame);
