@@ -6,7 +6,7 @@ This chapter will describe the methods used to transform TASTy to make it suitab
 In particular, it will cover how to translate the organization of data and code in the \scalainline{DefDef}, \scalainline{ClassDef}, and \scalainline{Term} tree nodes into a Truffle implementation, which is amenable to execution and JIT optimization.
 Chapter \ref{implementation:specialization} will then discuss extensions to our implementation to support parametric polymorphism and cover the techniques we use to specialize nodes to eliminate autoboxing in the presence of polymorphism. 
 
-Scala programs in \acrshort{tasty} format are unsuitable for execution in a Truffle interpreter. 
+Scala programs in TASTy format are unsuitable for execution in a Truffle interpreter. 
 Programs in TASTy must be parsed and transformed into an executable representation in Truffle.
 These transformations translate the TASTy tree structure into a more straightforward but semantically equivalent Truffle AST.
 For the rest of this thesis, we refer to the Truffle AST of TASTy as \textit{TastyTruffle IR}.
@@ -120,7 +120,7 @@ def getFrameSlotKind(tpe: Type): FrameSlotKind =
 Each value definition in the parameters of a \scalainline{DefDef} will have a corresponding frame slot in its parent frame descriptor. 
 A frame slot references a unique frame value in the context of a root node.
 Truffle permits each frame slot in a frame descriptor to be described by a \textit{frame slot kind}.
-In Truffle, there is a corresponding frame slot kind for reference types and each \acrshort{jvm} primitive type. 
+In Truffle, there is a corresponding frame slot kind for reference types and each JVM primitive type. 
 The pseudocode of a frame slot kind and a method to convert a type into a slot kind is given in \ref{impl:frameslot-kind}.
 
 Truffle profiles frame accesses to minimize the amount of autoboxing that occurs when reading from a frame slot with an \javainline{Object} kind. 
@@ -478,7 +478,7 @@ In our subset of TASTy, this is the set of methods with private or final modifie
 Otherwise, the Truffle \textit{indirect call node} is used for calls where call targets must be dynamically resolved. 
 Using indirect calls instead of direct calls comes with a performance overhead as indirect call nodes are difficult to inline and inhibit Graal's dynamic intraprocedural analyses.
 In this thesis, we describe a call node implementation for both statically and dynamically dispatched calls. 
-In order to minimize the use of indirect call nodes, we take advantage of a polymorphic inline cache\cite{self:polymorphic-inline-caches} to eliminate the overhead of resolving virtual calls for \acrshort{jit} compilation. 
+In order to minimize the use of indirect call nodes, we take advantage of a polymorphic inline cache\cite{self:polymorphic-inline-caches} to eliminate the overhead of resolving virtual calls for JIT compilation. 
 
 Figure \ref{implementation:poly-cache-call-node} shows a simplified Truffle call node in \textsc{TastyTruffle} that implements a polymorphic inline cache.
 The \scalainline{ApplyNode} is declared using the Truffle DSL.

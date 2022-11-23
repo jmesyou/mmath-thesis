@@ -2,10 +2,10 @@
 
 In this chapter,  an introduction to the Scala programming language is provided. 
 A running example that will be used for the remainder of this thesis will showcase features commonly present in Scala programs. 
-\acrfull{tasty}, an intermediate storage format used for separate compilation of Scala programs will be described. 
+TASTy, an intermediate storage format used for separate compilation of Scala programs will be described. 
 Type erasure, a critical transformation will be introduced in this chapter. 
-Type erasure alters Scala programs so that they may be executable on their default platform, the \acrfull{jvm}. 
-The GraalVM \acrfull{jit} compiler infrastructure, an alternative JVM implementation that we use to implement a runtime for Scala, will be detailed.
+Type erasure alters Scala programs so that they may be executable on their default platform, the Java Virtual Machine (JVM). 
+The GraalVM JIT compiler infrastructure, an alternative JVM implementation that we use to implement a runtime for Scala, will be detailed.
 
 \section{Scala}
 
@@ -130,12 +130,12 @@ We provide the implementation of this class for completeness.
 
 \section{Typed Abstract Syntax Trees}
 
-An \acrfull{ir} is a structural abstraction representing a program during compilation or execution. 
+An Intermediate Representation (IR) is a structural abstraction representing a program during compilation or execution. 
 IRs are more suitable for reasoning about a program than program source code. 
 IR can be used for compilation\cite{llvm}, optimization\cite{llvm,ssa}, or execution\cite{java:vm-spec,clr:spec}.
 
-\acrfull{tasty} is a high-level IR which is produced and emitted after the type checking phase (also called the typer) of the Scala compiler (see appendix \ref{appendix:dotty-phases}).
-TASTy is a well-typed variation of an \acrfull{ast}.
+Typed Abstract Syntax Tree (TASTy) is a high-level IR produced and emitted after the type checking phase (also called the typer) of the Scala compiler (see appendix \ref{appendix:dotty-phases}).
+TASTy is a well-typed variation of an Abstract Syntax Tree (AST).
 ASTs are a commonly used intermediate representation that resembles the program source representation.
 TASTy can be considered a \textit{complete} IR of a Scala program before compilation, unlike the other intermediate representations we will examine throughout this thesis.
 A complete IR is able to capture all information of the original Scala source program.
@@ -546,7 +546,7 @@ In addition to this direct overhead, autoboxing is a significant indirect overhe
 \section{GraalVM}
 
 GraalVM\cite{java:graalvm} is an implementation of a JVM.
-Traditionally, the JVM is responsible for most of the performance optimizations in Java programs\cite{java:hotspot} through \acrfull{jit} compilation.
+Traditionally, the JVM is responsible for most of the performance optimizations in Java programs\cite{java:hotspot} through JIT compilation.
 JIT compilation is an adaptive optimization that occurs during program execution.
 JIT compilation is concerned with optimizing \textit{hotspots} or portions of the program executed most frequently.
 JIT compilers\cite{java:sablevm,java:jikesrvm} employ a range of \textit{speculative} techniques to transform the program under optimization.
@@ -581,7 +581,7 @@ In addition to a Truffle interpreter for Java bytecode\cite{graalvm:espresso}, t
 Graal IR\cite{graalvm:ir} is an IR suitable for speculative optimizations, while still retaining information from the Truffle guest language AST.
 Graal IR is based on the \textit{sea of nodes} concept\cite{click:sea-of-nodes} and satisfies the \textit{static single-assignment}\cite{ssa} property.
 A sea of nodes is an abstraction based on a directed graph structure that relates the control-flow graph\cite{allen:ctrl-flow-analysis} of a program to its data-flow graph\cite{allen:data-flow-analysis}.
-An intermediate representation is in single-static assignment form when each variable is defined before it is used.\cite{johnson:use-def-chains}.
+An intermediate representation is in single-static assignment (SSA) form when each variable is defined before it is used.\cite{johnson:use-def-chains}.
 
 GraalIR enables Graal to speculatively compile only the \textit{hot} branches\cite{graalvm:speculative-ir}, or branches that are most frequently taken in the control flow portion of the IR, and their transitive data dependencies.
 When a compiled program violates any underlying assumptions, execution is \textit{deoptimized}\cite{self:deoptimization} and the program resumes execution in the interpreter.
@@ -612,16 +612,16 @@ While the structure of input programs in other interpreters is independent of th
 More concretely, this means an implementation of a Truffle interpreter is a collection of subclasses that extend \javainline{Node} class and implement a \javainline{execute()} method.
 An interpreter is derived from implementing its input tree structure by defining execution semantics inside the AST to be executed.
 
-During the execution of the AST, profiling information collected from the interpreter is used to drive \textit{node rewriting} and just-in-time compilation.
+During the execution of the AST, profiling information collected from the interpreter is used to drive \textit{node rewriting} and JIT compilation.
 While Graal is language-agnostic, Truffle is able to exploit guest-language semantics for dynamic optimizations.
 This process of replacing nodes in the AST with better, specialized guest-language counterparts in Truffle is called node rewriting.
 Node rewriting makes Truffle abstract syntax trees self-optimizing and serves two purposes.
-The first is to incorporate guestlanguage semantics into the executing program dynamically.
+The first is to incorporate guest language semantics into the executing program dynamically.
 The second is to augment the AST for more efficient JIT compilation.
 The nature of compiler optimizations requires that programs are incrementally simplified in order to be optimized.
 While such types of optimizations are widely applicable to many languages using the JVM, node rewriting is a high-level language-specific optimization that occurs \textit{before} such simplifications.
 
-The self-optimizing execution semantics of the AST are implemented with the Truffle \acrfull{dsl}.
+The self-optimizing execution semantics of the AST are implemented with the Truffle Domain Specific Language (DSL).
 The Truffle DSL is a mechanism to allow a \textit{guest language} to integrate semantics into a Truffle AST for self-optimization.
 A guest language is a set of semantics, most commonly a programming language, encoded into a Truffle AST.
 In this thesis, the guest language that our Truffle AST encodes and executes is TASTy (which represents Scala).

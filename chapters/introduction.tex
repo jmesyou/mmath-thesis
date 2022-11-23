@@ -2,7 +2,7 @@
 
 \epigraph{The best presents don't come in boxes.}{Bill Watterson}
 
-\acrfull{jit} compilation has seen great success in implementing runtimes for objected-oriented programming languages.
+Just-in-time (JIT) compilation has seen great success in implementing runtimes for objected-oriented programming languages.
 It has effectively generated efficient machine code in the presence of virtual dispatch arising from \textit{subtype} polymorphism\cite{smalltalk:inline-caches,self:polymorphic-inline-caches}.
 While a call site may statically have many possible call targets, JIT compilation can incorporate dynamic runtime information to optimize the most frequently invoked call targets speculatively.
 These speculative optimizations often enable compiled code to be inlined, a critical transformation in the context of JIT compilation.
@@ -24,7 +24,7 @@ Therefore, the problem of specialization falls between static compilation and JI
 
 This thesis introduces \textsc{TastyTruffle}, an interpreter and JIT compiler that incorporates rich source-level type information with speculative optimizations to specialize data representations for the Scala programming language.
 \textsc{TastyTruffle} is implemented in Truffle, a framework that simplifies the implementation of a JIT compiler for a source language by implementing an interpreter for that language. 
-Our source language is the \acrfull{tasty} serialization format emitted by the Scala 3 compiler.
+Our source language is the Typed Abstract Syntax Tree (TASTy) serialization format emitted by the Scala 3 compiler.
 TASTy is an abstract syntax tree format emitted after parsing and type checking Scala programs.
 By using TASTy, source-level type information can be accessed without the need to parse and type check a Scala source program.
 
