@@ -336,7 +336,8 @@ protected def transformPhases: List[List[Phase]] =
 	List(
 		// Some transformations to put trees into a canonical form
 		new FirstTransform,
-		// Internal use only: Check that compiled program has no data races involving global vars         
+		// Internal use only: 
+		// Check that compiled program has no data races involving global vars         
 		new CheckReentrant,
 		// Eliminate references to package prefixes in Select nodes         
 		new ElimPackagePrefixes,    
@@ -382,7 +383,8 @@ protected def transformPhases: List[List[Phase]] =
 		new ExplicitSelf,           
 		// Expand by-name parameter references
 		new ElimByName,             
-		// Optimizes raw and s string interpolators by rewriting them to string concatentations
+		// Optimizes raw and s string interpolators 
+		// by rewriting them to string concatentations
 		new StringInterpolatorOpt) :: 
 	List(
 	 	// Drop erased definitions from scopes and simplify erased expressions
